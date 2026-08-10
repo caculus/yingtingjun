@@ -1,0 +1,33 @@
+# Local runtime / models (never publish)
+.venv/
+models/
+bin/
+workdir/
+uploads/
+notes/
+tools/speakrs_cli/target/
+
+# Personal transcripts & session handoff (PII / internal)
+HANDOFF.md
+output/*
+!output/.gitkeep
+
+# Audio (originals + converted)
+*.wav
+*.m4a
+*.mp3
+*.aac
+*.flac
+*.ogg
+*.caf
+*.aiff
+*.aif
+
+# Tooling
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+*.bak-check
+*.bak-range
+*.range-meta.json

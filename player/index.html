@@ -1,0 +1,2913 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英聽君</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1a2320;
+      --panel: #f3efe6;
+      --ink: #1c241f;
+      --muted: #5e6b64;
+      --line: rgba(28, 36, 31, 0.12);
+      --accent: #c4a35a;
+      --accent-soft: rgba(196, 163, 90, 0.28);
+      --speaker-1: #2f6f5e;
+      --speaker-2: #8b4d3b;
+      --glow: rgba(196, 163, 90, 0.55);
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+      --danger: #e8a090;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #2c3b35 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #3a2f24 0%, transparent 45%),
+        var(--bg);
+      color: var(--panel);
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1.1rem;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(243, 239, 230, 0.08);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(26, 35, 32, 0.92);
+    }
+
+    .brand-block {
+      flex: 0 1 auto;
+      min-width: min(100%, 160px);
+    }
+
+    .brand {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.25rem, 2.2vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: rgba(243, 239, 230, 0.68);
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      flex: 1 1 280px;
+    }
+
+    .file-actions label {
+      font-size: 0.85rem;
+      color: rgba(243, 239, 230, 0.7);
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      flex: 1 1 320px;
+      justify-content: flex-end;
+    }
+
+    select {
+      min-width: min(100%, 180px);
+      max-width: 280px;
+      border-radius: 999px;
+      border: 1px solid rgba(243, 239, 230, 0.24);
+      background: #24302c;
+      color: var(--panel);
+      padding: 0.55rem 0.9rem;
+      font: 500 0.92rem/1.2 "IBM Plex Sans", sans-serif;
+    }
+
+    button, .file-btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.65rem 1rem;
+      background: var(--accent);
+      color: #1a1710;
+      font: 600 0.9rem/1 "IBM Plex Sans", sans-serif;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease, opacity 160ms ease;
+      white-space: nowrap;
+    }
+    button:hover, .file-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
+    button:disabled, .file-btn:disabled, select:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+    button.secondary, .file-btn.secondary {
+      background: transparent;
+      color: var(--panel);
+      border: 1px solid rgba(243, 239, 230, 0.24);
+    }
+    button.danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid rgba(232, 160, 144, 0.45);
+    }
+    button.danger-fill {
+      background: #c46a58;
+      color: #1a1710;
+    }
+    .file-btn { display: inline-flex; align-items: center; }
+    #importInput { display: none; }
+
+    .transport {
+      display: grid;
+      gap: 0.35rem;
+      width: min(100%, 260px);
+      flex: 1 1 180px;
+    }
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.8rem;
+      color: rgba(243, 239, 230, 0.65);
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .log-panel {
+      margin: 0.85rem 1.5rem 0;
+      border: 1px solid rgba(243, 239, 230, 0.12);
+      border-radius: 14px;
+      background: rgba(12, 18, 16, 0.55);
+      overflow: hidden;
+      display: none;
+    }
+    .log-panel.visible { display: block; }
+    .log-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid rgba(243, 239, 230, 0.08);
+      font-size: 0.88rem;
+    }
+    .log-head .badge {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .log-head .badge.error { color: var(--danger); }
+    .log-body {
+      margin: 0;
+      max-height: 180px;
+      overflow: auto;
+      padding: 0.75rem 0.9rem 1rem;
+      font: 400 0.78rem/1.45 "IBM Plex Mono", ui-monospace, monospace;
+      white-space: pre-wrap;
+      color: rgba(243, 239, 230, 0.78);
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+      gap: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .stage-main {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .sheet {
+      margin: 1rem auto 1.25rem;
+      width: min(860px, calc(100% - 2rem));
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notes-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border-left: 1px solid rgba(243, 239, 230, 0.1);
+      background: rgba(18, 24, 22, 0.88);
+      padding: 0.85rem 0.9rem 1rem;
+      gap: 0.7rem;
+    }
+    .notes-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .notes-head h2 {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .notes-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .notes-hint {
+      margin: 0;
+      font-size: 0.78rem;
+      color: rgba(243, 239, 230, 0.55);
+      line-height: 1.4;
+    }
+    .notes-primary {
+      display: grid;
+      gap: 0.45rem;
+    }
+    .notes-primary .save-sentence-btn {
+      width: 100%;
+      font-weight: 600;
+    }
+    .loop-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: rgba(243, 239, 230, 0.8);
+      user-select: none;
+      cursor: pointer;
+    }
+    .loop-toggle input { accent-color: var(--accent); }
+    .notes-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.4rem;
+      transform: translateX(-50%) translateY(120%);
+      background: #1c2823;
+      color: var(--panel);
+      border: 1px solid rgba(196, 163, 90, 0.45);
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 220ms ease, opacity 220ms ease;
+      z-index: 40;
+    }
+    .notes-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .notes-advanced {
+      border: 1px solid rgba(243, 239, 230, 0.12);
+      border-radius: 12px;
+      padding: 0.35rem 0.55rem 0.55rem;
+      background: rgba(12, 16, 14, 0.35);
+    }
+    .notes-advanced summary {
+      cursor: pointer;
+      color: rgba(243, 239, 230, 0.7);
+      font-size: 0.8rem;
+      padding: 0.35rem 0.1rem;
+    }
+    .notes-form {
+      display: grid;
+      gap: 0.45rem;
+      padding: 0.35rem 0.15rem 0.15rem;
+    }
+    .notes-form label {
+      font-size: 0.75rem;
+      color: rgba(243, 239, 230, 0.65);
+    }
+    .notes-form textarea,
+    .notes-form input[type="text"] {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(243, 239, 230, 0.18);
+      background: #24302c;
+      color: var(--panel);
+      padding: 0.45rem 0.55rem;
+      font: 400 0.88rem/1.4 "IBM Plex Sans", sans-serif;
+      resize: vertical;
+    }
+    .notes-form textarea { min-height: 2.6rem; }
+    .notes-form .row-btns {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .notes-list {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .note-card {
+      border: 1px solid rgba(243, 239, 230, 0.12);
+      border-radius: 12px;
+      padding: 0.65rem 0.7rem;
+      background: rgba(243, 239, 230, 0.04);
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease;
+    }
+    .note-card:hover {
+      background: rgba(196, 163, 90, 0.1);
+      border-color: rgba(196, 163, 90, 0.35);
+    }
+    .note-card .note-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: rgba(243, 239, 230, 0.55);
+      margin-bottom: 0.3rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .note-card .note-word {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.82rem;
+      margin-bottom: 0.2rem;
+      cursor: pointer;
+    }
+    .note-lemmas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin: 0 0 0.35rem;
+    }
+    .note-lemma-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      max-width: 100%;
+      background: rgba(196, 163, 90, 0.18);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.12rem 0.28rem 0.12rem 0.55rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .note-lemma-chip:hover { background: rgba(196, 163, 90, 0.3); }
+    .note-lemma-chip .note-lemma-x {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: rgba(243, 239, 230, 0.7);
+      font: 700 0.85rem/1 "IBM Plex Sans", sans-serif;
+      padding: 0.05rem 0.35rem;
+      cursor: pointer;
+      border-radius: 999px;
+    }
+    .note-lemma-chip .note-lemma-x:hover {
+      color: var(--danger);
+      background: rgba(232, 160, 144, 0.15);
+      filter: none;
+      transform: none;
+    }
+    .note-en-word.in-lemmas {
+      text-decoration: underline;
+      text-decoration-color: rgba(196, 163, 90, 0.7);
+      text-underline-offset: 2px;
+    }
+    .note-card .note-en {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin: 0 0 0.25rem;
+    }
+    .note-card .note-en-word {
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .note-card .note-en-word:hover {
+      background: rgba(196, 163, 90, 0.32);
+    }
+    .note-card .note-zh {
+      font-size: 0.84rem;
+      color: rgba(243, 239, 230, 0.7);
+      line-height: 1.4;
+      margin: 0;
+    }
+    .note-card .note-actions {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+    .note-card .note-edit,
+    .note-card .note-del {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      font: 600 0.72rem/1 "IBM Plex Sans", sans-serif;
+      cursor: pointer;
+      padding: 0.1rem 0.2rem;
+    }
+    .note-card .note-edit { color: rgba(243, 239, 230, 0.75); }
+    .note-card .note-del {
+      color: var(--danger);
+    }
+    .notes-empty {
+      color: rgba(243, 239, 230, 0.45);
+      font-size: 0.85rem;
+      padding: 0.5rem 0.2rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 10, 0.62);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 1rem;
+    }
+    .modal-backdrop.visible { display: flex; }
+    .modal {
+      width: min(440px, 100%);
+      background: #1e2925;
+      border: 1px solid rgba(243, 239, 230, 0.14);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 1rem 1.1rem 1.1rem;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .modal h3 {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.2rem;
+    }
+    .modal label {
+      font-size: 0.78rem;
+      color: rgba(243, 239, 230, 0.65);
+    }
+    .modal textarea, .modal input[type="text"] {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(243, 239, 230, 0.18);
+      background: #24302c;
+      color: var(--panel);
+      padding: 0.5rem 0.6rem;
+      font: 400 0.9rem/1.4 "IBM Plex Sans", sans-serif;
+      resize: vertical;
+    }
+    .modal textarea { min-height: 3.2rem; }
+    .modal .row-btns {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      margin-top: 0.25rem;
+    }
+    .modal .time-hint {
+      font-size: 0.78rem;
+      color: rgba(243, 239, 230, 0.55);
+      font-variant-numeric: tabular-nums;
+    }
+    .modal-backdrop.confirm-backdrop { z-index: 55; }
+    .modal .confirm-message {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: rgba(243, 239, 230, 0.82);
+      white-space: pre-wrap;
+    }
+
+    .sheet-head {
+      padding: 1.25rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #f7f3ea, #efe9dc);
+    }
+    .sheet-head h2 {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.35rem;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .dot {
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.35rem;
+    }
+    .dot.s1 { background: var(--speaker-1); }
+    .dot.s2 { background: var(--speaker-2); }
+
+    .transcript {
+      padding: 0.75rem 0.75rem 2rem;
+      overflow: auto;
+      flex: 1;
+      min-height: 0;
+      scroll-behavior: smooth;
+    }
+
+    .turn {
+      position: relative;
+      padding: 0.85rem 1rem 0.85rem 1.15rem;
+      border-radius: 12px;
+      margin: 0.35rem 0;
+      border-left: 3px solid transparent;
+      transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+      cursor: pointer;
+    }
+    .turn:hover { background: rgba(28, 36, 31, 0.04); }
+    .turn.speaker-1 { border-left-color: var(--speaker-1); }
+    .turn.speaker-2 { border-left-color: var(--speaker-2); }
+    .turn.active {
+      background: linear-gradient(90deg, var(--accent-soft), rgba(196, 163, 90, 0.08));
+      box-shadow: inset 0 0 0 1px rgba(196, 163, 90, 0.35), 0 0 24px var(--glow);
+      transform: translateX(2px);
+    }
+    .turn.selected {
+      background: rgba(47, 111, 94, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(47, 111, 94, 0.45);
+    }
+    .turn.selected.active {
+      background: linear-gradient(90deg, rgba(47, 111, 94, 0.16), rgba(196, 163, 90, 0.1));
+      box-shadow:
+        inset 0 0 0 1px rgba(196, 163, 90, 0.45),
+        0 0 20px var(--glow);
+    }
+    .turn.in-range {
+      background: rgba(139, 77, 59, 0.1);
+      box-shadow: inset 3px 0 0 rgba(139, 77, 59, 0.55);
+    }
+    .turn.in-range.selected {
+      background: rgba(139, 77, 59, 0.16);
+    }
+    .range-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem 0.55rem;
+      margin: 0.65rem 0 0.35rem;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid rgba(28, 36, 31, 0.16);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ebe6db 0%, #e2ddd1 100%);
+      font-size: 0.82rem;
+    }
+    .range-bar .range-label {
+      font-weight: 700;
+      color: #1c241f;
+      margin-right: 0.15rem;
+      letter-spacing: 0.02em;
+    }
+    .range-bar .range-value {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: #1c241f;
+      background: #f7f4ec;
+      border: 1px solid rgba(28, 36, 31, 0.14);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      min-width: 9.5rem;
+    }
+    /* Light-panel buttons: never reuse topbar .secondary (cream-on-cream). */
+    .range-bar button {
+      font-size: 0.8rem;
+      padding: 0.42rem 0.78rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      transform: none;
+      filter: none;
+    }
+    .range-bar button:hover:not(:disabled) {
+      filter: none;
+      transform: translateY(-1px);
+    }
+    .range-bar button.range-mark {
+      background: #f7f4ec;
+      color: #1c241f;
+      border-color: rgba(28, 36, 31, 0.28);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+    }
+    .range-bar button.range-mark:hover:not(:disabled) {
+      background: #fffdf8;
+      border-color: rgba(28, 36, 31, 0.42);
+    }
+    .range-bar button.range-run {
+      background: #2f6f5e;
+      color: #f3efe6;
+      border-color: #245a4c;
+      box-shadow: 0 1px 2px rgba(28, 36, 31, 0.18);
+    }
+    .range-bar button.range-run:hover:not(:disabled) {
+      background: #38856f;
+    }
+    .range-bar button.range-restore {
+      background: transparent;
+      color: #8b4d3b;
+      border-color: rgba(139, 77, 59, 0.45);
+    }
+    .range-bar button.range-restore:hover:not(:disabled) {
+      background: rgba(139, 77, 59, 0.1);
+      border-color: rgba(139, 77, 59, 0.7);
+    }
+    .range-bar button:disabled {
+      opacity: 0.42;
+      box-shadow: none;
+    }
+
+    .dict-popover {
+      position: fixed;
+      z-index: 40;
+      width: min(360px, calc(100vw - 1.5rem));
+      max-height: min(70vh, 420px);
+      display: flex;
+      flex-direction: column;
+      padding: 0.85rem 0.95rem 0.9rem;
+      border-radius: 12px;
+      border: 1px solid rgba(28, 36, 31, 0.18);
+      background: #f7f4ec;
+      color: #1c241f;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+    .dict-popover[hidden] { display: none !important; }
+    .dict-popover .dict-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.55rem;
+      margin-bottom: 0.45rem;
+    }
+    .dict-popover .dict-lemma {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1c241f;
+    }
+    .dict-popover .dict-phonetic {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.85rem;
+      color: #5e6b64;
+    }
+    .dict-popover .dict-close-x {
+      margin-left: auto;
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #5e6b64;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 0.1rem 0.35rem;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .dict-popover .dict-close-x:hover {
+      background: rgba(28, 36, 31, 0.08);
+      color: #1c241f;
+      filter: none;
+      transform: none;
+    }
+    .dict-popover .dict-status {
+      font-size: 0.88rem;
+      color: #5e6b64;
+      margin: 0.25rem 0 0.5rem;
+    }
+    .dict-popover .dict-status.error { color: #8b4d3b; }
+    .dict-popover .dict-senses {
+      overflow: auto;
+      flex: 1 1 auto;
+      margin: 0.15rem 0 0.55rem;
+      padding-right: 0.2rem;
+    }
+    .dict-popover .dict-sense {
+      margin: 0 0 0.55rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid rgba(28, 36, 31, 0.1);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+    .dict-popover .dict-sense:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .dict-popover .dict-pos {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: lowercase;
+      color: #2f6f5e;
+      background: rgba(47, 111, 94, 0.12);
+      border-radius: 999px;
+      padding: 0.12rem 0.45rem;
+      margin-bottom: 0.25rem;
+    }
+    .dict-popover .dict-en { color: #1c241f; }
+    .dict-popover .dict-zh {
+      color: #1c241f;
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+    .dict-popover .dict-example {
+      margin: 0.25rem 0 0;
+      color: #5e6b64;
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+    .dict-popover .dict-context {
+      font-size: 0.8rem;
+      color: #5e6b64;
+      background: rgba(28, 36, 31, 0.05);
+      border-radius: 8px;
+      padding: 0.45rem 0.55rem;
+      margin-bottom: 0.65rem;
+      line-height: 1.4;
+      max-height: 4.2em;
+      overflow: hidden;
+    }
+    .dict-popover .dict-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+    .dict-popover .dict-actions button {
+      border-radius: 8px;
+      font-size: 0.82rem;
+      padding: 0.45rem 0.8rem;
+      font-weight: 600;
+    }
+    .dict-popover button.dict-save {
+      background: #2f6f5e;
+      color: #f3efe6;
+      border: 1px solid #245a4c;
+    }
+    .dict-popover button.dict-save:hover:not(:disabled) {
+      background: #38856f;
+      filter: none;
+    }
+    .dict-popover button.dict-dismiss {
+      background: #f7f4ec;
+      color: #1c241f;
+      border: 1px solid rgba(28, 36, 31, 0.28);
+    }
+    .dict-popover button.dict-dismiss:hover:not(:disabled) {
+      background: #fffdf8;
+      filter: none;
+    }
+    .note-card .note-dict {
+      margin: 0.2rem 0 0.35rem;
+      font-size: 0.78rem;
+      color: rgba(243, 239, 230, 0.72);
+      line-height: 1.35;
+      cursor: pointer;
+    }
+
+    .turn-meta {
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+      margin-bottom: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .speaker-label { font-weight: 600; color: var(--ink); }
+    .turn.speaker-1 .speaker-label { color: var(--speaker-1); }
+    .turn.speaker-2 .speaker-label { color: var(--speaker-2); }
+
+    .en { line-height: 1.7; font-size: 1.02rem; }
+    .word {
+      border-radius: 4px;
+      padding: 0.02rem 0.04rem;
+      transition: background 70ms linear, box-shadow 70ms linear;
+      scroll-margin-top: 5.5rem;
+      scroll-margin-bottom: 4.5rem;
+    }
+    .word.active {
+      background: rgba(196, 163, 90, 0.55);
+      box-shadow: 0 0 0 1px rgba(196, 163, 90, 0.4);
+    }
+    .word.spoken { background: rgba(196, 163, 90, 0.16); }
+    .zh {
+      margin: 0.55rem 0 0.1rem;
+      padding: 0.15rem 0.2rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    .turn.active .zh { color: #3d4a43; }
+
+    .status {
+      padding: 1rem 1.5rem;
+      color: rgba(243, 239, 230, 0.75);
+      flex: 1;
+      overflow: auto;
+    }
+    .error { color: #ffb4a8; }
+
+    audio { display: none; }
+
+    @media (max-width: 720px) {
+      .topbar { padding-left: 1rem; padding-right: 1rem; }
+      .brand-block, .file-actions, .controls { flex: 1 1 100%; }
+      .controls { justify-content: stretch; }
+      .transport { width: 100%; }
+      select { width: 100%; max-width: none; flex: 1 1 140px; }
+      .meta { max-width: 100%; }
+      .stage { grid-template-columns: 1fr; }
+      .notes-panel {
+        border-left: 0;
+        border-top: 1px solid rgba(243, 239, 230, 0.1);
+        max-height: 42vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <h1 class="brand">英聽君</h1>
+      <div class="meta" id="meta">載入中…</div>
+    </div>
+    <div class="file-actions">
+      <button class="secondary file-btn" id="importBtn" type="button">匯入音檔</button>
+      <input id="importInput" type="file" accept="audio/*,.m4a,.wav,.mp3,.aac,.flac,.ogg,.caf,.aiff,.aif" />
+      <label for="audioSelect">選擇音檔</label>
+      <select id="audioSelect">
+        <option value="">（載入匯入的音檔中…）</option>
+      </select>
+      <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
+      <button class="danger" id="deleteBtn" type="button" disabled>刪除</button>
+    </div>
+    <div class="controls">
+      <button id="playBtn" type="button">播放</button>
+      <button class="secondary" id="backBtn" type="button">-5s</button>
+      <button class="secondary" id="fwdBtn" type="button">+5s</button>
+      <div class="transport">
+        <input id="seek" type="range" min="0" max="0" step="0.01" value="0" />
+        <div class="time-row">
+          <span id="curTime">00:00</span>
+          <span id="durTime">00:00</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="log-panel" id="logPanel">
+    <div class="log-head">
+      <span id="logTitle">處理進度</span>
+      <span class="badge" id="logBadge">idle</span>
+    </div>
+    <pre class="log-body" id="logBody"></pre>
+  </div>
+
+  <main class="stage">
+    <div class="stage-main">
+      <div class="status" id="status">正在載入錄音與文稿…</div>
+      <section class="sheet" id="sheet" hidden>
+        <div class="sheet-head">
+          <h2 id="title">Transcript</h2>
+          <div class="legend">
+            <span><i class="dot s1"></i>SPEAKER_01</span>
+            <span><i class="dot s2"></i>SPEAKER_02</span>
+            <span>點詞查字典 · 點段落選中 · 選字松手存筆記 · 側欄「存當前句」</span>
+          </div>
+        </div>
+        <div class="range-bar" id="rangeBar">
+          <span class="range-label">局部重辨</span>
+          <span class="range-value" id="rangeValue">未標記</span>
+          <button class="range-mark" id="rangeStartBtn" type="button" title="用目前播放時間或選中段起點">設起點</button>
+          <button class="range-mark" id="rangeEndBtn" type="button" title="用目前播放時間或選中段終點">設終點</button>
+          <button class="range-mark" id="rangeFromTurnBtn" type="button" title="把選中段落設為範圍">用選中段</button>
+          <button class="range-run" id="rangeRunBtn" type="button" disabled>重辨這段</button>
+          <button class="range-restore" id="rangeRestoreBtn" type="button" disabled title="還原上次局部重辨前的文稿">還原</button>
+        </div>
+        <div class="transcript" id="transcript"></div>
+      </section>
+    </div>
+
+    <aside class="notes-panel" id="notesPanel">
+      <div class="notes-head">
+        <h2>學習筆記</h2>
+        <div class="notes-actions">
+          <label class="loop-toggle" title="點筆記時重複播放該句">
+            <input type="checkbox" id="loopNoteToggle" />
+            單句循環
+          </label>
+          <button class="secondary" id="exportNotesBtn" type="button">匯出 CSV</button>
+        </div>
+      </div>
+      <div class="notes-primary">
+        <button id="saveSentenceBtn" class="save-sentence-btn" type="button">存當前句</button>
+        <p class="notes-hint">文稿或筆記裡點單一英文詞可查詞典。同一則可寫入多個生字；chip 上 × 可移除該詞。點卡片空白處跳播。</p>
+      </div>
+      <div class="notes-list" id="notesList">
+        <div class="notes-empty">尚未載入錄音的筆記</div>
+      </div>
+      <details class="notes-advanced">
+        <summary>進階：手動新增</summary>
+        <form class="notes-form" id="manualNoteForm">
+          <label for="manualEn">英文句</label>
+          <textarea id="manualEn" placeholder="輸入英文例句…" required></textarea>
+          <label for="manualZh">中譯</label>
+          <textarea id="manualZh" placeholder="輸入中文翻譯…"></textarea>
+          <div class="row-btns">
+            <button type="submit">新增筆記</button>
+            <button class="secondary" type="button" id="manualUseTimeBtn">帶入目前時間</button>
+          </div>
+        </form>
+      </details>
+    </aside>
+  </main>
+
+  <div class="notes-toast" id="notesToast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop confirm-backdrop" id="confirmModal" aria-hidden="true">
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <h3 id="confirmTitle">確認</h3>
+      <p class="confirm-message" id="confirmMessage"></p>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="confirmCancel">取消</button>
+        <button type="button" id="confirmOk">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="noteModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="noteModalTitle">
+      <h3 id="noteModalTitle">編輯筆記</h3>
+      <div class="time-hint" id="noteModalTime"></div>
+      <label for="modalWord">詞／片語</label>
+      <input id="modalWord" type="text" />
+      <label for="modalEn">英文句</label>
+      <textarea id="modalEn"></textarea>
+      <label for="modalZh">中譯</label>
+      <textarea id="modalZh"></textarea>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="noteModalDict">查詞典</button>
+        <button class="secondary" type="button" id="noteModalRetranslate">NLLB 重翻</button>
+        <button class="secondary" type="button" id="noteModalCancel">取消</button>
+        <button type="button" id="noteModalSave">儲存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dict-popover" id="dictPopover" hidden role="dialog" aria-label="詞典">
+    <div class="dict-head">
+      <span class="dict-lemma" id="dictLemma">—</span>
+      <span class="dict-phonetic" id="dictPhonetic"></span>
+      <button class="dict-close-x" type="button" id="dictCloseX" aria-label="關閉">×</button>
+    </div>
+    <div class="dict-status" id="dictStatus">查詢中…</div>
+    <div class="dict-senses" id="dictSenses"></div>
+    <div class="dict-context" id="dictContext" hidden></div>
+    <div class="dict-actions">
+      <button class="dict-save" type="button" id="dictSaveBtn">存到筆記</button>
+      <button class="dict-dismiss" type="button" id="dictDismissBtn">關閉</button>
+    </div>
+  </div>
+
+  <audio id="audio" preload="metadata"></audio>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const playBtn = document.getElementById("playBtn");
+    const seek = document.getElementById("seek");
+    const curTime = document.getElementById("curTime");
+    const durTime = document.getElementById("durTime");
+    const transcriptEl = document.getElementById("transcript");
+    const statusEl = document.getElementById("status");
+    const sheetEl = document.getElementById("sheet");
+    const metaEl = document.getElementById("meta");
+    const titleEl = document.getElementById("title");
+    const importBtn = document.getElementById("importBtn");
+    const importInput = document.getElementById("importInput");
+    const audioSelect = document.getElementById("audioSelect");
+    const loadBtn = document.getElementById("loadBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const logPanel = document.getElementById("logPanel");
+    const logBody = document.getElementById("logBody");
+    const logBadge = document.getElementById("logBadge");
+    const logTitle = document.getElementById("logTitle");
+    const notesList = document.getElementById("notesList");
+    const exportNotesBtn = document.getElementById("exportNotesBtn");
+    const saveSentenceBtn = document.getElementById("saveSentenceBtn");
+    const loopNoteToggle = document.getElementById("loopNoteToggle");
+    const notesToast = document.getElementById("notesToast");
+    const manualNoteForm = document.getElementById("manualNoteForm");
+    const manualEn = document.getElementById("manualEn");
+    const manualZh = document.getElementById("manualZh");
+    const manualUseTimeBtn = document.getElementById("manualUseTimeBtn");
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmTitle = document.getElementById("confirmTitle");
+    const confirmMessage = document.getElementById("confirmMessage");
+    const confirmCancel = document.getElementById("confirmCancel");
+    const confirmOk = document.getElementById("confirmOk");
+    const noteModal = document.getElementById("noteModal");
+    const noteModalTime = document.getElementById("noteModalTime");
+    const modalWord = document.getElementById("modalWord");
+    const modalEn = document.getElementById("modalEn");
+    const modalZh = document.getElementById("modalZh");
+    const noteModalCancel = document.getElementById("noteModalCancel");
+    const noteModalSave = document.getElementById("noteModalSave");
+    const noteModalRetranslate = document.getElementById("noteModalRetranslate");
+    const noteModalDict = document.getElementById("noteModalDict");
+    const dictPopover = document.getElementById("dictPopover");
+    const dictLemma = document.getElementById("dictLemma");
+    const dictPhonetic = document.getElementById("dictPhonetic");
+    const dictStatus = document.getElementById("dictStatus");
+    const dictSenses = document.getElementById("dictSenses");
+    const dictContext = document.getElementById("dictContext");
+    const dictSaveBtn = document.getElementById("dictSaveBtn");
+    const dictDismissBtn = document.getElementById("dictDismissBtn");
+    const dictCloseX = document.getElementById("dictCloseX");
+    const rangeValue = document.getElementById("rangeValue");
+    const rangeStartBtn = document.getElementById("rangeStartBtn");
+    const rangeEndBtn = document.getElementById("rangeEndBtn");
+    const rangeFromTurnBtn = document.getElementById("rangeFromTurnBtn");
+    const rangeRunBtn = document.getElementById("rangeRunBtn");
+    const rangeRestoreBtn = document.getElementById("rangeRestoreBtn");
+
+    let tokens = [];
+    let turnsView = [];
+    let activeToken = -1;
+    let activeTurnIdx = -1;
+    let selectedTurnIdx = -1;
+    let seekOnNextPlay = false;
+    let seeking = false;
+    let rafId = 0;
+    let busy = false;
+    let pollTimer = 0;
+    let suppressSelectChange = false;
+    let scrollLockUntil = 0;
+    let pollInFlight = false;
+    let rangeStart = null;
+    let rangeEnd = null;
+    let hasRangeBackup = false;
+    let dictDraft = null;
+    let dictLookupSeq = 0;
+    let currentStem = "";
+    let notes = [];
+    let draftNote = null;
+    let manualStart = null;
+    let manualEnd = null;
+    let translating = false;
+    let loopRange = null;
+    let selectingInTranscript = false;
+    let toastTimer = 0;
+
+    function displayAudioName(name) {
+      if (!name) return "";
+      if (name.endsWith(".work.wav")) return name.slice(0, -".work.wav".length);
+      const dot = name.lastIndexOf(".");
+      return dot > 0 ? name.slice(0, dot) : name;
+    }
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function fmt(sec) {
+      if (!Number.isFinite(sec) || sec < 0) return "00:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${pad(m)}:${pad(s)}`;
+    }
+
+    function updateFileActionButtons() {
+      const has = Boolean(audioSelect.value);
+      loadBtn.disabled = busy || !has;
+      deleteBtn.disabled = busy || !has;
+      importBtn.disabled = busy;
+      audioSelect.disabled = busy;
+      updateRangeUI();
+    }
+
+    function setBusy(on, reason) {
+      busy = on;
+      importBtn.textContent = on ? "處理中…" : "匯入音檔";
+      updateFileActionButtons();
+      if (on && reason) metaEl.textContent = reason;
+    }
+
+    function showToastBusy() {
+      alert("處理中，請稍候再試。");
+    }
+
+    function turnOverlapsRange(turn) {
+      if (rangeStart == null || rangeEnd == null || rangeEnd <= rangeStart) return false;
+      const a0 = Number(turn.start) || 0;
+      const a1 = Number(turn.end) || 0;
+      return Math.min(a1, rangeEnd) > Math.max(a0, rangeStart);
+    }
+
+    function updateRangeUI() {
+      if (!rangeValue) return;
+      if (rangeStart == null && rangeEnd == null) {
+        rangeValue.textContent = "未標記";
+      } else if (rangeStart != null && rangeEnd == null) {
+        rangeValue.textContent = `${fmt(rangeStart)} → ?`;
+      } else if (rangeStart == null && rangeEnd != null) {
+        rangeValue.textContent = `? → ${fmt(rangeEnd)}`;
+      } else {
+        rangeValue.textContent = `${fmt(rangeStart)} → ${fmt(rangeEnd)}`;
+      }
+      const ready =
+        !busy &&
+        rangeStart != null &&
+        rangeEnd != null &&
+        rangeEnd > rangeStart &&
+        Boolean(currentStem);
+      rangeRunBtn.disabled = !ready;
+      rangeRestoreBtn.disabled = busy || !hasRangeBackup;
+      rangeStartBtn.disabled = busy;
+      rangeEndBtn.disabled = busy;
+      rangeFromTurnBtn.disabled = busy;
+      transcriptEl.querySelectorAll(".turn").forEach((el) => {
+        const idx = Number(el.dataset.turnIdx);
+        const turn = turnsView.find((t) => t.turnIdx === idx);
+        el.classList.toggle("in-range", Boolean(turn && turnOverlapsRange(turn)));
+      });
+    }
+
+    function markRangeStart() {
+      if (busy) return showToastBusy();
+      if (selectedTurnIdx >= 0) {
+        const turn = turnsView.find((t) => t.turnIdx === selectedTurnIdx);
+        if (turn) {
+          rangeStart = Number(turn.start) || 0;
+          updateRangeUI();
+          return;
+        }
+      }
+      rangeStart = Number(audio.currentTime) || 0;
+      updateRangeUI();
+    }
+
+    function markRangeEnd() {
+      if (busy) return showToastBusy();
+      if (selectedTurnIdx >= 0) {
+        const turn = turnsView.find((t) => t.turnIdx === selectedTurnIdx);
+        if (turn) {
+          rangeEnd = Number(turn.end) || 0;
+          updateRangeUI();
+          return;
+        }
+      }
+      rangeEnd = Number(audio.currentTime) || 0;
+      updateRangeUI();
+    }
+
+    function markRangeFromSelectedTurn() {
+      if (busy) return showToastBusy();
+      if (selectedTurnIdx < 0) {
+        alert("請先點選一個段落。");
+        return;
+      }
+      const turn = turnsView.find((t) => t.turnIdx === selectedTurnIdx);
+      if (!turn) return;
+      rangeStart = Number(turn.start) || 0;
+      rangeEnd = Number(turn.end) || 0;
+      updateRangeUI();
+    }
+
+    async function runRetranscribeRange() {
+      if (busy) return showToastBusy();
+      if (rangeStart == null || rangeEnd == null || rangeEnd <= rangeStart) {
+        alert("請先設定有效的起點與終點。");
+        return;
+      }
+      const span = rangeEnd - rangeStart;
+      if (span > 180) {
+        alert("第一版單次最多 180 秒，請縮小範圍。");
+        return;
+      }
+      const ok = await showConfirm({
+        title: "局部重辨",
+        message:
+          `將重辨並重譯 ${fmt(rangeStart)} → ${fmt(rangeEnd)}（約 ${span.toFixed(0)} 秒）。\n` +
+          "會先備份目前文稿，完成後可按「還原」。",
+        confirmLabel: "確定重辨",
+      });
+      if (!ok) return;
+      try {
+        const res = await fetch("/api/retranscribe-range", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ start: rangeStart, end: rangeEnd }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "無法開始局部重辨");
+          return;
+        }
+        updateLogUI(data.job);
+        startJobPolling();
+      } catch (err) {
+        alert("局部重辨失敗：" + (err.message || err));
+      }
+    }
+
+    async function restoreRetranscribeRange() {
+      if (busy) return showToastBusy();
+      if (!hasRangeBackup) {
+        alert("沒有可還原的快照。");
+        return;
+      }
+      const ok = await showConfirm({
+        title: "還原文稿",
+        message: "還原成上次局部重辨前的文稿？",
+        confirmLabel: "確定還原",
+      });
+      if (!ok) return;
+      try {
+        const res = await fetch("/api/retranscribe-restore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "還原失敗");
+          return;
+        }
+        hasRangeBackup = false;
+        showNotesToast(data.message || "已還原");
+        await loadCurrentSession();
+      } catch (err) {
+        alert("還原失敗：" + (err.message || err));
+      }
+    }
+
+    function clearPlayerUI(message) {
+      activeToken = -1;
+      activeTurnIdx = -1;
+      selectedTurnIdx = -1;
+      seekOnNextPlay = false;
+      rangeStart = null;
+      rangeEnd = null;
+      hasRangeBackup = false;
+      closeDictPopover();
+      updateRangeUI();
+      loopRange = null;
+      stopClock();
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+      playBtn.textContent = "播放";
+      tokens = [];
+      turnsView = [];
+      transcriptEl.innerHTML = "";
+      sheetEl.hidden = true;
+      statusEl.hidden = false;
+      statusEl.classList.remove("error");
+      statusEl.textContent = message || "尚未載入可播放的音檔／文稿。請使用「匯入音檔」或選擇後按「載入」。";
+      metaEl.textContent = "等待選擇錄音";
+      titleEl.textContent = "Transcript";
+      seek.value = "0";
+      seek.max = "0";
+      curTime.textContent = "00:00";
+      durTime.textContent = "00:00";
+      currentStem = "";
+      notes = [];
+      renderNotesList();
+    }
+
+    function normalizeWord(w) {
+      return String(w || "").trim();
+    }
+
+    function sentenceEndWord(text) {
+      return /[.!?。！？]["'”’)\]]*$/.test(String(text || "").trim());
+    }
+
+    function isPunctuationOnly(text) {
+      return /^[.!?。！？,"'”’)\]]+$/.test(String(text || "").trim());
+    }
+
+    function splitZhSentences(text) {
+      const raw = String(text || "").trim();
+      if (!raw) return [];
+      // Don't require whitespace after punctuation (中譯常無空格).
+      const parts = raw
+        .split(/(?<=[。！？.!?])/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      return parts.length ? parts : [raw];
+    }
+
+    function groupTokensIntoSentences(toks) {
+      const groups = [];
+      let buf = [];
+      toks.forEach((t, i) => {
+        buf.push(t);
+        const atEnd = i === toks.length - 1;
+        if (sentenceEndWord(t.text) || atEnd) {
+          if (
+            buf.length === 1 &&
+            isPunctuationOnly(buf[0].text) &&
+            groups.length &&
+            !atEnd
+          ) {
+            groups[groups.length - 1].push(buf[0]);
+            buf = [];
+            return;
+          }
+          groups.push(buf);
+          buf = [];
+        }
+      });
+      if (buf.length) groups.push(buf);
+      return groups;
+    }
+
+    function splitTextSentences(text) {
+      const raw = String(text || "").trim();
+      if (!raw) return [];
+      const parts = raw.split(/(?<=[.!?。！？])\s*/).map((s) => s.trim()).filter(Boolean);
+      return parts.length ? parts : [raw];
+    }
+
+    function zhSliceForRange(zhParts, startI, endI, enTotal) {
+      if (!zhParts.length || enTotal <= 0 || startI >= endI) return "";
+      if (zhParts.length === enTotal) return zhParts.slice(startI, endI).join("").trim();
+      const z0 = Math.round((startI * zhParts.length) / enTotal);
+      const z1 = Math.round((endI * zhParts.length) / enTotal);
+      const lo = Math.max(0, Math.min(zhParts.length - 1, z0));
+      const hi = Math.max(lo + 1, Math.min(zhParts.length, Math.max(z1, lo + 1)));
+      return zhParts.slice(lo, hi).join("").trim();
+    }
+
+    function splitTurnsMaxSentences(turns, maxSentences) {
+      const limit = Math.max(1, maxSentences || 3);
+      const out = [];
+      (turns || []).forEach((turn) => {
+        const words = (turn.words || []).filter((w) => w && String(w.word || "").trim());
+        const speaker = turn.speaker || "SPEAKER_01";
+        const textZhFull = (turn.text_zh || "").trim();
+
+        if (!words.length) {
+          const enParts = splitTextSentences(turn.text || "");
+          if (enParts.length <= limit) {
+            out.push(turn);
+            return;
+          }
+          const zhParts = splitZhSentences(textZhFull);
+          const enTotal = enParts.length;
+          const span = Math.max(0.05, (turn.end || 0) - (turn.start || 0));
+          for (let i = 0; i < enTotal; i += limit) {
+            const chunk = enParts.slice(i, i + limit);
+            const endI = Math.min(enTotal, i + limit);
+            out.push({
+              speaker,
+              start: (turn.start || 0) + span * (i / enTotal),
+              end: (turn.start || 0) + span * (endI / enTotal),
+              text: chunk.join(" ").trim(),
+              text_zh: zhSliceForRange(zhParts, i, endI, enTotal),
+              words: [],
+            });
+          }
+          return;
+        }
+
+        // Reuse word objects as lightweight tokens for grouping.
+        const toks = words.map((w, localIndex) => ({
+          localIndex,
+          text: String(w.word || "").trim(),
+          start: Number(w.start),
+          end: Number(w.end),
+          raw: w,
+        }));
+        const sentences = groupTokensIntoSentences(toks);
+        if (sentences.length <= limit) {
+          out.push(turn);
+          return;
+        }
+        const zhParts = splitZhSentences(textZhFull);
+        const enTotal = sentences.length;
+        for (let i = 0; i < enTotal; i += limit) {
+          const chunk = sentences.slice(i, i + limit);
+          const flatToks = chunk.flat();
+          const flatWords = flatToks.map((t) => t.raw);
+          const text = flatToks
+            .map((t, j) => t.text + (j === flatToks.length - 1 ? "" : " "))
+            .join("")
+            .replace(/\s+([,.;:!?])/g, "$1")
+            .trim();
+          const endI = Math.min(enTotal, i + limit);
+          out.push({
+            speaker,
+            start: flatToks[0].start,
+            end: flatToks[flatToks.length - 1].end,
+            text,
+            text_zh: zhSliceForRange(zhParts, i, endI, enTotal),
+            words: flatWords,
+          });
+        }
+      });
+      return out;
+    }
+
+    function buildKaraoke(turns) {
+      const view = [];
+      const flat = [];
+      turns.forEach((turn, turnIdx) => {
+        const text = (turn.text || "").trim();
+        if (!text) return;
+        const words = (turn.words || []).filter((w) => w && w.start != null && w.end != null && normalizeWord(w.word));
+        const local = [];
+
+        if (words.length) {
+          words.forEach((w, wi) => {
+            local.push({
+              turnIdx,
+              localIndex: wi,
+              globalIndex: -1,
+              text: normalizeWord(w.word),
+              start: Number(w.start),
+              end: Number(w.end),
+            });
+          });
+          for (let i = 0; i < local.length - 1; i++) {
+            const gap = local[i + 1].start - local[i].end;
+            if (gap > 0 && gap < 0.45) local[i].end = local[i + 1].start;
+          }
+        } else {
+          const parts = text.split(/\s+/).filter(Boolean);
+          const span = Math.max(0.05, (turn.end || 0) - (turn.start || 0));
+          parts.forEach((p, i) => {
+            local.push({
+              turnIdx,
+              localIndex: i,
+              globalIndex: -1,
+              text: p,
+              start: turn.start + (span * i) / parts.length,
+              end: turn.start + (span * (i + 1)) / parts.length,
+            });
+          });
+        }
+
+        local.forEach((tok) => {
+          tok.globalIndex = flat.length;
+          flat.push(tok);
+        });
+
+        view.push({
+          turnIdx,
+          speaker: turn.speaker,
+          start: turn.start,
+          end: turn.end,
+          textEn: text,
+          textZh: (turn.text_zh || "").trim(),
+          tokens: local,
+        });
+      });
+      return { view, flat };
+    }
+
+    function selectTurn(turnIdx, { armSeek = true } = {}) {
+      selectedTurnIdx = turnIdx;
+      transcriptEl.querySelectorAll(".turn.selected").forEach((el) => el.classList.remove("selected"));
+      const turnEl = transcriptEl.querySelector(`.turn[data-turn-idx="${turnIdx}"]`);
+      if (turnEl) turnEl.classList.add("selected");
+      if (armSeek) seekOnNextPlay = true;
+      updateRangeUI();
+    }
+
+    function render(view) {
+      transcriptEl.innerHTML = "";
+      view.forEach((turn) => {
+        const turnEl = document.createElement("article");
+        turnEl.className = `turn ${turn.speaker === "SPEAKER_02" ? "speaker-2" : "speaker-1"}`;
+        if (turnOverlapsRange(turn)) turnEl.classList.add("in-range");
+        turnEl.dataset.turnIdx = String(turn.turnIdx);
+        turnEl.innerHTML = `
+          <div class="turn-meta">
+            <span class="speaker-label">${turn.speaker}</span>
+            <span>${fmt(turn.start)} → ${fmt(turn.end)}</span>
+          </div>
+        `;
+        const enEl = document.createElement("div");
+        enEl.className = "en";
+        turn.tokens.forEach((tok, i) => {
+          const span = document.createElement("span");
+          span.className = "word";
+          span.dataset.g = String(tok.globalIndex);
+          span.textContent = tok.text + (i === turn.tokens.length - 1 ? "" : " ");
+          span.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const sel = window.getSelection();
+            if (sel && !sel.isCollapsed && transcriptEl.contains(sel.anchorNode)) {
+              return;
+            }
+            openDictForToken(tok, span);
+          });
+          enEl.appendChild(span);
+        });
+        turnEl.appendChild(enEl);
+        if (turn.textZh) {
+          const zhEl = document.createElement("p");
+          zhEl.className = "zh";
+          zhEl.textContent = turn.textZh;
+          turnEl.appendChild(zhEl);
+        }
+        turnEl.addEventListener("click", (e) => {
+          // Don't steal a drag-selection inside the transcript.
+          const sel = window.getSelection();
+          if (sel && !sel.isCollapsed && transcriptEl.contains(sel.anchorNode)) {
+            return;
+          }
+          e.preventDefault();
+          selectTurn(turn.turnIdx, { armSeek: true });
+        });
+        transcriptEl.appendChild(turnEl);
+      });
+    }
+
+    function findTokenIndex(t) {
+      if (!tokens.length) return -1;
+      let lo = 0, hi = tokens.length - 1, ans = 0;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        if (tokens[mid].start <= t) { ans = mid; lo = mid + 1; }
+        else hi = mid - 1;
+      }
+      const cur = tokens[ans];
+      const next = tokens[ans + 1];
+      if (t < cur.start) return Math.max(0, ans - 1);
+      if (next && t >= next.start) return ans + 1;
+      if (t <= cur.end + 0.12) return ans;
+      if (next && t < next.start) return ans;
+      return ans;
+    }
+
+    function ensureActiveVisible(el) {
+      if (!el) return;
+      const now = performance.now();
+      if (now < scrollLockUntil) return;
+
+      const topbar = document.querySelector(".topbar");
+      const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+      const margin = 56;
+      const safeTop = Math.max(topbarBottom, 0) + margin;
+      const safeBottom = window.innerHeight - margin;
+      const rect = el.getBoundingClientRect();
+
+      // Still comfortably inside the browser reading area — no scroll.
+      if (rect.top >= safeTop && rect.bottom <= safeBottom) return;
+
+      scrollLockUntil = now + 380;
+      el.scrollIntoView({ block: "center", behavior: "smooth", inline: "nearest" });
+    }
+
+    function updateHighlight(t) {
+      const idx = findTokenIndex(t);
+      if (idx < 0) return;
+      if (idx !== activeToken) {
+        const prev = transcriptEl.querySelector(".word.active");
+        if (prev) prev.classList.remove("active");
+        const turnIdx = tokens[idx].turnIdx;
+        if (turnIdx !== activeTurnIdx) {
+          transcriptEl.querySelectorAll(".word.spoken").forEach((el) => el.classList.remove("spoken"));
+          const prevTurn = transcriptEl.querySelector(".turn.active");
+          if (prevTurn) prevTurn.classList.remove("active");
+          const turnEl = transcriptEl.querySelector(`.turn[data-turn-idx="${turnIdx}"]`);
+          if (turnEl) turnEl.classList.add("active");
+          activeTurnIdx = turnIdx;
+        }
+        const turnStartGlobal = tokens.findIndex((x) => x.turnIdx === turnIdx);
+        for (let g = turnStartGlobal; g < idx; g++) {
+          const el = transcriptEl.querySelector(`.word[data-g="${g}"]`);
+          if (el) el.classList.add("spoken");
+        }
+        for (let g = idx; g < tokens.length && tokens[g].turnIdx === turnIdx; g++) {
+          const el = transcriptEl.querySelector(`.word[data-g="${g}"]`);
+          if (el) el.classList.remove("spoken");
+        }
+        const next = transcriptEl.querySelector(`.word[data-g="${idx}"]`);
+        if (next) {
+          next.classList.add("active");
+          ensureActiveVisible(next);
+        }
+        activeToken = idx;
+      }
+    }
+
+    function tick() {
+      if (!seeking) {
+        let t = audio.currentTime;
+        if (loopRange && !audio.paused && t >= loopRange.end - 0.03) {
+          audio.currentTime = loopRange.start;
+          t = loopRange.start;
+        }
+        seek.value = String(t);
+        curTime.textContent = fmt(t);
+        updateHighlight(t);
+      }
+      if (!audio.paused && !audio.ended) rafId = requestAnimationFrame(tick);
+      else rafId = 0;
+    }
+    function startClock() { if (!rafId) rafId = requestAnimationFrame(tick); }
+    function stopClock() { if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } }
+
+    function seekTo(t, { autoPlay = false } = {}) {
+      audio.currentTime = Math.max(0, Math.min(t, audio.duration || t));
+      updateHighlight(audio.currentTime);
+      curTime.textContent = fmt(audio.currentTime);
+      seek.value = String(audio.currentTime);
+      if (autoPlay) {
+        if (audio.paused) {
+          audio.play().then(startClock).catch(() => {});
+          playBtn.textContent = "暫停";
+        } else {
+          startClock();
+        }
+      } else if (!audio.paused) {
+        startClock();
+      }
+    }
+
+    playBtn.addEventListener("click", async () => {
+      if (busy) return showToastBusy();
+      if (audio.paused) {
+        if (seekOnNextPlay && selectedTurnIdx >= 0) {
+          loopRange = null;
+          const turn = turnsView.find((t) => t.turnIdx === selectedTurnIdx);
+          if (turn && Number.isFinite(turn.start)) {
+            audio.currentTime = Math.max(0, Math.min(turn.start, audio.duration || turn.start));
+            updateHighlight(audio.currentTime);
+            curTime.textContent = fmt(audio.currentTime);
+            seek.value = String(audio.currentTime);
+          }
+          seekOnNextPlay = false;
+        }
+        await audio.play();
+        playBtn.textContent = "暫停";
+        startClock();
+      } else {
+        audio.pause();
+        playBtn.textContent = "播放";
+        stopClock();
+      }
+    });
+    document.getElementById("backBtn").addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      seekTo(audio.currentTime - 5, { autoPlay: false });
+    });
+    document.getElementById("fwdBtn").addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      seekTo(audio.currentTime + 5, { autoPlay: false });
+    });
+
+    seek.addEventListener("input", () => {
+      seeking = true;
+      curTime.textContent = fmt(Number(seek.value));
+      updateHighlight(Number(seek.value));
+    });
+    seek.addEventListener("change", () => {
+      audio.currentTime = Number(seek.value);
+      seeking = false;
+      startClock();
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      seek.max = String(audio.duration || 0);
+      durTime.textContent = fmt(audio.duration || 0);
+    });
+    audio.addEventListener("play", () => { playBtn.textContent = "暫停"; startClock(); });
+    audio.addEventListener("pause", () => {
+      playBtn.textContent = "播放";
+      stopClock();
+      updateHighlight(audio.currentTime);
+    });
+    audio.addEventListener("ended", () => { playBtn.textContent = "播放"; stopClock(); });
+    audio.addEventListener("timeupdate", () => {
+      if (!seeking && audio.paused) {
+        seek.value = String(audio.currentTime);
+        curTime.textContent = fmt(audio.currentTime);
+        updateHighlight(audio.currentTime);
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.target.matches("input, textarea, select")) return;
+      if (confirmModal.classList.contains("visible") || noteModal.classList.contains("visible")) return;
+      if (e.code === "Space") {
+        e.preventDefault();
+        playBtn.click();
+      } else if (e.code === "ArrowLeft") seekTo(audio.currentTime - 5, { autoPlay: false });
+      else if (e.code === "ArrowRight") seekTo(audio.currentTime + 5, { autoPlay: false });
+    });
+
+    function updateLogUI(job) {
+      if (!job || job.status === "idle") {
+        if (!busy) logPanel.classList.remove("visible");
+        return;
+      }
+      logPanel.classList.add("visible");
+      logTitle.textContent = job.message || "處理進度";
+      logBadge.textContent = job.status;
+      logBadge.classList.toggle("error", job.status === "error");
+      const lines = job.logs || [];
+      logBody.textContent = lines.join("\n");
+      logBody.scrollTop = logBody.scrollHeight;
+    }
+
+    async function refreshLibrary(selectedName) {
+      const data = await fetch("/api/library?t=" + Date.now()).then((r) => r.json());
+      const files = data.files || [];
+      suppressSelectChange = true;
+      audioSelect.innerHTML = "";
+      if (!files.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "（目前沒有匯入的音檔）";
+        audioSelect.appendChild(opt);
+      } else {
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "選擇匯入的音檔…";
+        audioSelect.appendChild(placeholder);
+        files.forEach((f) => {
+          const opt = document.createElement("option");
+          opt.value = f.name;
+          const label = f.stem || displayAudioName(f.name);
+          const mark = f.has_transcript ? "" : "（尚未匯入）";
+          opt.textContent = `${label}${mark}`;
+          if (selectedName ? f.name === selectedName : f.selected) opt.selected = true;
+          audioSelect.appendChild(opt);
+        });
+      }
+      suppressSelectChange = false;
+      updateFileActionButtons();
+    }
+
+    function showNotesToast(message) {
+      notesToast.textContent = message;
+      notesToast.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => notesToast.classList.remove("show"), 1800);
+    }
+
+    function renderNotesList() {
+      notesList.innerHTML = "";
+      if (!currentStem) {
+        notesList.innerHTML = `<div class="notes-empty">尚未載入錄音的筆記</div>`;
+        return;
+      }
+      if (!notes.length) {
+        notesList.innerHTML = `<div class="notes-empty">尚無筆記。按「存當前句」，或拖選英文松手即存。</div>`;
+        return;
+      }
+      notes.forEach((n) => {
+        const card = document.createElement("article");
+        card.className = "note-card";
+        const timeLabel = n.start != null ? fmt(Number(n.start)) : "—";
+        const lemmas = noteLemmas(n);
+        const lemmaSet = new Set(lemmas.map((x) => String(x.lemma || "").toLowerCase()).filter(Boolean));
+
+        const meta = document.createElement("div");
+        meta.className = "note-meta";
+        meta.innerHTML = `
+          <span>${timeLabel}</span>
+          <div class="note-actions">
+            <button class="note-edit" type="button" data-id="${n.id}">編輯</button>
+            <button class="note-del" type="button" data-id="${n.id}">刪除</button>
+          </div>
+        `;
+        card.appendChild(meta);
+
+        if (lemmas.length) {
+          const row = document.createElement("div");
+          row.className = "note-lemmas";
+          lemmas.forEach((item) => {
+            const chip = document.createElement("span");
+            chip.className = "note-lemma-chip";
+            const s0 = Array.isArray(item.senses) && item.senses[0] ? item.senses[0] : null;
+            const tip = [item.phonetic, s0 && (s0.zh || s0.en)].filter(Boolean).join(" · ");
+            chip.title = tip || "點擊查詞典";
+            const label = document.createElement("span");
+            label.textContent = item.lemma || "";
+            chip.appendChild(label);
+            const xBtn = document.createElement("button");
+            xBtn.type = "button";
+            xBtn.className = "note-lemma-x";
+            xBtn.setAttribute("aria-label", "移除此生字");
+            xBtn.textContent = "×";
+            xBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await removeNoteLemma(n, item.lemma);
+            });
+            chip.appendChild(xBtn);
+            chip.addEventListener("click", (e) => {
+              if (e.target.closest(".note-lemma-x")) return;
+              e.preventDefault();
+              e.stopPropagation();
+              openDictForNote(n, item.lemma, chip);
+            });
+            row.appendChild(chip);
+          });
+          card.appendChild(row);
+        }
+        const enEl = document.createElement("p");
+        enEl.className = "note-en";
+        appendEnglishWithDictHits(enEl, n.text_en || "", (chunk, span) => {
+          openDictForNote(n, chunk, span);
+        }, lemmaSet);
+        card.appendChild(enEl);
+        if (n.text_zh) {
+          const zhEl = document.createElement("p");
+          zhEl.className = "note-zh";
+          zhEl.textContent = n.text_zh;
+          card.appendChild(zhEl);
+        }
+
+        card.addEventListener("click", (e) => {
+          if (e.target.closest(".note-del") || e.target.closest(".note-edit")) return;
+          if (
+            e.target.closest(".note-en-word") ||
+            e.target.closest(".note-word") ||
+            e.target.closest(".note-dict") ||
+            e.target.closest(".note-lemma-chip")
+          ) {
+            return;
+          }
+          playNote(n);
+        });
+        card.querySelector(".note-edit").addEventListener("click", (e) => {
+          e.stopPropagation();
+          openEditNoteModal(n);
+        });
+        card.querySelector(".note-del").addEventListener("click", async (e) => {
+          e.stopPropagation();
+          await deleteNote(n.id);
+        });
+        notesList.appendChild(card);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function loadNotes(stem) {
+      currentStem = stem || "";
+      if (!currentStem) {
+        notes = [];
+        renderNotesList();
+        return;
+      }
+      try {
+        const data = await fetch("/api/notes?stem=" + encodeURIComponent(currentStem) + "&t=" + Date.now()).then((r) => r.json());
+        notes = data.notes || [];
+      } catch (err) {
+        notes = [];
+        console.warn("load notes failed", err);
+      }
+      renderNotesList();
+    }
+
+    function joinTokenTexts(toks) {
+      return toks
+        .map((t, i) => t.text + (i === toks.length - 1 ? "" : " "))
+        .join("")
+        .replace(/\s+([,.;:!?])/g, "$1")
+        .trim();
+    }
+
+    function alignZhForSentence(fullZh, sentenceIndex, enGroupCount) {
+      const full = String(fullZh || "").trim();
+      if (!full) return "";
+      if (enGroupCount <= 1) return full;
+      const zhParts = splitZhSentences(full);
+      if (!zhParts.length) return full;
+      if (zhParts.length === 1) return zhParts[0];
+      if (zhParts.length === enGroupCount) return zhParts[sentenceIndex] || "";
+      const mapped = Math.round(
+        (sentenceIndex * (zhParts.length - 1)) / Math.max(1, enGroupCount - 1)
+      );
+      return zhParts[Math.max(0, Math.min(zhParts.length - 1, mapped))] || "";
+    }
+
+    function extractSentenceAroundToken(turn, tok) {
+      const toks = turn.tokens || [];
+      if (!toks.length) {
+        return {
+          word: tok && tok.text ? tok.text : "",
+          text_en: turn.textEn || "",
+          text_zh: (turn.textZh || "").trim(),
+          start: turn.start,
+          end: turn.end,
+        };
+      }
+      const idx = Math.max(0, Math.min(tok.localIndex, toks.length - 1));
+      const enGroups = groupTokensIntoSentences(toks);
+      let sentenceIndex = enGroups.findIndex((g) => g.some((t) => t.localIndex === idx));
+      if (sentenceIndex < 0) sentenceIndex = 0;
+      const slice = enGroups[sentenceIndex] || toks;
+      return {
+        word: tok.text || slice[0].text || "",
+        text_en: joinTokenTexts(slice),
+        text_zh: alignZhForSentence(turn.textZh || "", sentenceIndex, enGroups.length),
+        start: slice[0].start,
+        end: slice[slice.length - 1].end,
+      };
+    }
+
+    function zhForHitTokens(hit) {
+      if (!hit.length) return "";
+      const byTurn = new Map();
+      hit.forEach((tok) => {
+        if (!byTurn.has(tok.turnIdx)) byTurn.set(tok.turnIdx, []);
+        byTurn.get(tok.turnIdx).push(tok);
+      });
+      const parts = [];
+      for (const [turnIdx, toks] of byTurn.entries()) {
+        const turn = turnsView.find((t) => t.turnIdx === turnIdx);
+        if (!turn) continue;
+        const locals = new Set(toks.map((t) => t.localIndex));
+        const groups = groupTokensIntoSentences(turn.tokens || []);
+        const covered = [];
+        groups.forEach((g, gi) => {
+          if (g.some((t) => locals.has(t.localIndex))) covered.push(gi);
+        });
+        if (!covered.length) {
+          if (turn.textZh) parts.push(turn.textZh);
+          continue;
+        }
+        const lo = Math.min(...covered);
+        const hi = Math.max(...covered);
+        for (let i = lo; i <= hi; i++) {
+          const zh = alignZhForSentence(turn.textZh || "", i, groups.length);
+          if (zh) parts.push(zh);
+        }
+      }
+      return parts.join("").trim();
+    }
+
+    function getTranscriptSelectionPayload() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+      const range = sel.getRangeAt(0);
+      if (!transcriptEl.contains(range.commonAncestorContainer)) return null;
+
+      const hit = [];
+      transcriptEl.querySelectorAll(".word").forEach((el) => {
+        try {
+          if (!range.intersectsNode(el)) return;
+        } catch (_) {
+          return;
+        }
+        const g = Number(el.dataset.g);
+        const tok = tokens[g];
+        if (tok) hit.push(tok);
+      });
+      if (!hit.length) {
+        const raw = sel.toString().replace(/\s+/g, " ").trim();
+        if (!raw) return null;
+        return {
+          word: raw.split(/\s+/)[0] || "",
+          text_en: raw,
+          text_zh: "",
+          start: null,
+          end: null,
+        };
+      }
+      hit.sort((a, b) => a.globalIndex - b.globalIndex);
+      return {
+        word: hit[0].text || "",
+        text_en: joinTokenTexts(hit),
+        text_zh: zhForHitTokens(hit),
+        start: hit[0].start,
+        end: hit[hit.length - 1].end,
+      };
+    }
+
+    function getCurrentSentencePayload() {
+      if (!tokens.length || !turnsView.length) return null;
+      const idx = activeToken >= 0 ? activeToken : findTokenIndex(audio.currentTime || 0);
+      if (idx < 0 || !tokens[idx]) return null;
+      const tok = tokens[idx];
+      const turn = turnsView.find((t) => t.turnIdx === tok.turnIdx);
+      if (!turn) return null;
+      return extractSentenceAroundToken(turn, tok);
+    }
+
+    function isDuplicateNote(payload) {
+      const en = (payload.text_en || "").trim();
+      if (!en) return false;
+      return notes.some((n) => {
+        if ((n.text_en || "").trim() !== en) return false;
+        const w = (payload.word || "").trim().toLowerCase();
+        const nw = (n.word || "").trim().toLowerCase();
+        if (w && nw && w !== nw) return false;
+        if (payload.start == null || n.start == null) return true;
+        return Math.abs(Number(n.start) - Number(payload.start)) < 0.35;
+      });
+    }
+
+    function normalizeDictLemma(text) {
+      const raw = String(text || "").trim();
+      if (!raw || /\s/.test(raw)) return "";
+      const cleaned = raw
+        .replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, "")
+        .replace(/\u2019/g, "'")
+        .toLowerCase()
+        .replace(/^'+|'+$/g, "");
+      if (!/^[a-z]+(?:'[a-z]+)?(?:-[a-z]+)*$/.test(cleaned)) return "";
+      return cleaned;
+    }
+
+    function noteLemmas(n) {
+      const seen = new Set();
+      const out = [];
+      const raw = n && Array.isArray(n.lemmas) ? n.lemmas : [];
+      raw.forEach((item) => {
+        if (!item || typeof item !== "object") return;
+        const lemma = String(item.lemma || "").trim();
+        const key = lemma.toLowerCase();
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        out.push(item);
+      });
+      if (out.length) return out;
+      if (n && n.dict && typeof n.dict === "object" && (n.dict.lemma || n.word)) {
+        return [{
+          lemma: n.dict.lemma || n.word,
+          phonetic: n.dict.phonetic || "",
+          senses: n.dict.senses || [],
+          source: n.dict.source || "",
+        }];
+      }
+      if (n && n.word) {
+        return [{ lemma: n.word, phonetic: "", senses: [], source: "" }];
+      }
+      return [];
+    }
+
+    function appendEnglishWithDictHits(container, text, onWordClick, lemmaSet) {
+      const raw = String(text || "");
+      if (!raw) return;
+      const saved = lemmaSet instanceof Set ? lemmaSet : new Set();
+      const re = /[A-Za-z]+(?:'[A-Za-z]+)?(?:-[A-Za-z]+)*|[^A-Za-z]+/g;
+      let m;
+      while ((m = re.exec(raw)) !== null) {
+        const chunk = m[0];
+        const lemma = normalizeDictLemma(chunk);
+        if (lemma) {
+          const span = document.createElement("span");
+          span.className = "note-en-word";
+          if (saved.has(lemma)) span.classList.add("in-lemmas");
+          span.textContent = chunk;
+          span.title = "點擊查詞典";
+          span.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onWordClick(chunk, span);
+          });
+          container.appendChild(span);
+        } else {
+          container.appendChild(document.createTextNode(chunk));
+        }
+      }
+    }
+
+    function closeDictPopover() {
+      dictPopover.hidden = true;
+      dictDraft = null;
+      dictLookupSeq += 1;
+    }
+
+    function positionDictPopover(anchorEl) {
+      const margin = 10;
+      if (!anchorEl || !anchorEl.getBoundingClientRect) {
+        dictPopover.hidden = false;
+        dictPopover.style.left = "12px";
+        dictPopover.style.top = "80px";
+        return;
+      }
+      const rect = anchorEl.getBoundingClientRect();
+      dictPopover.hidden = false;
+      const pop = dictPopover.getBoundingClientRect();
+      let left = rect.left;
+      let top = rect.bottom + 8;
+      if (left + pop.width > window.innerWidth - margin) {
+        left = window.innerWidth - pop.width - margin;
+      }
+      if (left < margin) left = margin;
+      if (top + pop.height > window.innerHeight - margin) {
+        top = Math.max(margin, rect.top - pop.height - 8);
+      }
+      dictPopover.style.left = `${left}px`;
+      dictPopover.style.top = `${top}px`;
+    }
+
+    function renderDictSenses(senses) {
+      dictSenses.innerHTML = "";
+      (senses || []).forEach((s) => {
+        const block = document.createElement("div");
+        block.className = "dict-sense";
+        const pos = s.pos ? `<span class="dict-pos">${escapeHtml(s.pos)}</span>` : "";
+        const zh = (s.zh || "").trim()
+          ? `<div class="dict-zh">${escapeHtml(s.zh)}</div>`
+          : "";
+        const en = (s.en || "").trim()
+          ? `<div class="dict-en">${escapeHtml(s.en)}</div>`
+          : "";
+        const ex = s.example
+          ? `<p class="dict-example">${escapeHtml(s.example)}</p>`
+          : "";
+        block.innerHTML = `${pos}${zh}${en}${ex}`;
+        dictSenses.appendChild(block);
+      });
+    }
+
+    function dictSourceLabel(data) {
+      if (data.cached) return "本機快取";
+      if (data.source === "ecdict") return "ECDICT（英中）";
+      if (data.source === "free-dictionary") return "Free Dictionary（英英）";
+      return data.source || "詞典";
+    }
+
+    async function openDictLookup({
+      lemma,
+      textEn,
+      textZh,
+      start,
+      end,
+      anchorEl,
+      noteId,
+      sourceWord,
+    }) {
+      if (busy) return showToastBusy();
+      const seq = ++dictLookupSeq;
+      dictDraft = {
+        noteId: noteId || null,
+        word: lemma || sourceWord || "",
+        lemma: lemma || "",
+        text_en: textEn || "",
+        text_zh: textZh || "",
+        start,
+        end,
+        dict: null,
+        lookupOk: false,
+      };
+
+      dictLemma.textContent = dictDraft.word || "—";
+      dictPhonetic.textContent = "";
+      dictStatus.textContent = lemma ? "查詢中…" : "無法辨識為單一英文單字";
+      dictStatus.classList.toggle("error", !lemma);
+      dictSenses.innerHTML = "";
+      if (dictDraft.text_en) {
+        dictContext.hidden = false;
+        dictContext.textContent = dictDraft.text_zh
+          ? `${dictDraft.text_en}\n${dictDraft.text_zh}`
+          : dictDraft.text_en;
+      } else {
+        dictContext.hidden = true;
+        dictContext.textContent = "";
+      }
+      dictSaveBtn.disabled = false;
+      dictSaveBtn.textContent = noteId ? "寫入此則筆記" : "存到筆記";
+      positionDictPopover(anchorEl);
+
+      if (!lemma) return;
+
+      try {
+        const res = await fetch("/api/dict?q=" + encodeURIComponent(lemma) + "&t=" + Date.now());
+        const data = await res.json();
+        if (seq !== dictLookupSeq) return;
+        if (!data.ok) {
+          dictStatus.textContent = data.error || "查詢失敗（仍可寫入筆記）";
+          dictStatus.classList.add("error");
+          dictDraft.lookupOk = false;
+          dictDraft.dict = null;
+          return;
+        }
+        dictDraft.lookupOk = true;
+        dictDraft.dict = {
+          lemma: data.lemma || lemma,
+          phonetic: data.phonetic || "",
+          senses: data.senses || [],
+          source: data.source || "free-dictionary",
+        };
+        dictLemma.textContent = dictDraft.dict.lemma;
+        dictPhonetic.textContent = dictDraft.dict.phonetic || "";
+        dictStatus.textContent = dictSourceLabel(data);
+        dictStatus.classList.remove("error");
+        renderDictSenses(dictDraft.dict.senses);
+        positionDictPopover(anchorEl);
+      } catch (err) {
+        if (seq !== dictLookupSeq) return;
+        dictStatus.textContent = "查詢失敗：" + (err.message || err) + "（仍可寫入筆記）";
+        dictStatus.classList.add("error");
+        dictDraft.lookupOk = false;
+        dictDraft.dict = null;
+      }
+    }
+
+    async function openDictForToken(tok, anchorEl) {
+      const lemma = normalizeDictLemma(tok.text || "");
+      const turn = turnsView.find((t) => t.turnIdx === tok.turnIdx);
+      const sentence = turn ? extractSentenceAroundToken(turn, tok) : null;
+      await openDictLookup({
+        lemma,
+        textEn: (sentence && sentence.text_en) || String(tok.text || "").trim(),
+        textZh: (sentence && sentence.text_zh) || "",
+        start: sentence && sentence.start != null ? sentence.start : tok.start,
+        end: sentence && sentence.end != null ? sentence.end : tok.end,
+        anchorEl,
+        sourceWord: String(tok.text || "").trim(),
+      });
+    }
+
+    async function openDictForNote(note, rawWord, anchorEl) {
+      const lemma = normalizeDictLemma(rawWord || note.word || "");
+      await openDictLookup({
+        lemma,
+        textEn: note.text_en || "",
+        textZh: note.text_zh || "",
+        start: note.start,
+        end: note.end,
+        anchorEl,
+        noteId: note.id,
+        sourceWord: rawWord || note.word || "",
+      });
+    }
+
+    async function saveDictDraftNote() {
+      if (!dictDraft) return;
+      if (busy) return showToastBusy();
+      const lemma = dictDraft.lemma || dictDraft.word || "";
+      const payload = {
+        word: lemma,
+        text_en: dictDraft.text_en || "",
+        text_zh: dictDraft.text_zh || "",
+        start: dictDraft.start,
+        end: dictDraft.end,
+        source: "dict",
+        dict: dictDraft.dict || { lemma, phonetic: "", senses: [], source: "" },
+      };
+      if (dictDraft.noteId) payload.id = dictDraft.noteId;
+      if (!payload.text_en && !payload.text_zh) {
+        alert("沒有可存的句子內容。");
+        return;
+      }
+      dictSaveBtn.disabled = true;
+      const saved = await persistNote(payload);
+      dictSaveBtn.disabled = false;
+      if (saved) closeDictPopover();
+    }
+
+    async function removeNoteLemma(note, lemma) {
+      if (!currentStem || !note || !note.id || !lemma) return;
+      try {
+        const res = await fetch("/api/notes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            stem: currentStem,
+            id: note.id,
+            text_en: note.text_en || "",
+            text_zh: note.text_zh || "",
+            start: note.start,
+            end: note.end,
+            word: note.word || "",
+            remove_lemma: lemma,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "移除失敗");
+          return;
+        }
+        notes = data.notes || [];
+        renderNotesList();
+        showNotesToast(`已從這則移除「${lemma}」`);
+      } catch (err) {
+        alert("移除失敗：" + (err.message || err));
+      }
+    }
+
+    async function persistNote(payload, { quiet = false } = {}) {
+      if (!currentStem) {
+        alert("請先載入錄音再存筆記。");
+        return null;
+      }
+      if (!payload.text_en && !payload.text_zh) {
+        alert("請至少填寫英文句或中譯。");
+        return null;
+      }
+      if (!payload.id && isDuplicateNote(payload)) {
+        if (!quiet) showNotesToast("這句已在筆記中");
+        return null;
+      }
+      const body = {
+        stem: currentStem,
+        id: payload.id || undefined,
+        word: payload.word || "",
+        text_en: payload.text_en || "",
+        text_zh: payload.text_zh || "",
+        start: payload.start,
+        end: payload.end,
+        source: payload.source || "click",
+      };
+      if (Object.prototype.hasOwnProperty.call(payload, "dict")) {
+        body.dict = payload.dict || null;
+      }
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        alert(data.error || "儲存失敗");
+        return null;
+      }
+      notes = data.notes || [];
+      renderNotesList();
+      if (!quiet) {
+        showNotesToast(data.updated ? "已更新筆記" : "已存筆記");
+      }
+      return data.note;
+    }
+
+    async function saveCurrentSentence() {
+      if (busy) return showToastBusy();
+      const payload = getCurrentSentencePayload();
+      if (!payload || !payload.text_en) {
+        alert("目前沒有可存的句子（請先載入文稿並走到有字幕的位置）。");
+        return;
+      }
+      payload.source = "current-sentence";
+      await persistNote(payload);
+    }
+
+    async function saveSelectionOnMouseUp() {
+      if (busy || translating) return;
+      const payload = getTranscriptSelectionPayload();
+      if (!payload || !payload.text_en) return;
+      // Ignore tiny accidental selections (single punctuation etc.)
+      if (payload.text_en.replace(/\s+/g, "").length < 2) return;
+      payload.source = "selection";
+      const saved = await persistNote(payload);
+      if (saved) {
+        const sel = window.getSelection();
+        if (sel) sel.removeAllRanges();
+      }
+    }
+
+    function playNote(n) {
+      if (n.start == null) return;
+      const start = Number(n.start);
+      const end = n.end != null ? Number(n.end) : start + 2.5;
+      if (loopNoteToggle.checked) {
+        loopRange = { start, end: Math.max(end, start + 0.25) };
+      } else {
+        loopRange = null;
+      }
+      seekOnNextPlay = false;
+      seekTo(start, { autoPlay: true });
+    }
+
+    let confirmResolver = null;
+
+    function closeConfirmModal(ok) {
+      confirmModal.classList.remove("visible");
+      confirmModal.setAttribute("aria-hidden", "true");
+      const resolve = confirmResolver;
+      confirmResolver = null;
+      if (resolve) resolve(Boolean(ok));
+    }
+
+    function showConfirm({ title, message, confirmLabel = "確定", cancelLabel = "取消", danger = false } = {}) {
+      if (confirmResolver) closeConfirmModal(false);
+      confirmTitle.textContent = title || "確認";
+      confirmMessage.textContent = message || "";
+      confirmOk.textContent = confirmLabel;
+      confirmCancel.textContent = cancelLabel;
+      confirmOk.classList.toggle("danger-fill", Boolean(danger));
+      confirmModal.classList.add("visible");
+      confirmModal.setAttribute("aria-hidden", "false");
+      confirmCancel.focus();
+      return new Promise((resolve) => {
+        confirmResolver = resolve;
+      });
+    }
+
+    function openEditNoteModal(note) {
+      draftNote = {
+        id: note.id,
+        word: note.word || "",
+        text_en: note.text_en || "",
+        text_zh: note.text_zh || "",
+        start: note.start,
+        end: note.end,
+        source: note.source || "edit",
+      };
+      modalWord.value = draftNote.word;
+      modalEn.value = draftNote.text_en;
+      modalZh.value = draftNote.text_zh;
+      noteModalTime.textContent =
+        draftNote.start != null && draftNote.end != null
+          ? `${fmt(Number(draftNote.start))} → ${fmt(Number(draftNote.end))}`
+          : "（無對應時間戳）";
+      noteModal.classList.add("visible");
+      noteModal.setAttribute("aria-hidden", "false");
+      modalEn.focus();
+    }
+
+    function closeNoteModal() {
+      noteModal.classList.remove("visible");
+      noteModal.setAttribute("aria-hidden", "true");
+      draftNote = null;
+      modalZh.readOnly = false;
+      noteModalSave.disabled = false;
+      noteModalRetranslate.disabled = false;
+    }
+
+    async function saveDraftNote() {
+      if (!draftNote) return;
+      if (translating) {
+        alert("翻譯進行中，請稍候。");
+        return;
+      }
+      const payload = {
+        id: draftNote.id,
+        word: modalWord.value.trim(),
+        text_en: modalEn.value.trim(),
+        text_zh: modalZh.value.trim(),
+        start: draftNote.start,
+        end: draftNote.end,
+        source: draftNote.source || "edit",
+      };
+      const saved = await persistNote(payload);
+      if (saved) closeNoteModal();
+    }
+
+    async function retranslateDraftWithNllb() {
+      const text = modalEn.value.trim();
+      if (!text) {
+        alert("請先有英文句再重翻。");
+        return;
+      }
+      if (translating) return;
+      translating = true;
+      noteModalRetranslate.disabled = true;
+      noteModalSave.disabled = true;
+      modalZh.readOnly = true;
+      const prev = modalZh.value;
+      modalZh.value = "翻譯中（本機 NLLB）…";
+      try {
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || "翻譯失敗");
+        modalZh.value = (data.text_zh || "").trim();
+      } catch (err) {
+        modalZh.value = prev;
+        alert(err.message || String(err));
+      } finally {
+        modalZh.readOnly = false;
+        noteModalRetranslate.disabled = false;
+        noteModalSave.disabled = false;
+        translating = false;
+      }
+    }
+
+    async function deleteNote(id) {
+      if (!currentStem || !id) return;
+      const ok = await showConfirm({
+        title: "刪除筆記",
+        message: "確定刪除這則筆記？",
+        confirmLabel: "確定刪除",
+        danger: true,
+      });
+      if (!ok) return;
+      try {
+        const res = await fetch("/api/notes/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stem: currentStem, id }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "刪除失敗");
+          return;
+        }
+        notes = data.notes || [];
+        renderNotesList();
+        showNotesToast("已刪除筆記");
+      } catch (err) {
+        alert("刪除失敗：" + (err.message || err));
+      }
+    }
+
+    async function loadCurrentSession() {
+      activeToken = -1;
+      activeTurnIdx = -1;
+      selectedTurnIdx = -1;
+      seekOnNextPlay = false;
+      loopRange = null;
+      stopClock();
+      audio.pause();
+      playBtn.textContent = "播放";
+
+      const meta = await fetch("/api/meta?t=" + Date.now()).then((r) => r.json());
+      if (!meta.has_transcript || !meta.has_audio) {
+        clearPlayerUI();
+        await refreshLibrary();
+        return meta;
+      }
+
+      const data = await fetch(meta.transcript_url + "?t=" + Date.now()).then((r) => {
+        if (!r.ok) throw new Error("無法載入文稿 JSON");
+        return r.json();
+      });
+      const turns = splitTurnsMaxSentences(data.turns || [], 3);
+      const built = buildKaraoke(turns);
+      turnsView = built.view;
+      tokens = built.flat;
+      render(turnsView);
+      audio.src = meta.audio_url + "?t=" + Date.now();
+      titleEl.textContent = meta.title;
+      metaEl.textContent = `${meta.transcript_name}  ·  ${meta.audio_name}  ·  ${tokens.length} 詞同步`;
+      statusEl.hidden = true;
+      sheetEl.hidden = false;
+      hasRangeBackup = Boolean(meta.has_range_backup);
+      updateRangeUI();
+      await refreshLibrary(meta.audio_name);
+      await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
+      return meta;
+    }
+
+    function startJobPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      setBusy(true, "處理中…");
+      pollTimer = setInterval(async () => {
+        if (pollInFlight) return;
+        pollInFlight = true;
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+          const job = await fetch("/api/job?t=" + Date.now(), { signal: controller.signal }).then((r) => r.json());
+          clearTimeout(timeoutId);
+          updateLogUI(job);
+          if (job.status === "running") {
+            setBusy(true, job.message || "處理中…");
+            return;
+          }
+          clearInterval(pollTimer);
+          pollTimer = 0;
+          setBusy(false);
+          if (job.status === "done") {
+            await loadCurrentSession();
+            metaEl.textContent = (metaEl.textContent || "") + "（已自動載入）";
+          } else if (job.status === "error") {
+            statusEl.hidden = false;
+            statusEl.classList.add("error");
+            statusEl.textContent = job.message || "處理失敗";
+            await refreshLibrary();
+          }
+        } catch (err) {
+          clearInterval(pollTimer);
+          pollTimer = 0;
+          setBusy(false);
+          alert("無法取得進度，已解除鎖定。可重新整理頁面或再試一次：" + (err.message || err));
+        } finally {
+          pollInFlight = false;
+        }
+      }, 1000);
+    }
+
+    importBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      importInput.click();
+    });
+
+    importInput.addEventListener("change", async () => {
+      const file = importInput.files && importInput.files[0];
+      importInput.value = "";
+      if (!file) return;
+      if (busy) return showToastBusy();
+
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      setBusy(true, `上傳並轉寫：${file.name}`);
+      logPanel.classList.add("visible");
+      logBadge.textContent = "uploading";
+      logTitle.textContent = `上傳 ${file.name}`;
+      logBody.textContent = "上傳中…";
+
+      try {
+        const res = await fetch("/api/import", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!data.ok) {
+          setBusy(false);
+          alert(data.error || "匯入失敗");
+          return;
+        }
+        updateLogUI(data.job || { status: "running", logs: [data.message || "開始轉寫"], message: data.message });
+        startJobPolling();
+      } catch (err) {
+        setBusy(false);
+        alert("匯入失敗：" + (err.message || err));
+      }
+    });
+
+    audioSelect.addEventListener("change", () => {
+      if (suppressSelectChange) return;
+      updateFileActionButtons();
+    });
+
+    async function loadSelectedAudio() {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇匯入的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      try {
+        const res = await fetch("/api/select", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "載入失敗");
+          await refreshLibrary(name);
+          return;
+        }
+        if (data.started_job) {
+          updateLogUI(data.job || { status: "running", logs: [data.message], message: data.message });
+          startJobPolling();
+          return;
+        }
+        await loadCurrentSession();
+      } catch (err) {
+        alert("載入失敗：" + (err.message || err));
+      }
+    }
+
+    loadBtn.addEventListener("click", () => {
+      loadSelectedAudio();
+    });
+
+    deleteBtn.addEventListener("click", async () => {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇要刪除的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      const ok = await showConfirm({
+        title: "刪除音檔",
+        message:
+          `確定刪除「${displayAudioName(name)}」的所有相關檔案？\n` +
+          "workdir／output／uploads／notes 對應檔都會刪除；recording.wav 不會動。",
+        confirmLabel: "確定刪除",
+        danger: true,
+      });
+      if (!ok) return;
+      try {
+        const res = await fetch("/api/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "刪除失敗");
+          return;
+        }
+        if (data.cleared) {
+          clearPlayerUI("已刪除目前播放的錄音，請重新選擇或匯入。");
+        }
+        await refreshLibrary();
+        metaEl.textContent = data.message || "已刪除";
+      } catch (err) {
+        alert("刪除失敗：" + (err.message || err));
+      }
+    });
+
+    confirmCancel.addEventListener("click", () => closeConfirmModal(false));
+    confirmOk.addEventListener("click", () => closeConfirmModal(true));
+    confirmModal.addEventListener("click", (e) => {
+      if (e.target === confirmModal) closeConfirmModal(false);
+    });
+    noteModalCancel.addEventListener("click", closeNoteModal);
+    noteModalSave.addEventListener("click", saveDraftNote);
+    noteModalRetranslate.addEventListener("click", retranslateDraftWithNllb);
+    saveSentenceBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      saveCurrentSentence();
+    });
+    loopNoteToggle.addEventListener("change", () => {
+      if (!loopNoteToggle.checked) loopRange = null;
+    });
+    transcriptEl.addEventListener("mousedown", () => {
+      selectingInTranscript = true;
+    });
+    document.addEventListener("mouseup", () => {
+      if (!selectingInTranscript) return;
+      selectingInTranscript = false;
+      setTimeout(() => {
+        saveSelectionOnMouseUp().catch((err) => console.warn(err));
+      }, 0);
+    });
+    noteModal.addEventListener("click", (e) => {
+      if (e.target === noteModal) closeNoteModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (confirmModal.classList.contains("visible")) {
+        e.preventDefault();
+        closeConfirmModal(false);
+        return;
+      }
+      if (noteModal.classList.contains("visible")) {
+        closeNoteModal();
+      }
+    });
+
+    manualUseTimeBtn.addEventListener("click", () => {
+      manualStart = audio.currentTime || 0;
+      manualEnd = manualStart;
+      manualUseTimeBtn.textContent = `時間 ${fmt(manualStart)}`;
+    });
+
+    manualNoteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentStem) {
+        alert("請先載入錄音再新增筆記。");
+        return;
+      }
+      const payload = {
+        stem: currentStem,
+        word: "",
+        text_en: manualEn.value.trim(),
+        text_zh: manualZh.value.trim(),
+        start: manualStart,
+        end: manualEnd,
+        source: "manual",
+      };
+      if (!payload.text_en && !payload.text_zh) {
+        alert("請至少填寫英文句或中譯。");
+        return;
+      }
+      try {
+        const res = await fetch("/api/notes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "新增失敗");
+          return;
+        }
+        notes = data.notes || [];
+        renderNotesList();
+        manualEn.value = "";
+        manualZh.value = "";
+        manualStart = null;
+        manualEnd = null;
+        manualUseTimeBtn.textContent = "帶入目前時間";
+      } catch (err) {
+        alert("新增失敗：" + (err.message || err));
+      }
+    });
+
+    exportNotesBtn.addEventListener("click", () => {
+      if (!currentStem) {
+        alert("請先載入錄音。");
+        return;
+      }
+      window.location.href = "/api/notes/export.csv?stem=" + encodeURIComponent(currentStem) + "&t=" + Date.now();
+    });
+
+    rangeStartBtn.addEventListener("click", markRangeStart);
+    rangeEndBtn.addEventListener("click", markRangeEnd);
+    rangeFromTurnBtn.addEventListener("click", markRangeFromSelectedTurn);
+    rangeRunBtn.addEventListener("click", runRetranscribeRange);
+    rangeRestoreBtn.addEventListener("click", restoreRetranscribeRange);
+
+    dictSaveBtn.addEventListener("click", saveDictDraftNote);
+    dictDismissBtn.addEventListener("click", closeDictPopover);
+    dictCloseX.addEventListener("click", closeDictPopover);
+    noteModalDict.addEventListener("click", () => {
+      if (!draftNote) return;
+      const typed = modalWord.value.trim();
+      const fromEn = (modalEn.value.match(/[A-Za-z]+(?:'[A-Za-z]+)?(?:-[A-Za-z]+)*/ ) || [""])[0];
+      const q = typed || fromEn;
+      const lemma = normalizeDictLemma(q);
+      if (!lemma) {
+        alert("請在「詞／片語」填單一英文單字，或讓英文句以單字開頭。");
+        return;
+      }
+      openDictLookup({
+        lemma,
+        textEn: modalEn.value.trim() || draftNote.text_en || "",
+        textZh: modalZh.value.trim() || draftNote.text_zh || "",
+        start: draftNote.start,
+        end: draftNote.end,
+        anchorEl: noteModalDict,
+        noteId: draftNote.id,
+        sourceWord: q,
+      });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !dictPopover.hidden) {
+        closeDictPopover();
+      }
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (dictPopover.hidden) return;
+      if (dictPopover.contains(e.target)) return;
+      if (
+        e.target &&
+        e.target.closest &&
+        e.target.closest(".word, .note-en-word, .note-word, .note-dict, .note-lemma-chip, #noteModalDict")
+      ) {
+        return;
+      }
+      closeDictPopover();
+    });
+
+    async function boot() {
+      try {
+        const job = await fetch("/api/job").then((r) => r.json());
+        if (job.status === "running") {
+          updateLogUI(job);
+          startJobPolling();
+        }
+        await loadCurrentSession();
+      } catch (err) {
+        statusEl.classList.add("error");
+        statusEl.textContent = `載入失敗：${err.message || err}`;
+      }
+    }
+
+    boot();
+  </script>
+</body>
+</html>

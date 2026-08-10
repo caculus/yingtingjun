@@ -1,0 +1,10 @@
+mlx-whisper
+torch
+torchaudio
+soundfile
+numpy
+scikit-learn
+speechbrain
+transformers
+sentencepiece
+sacremoses
