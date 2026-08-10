@@ -1,4 +1,4 @@
-//! Thin CLI wrapper around speakrs for voice2txt.
+//! Thin CLI wrapper around speakrs for 英聽君（yingtingjun）.
 //!
 //! Usage:
 //!   speakrs_diarize [--mode coreml|coreml-fast|cpu] [--models-dir DIR] <audio.wav>

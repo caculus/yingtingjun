@@ -1292,7 +1292,7 @@ def write_outputs(turns: list[dict], out_dir: Path, stem: str, raw: dict) -> Non
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Select audio → detect English → transcript + ZH + speakers/timestamps"
+        description="英聽君（yingtingjun）：select audio → English transcript + ZH + speakers/timestamps"
     )
     parser.add_argument(
         "audio",
@@ -1542,14 +1542,6 @@ def main() -> int:
         )
         print(f"\nEstimated speakers: {n}")
         return 0
-
-    # Keep a convenient copy name used by the sync player.
-    player_wav = Path("recording.wav")
-    if work_audio.resolve() != player_wav.resolve():
-        try:
-            player_wav.write_bytes(work_audio.read_bytes())
-        except Exception:
-            pass
 
     stem = media_stem(audio_path)
     cache_path = args.outdir / f"{stem}.whisper.json"

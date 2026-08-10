@@ -29,7 +29,19 @@ from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent
 PLAYER_DIR = ROOT / "player"
-VENV_PYTHON = ROOT / ".venv" / "bin" / "python"
+
+
+def resolve_venv_python() -> Path:
+    unix = ROOT / ".venv" / "bin" / "python"
+    windows = ROOT / ".venv" / "Scripts" / "python.exe"
+    if unix.exists():
+        return unix
+    if windows.exists():
+        return windows
+    return Path(sys.executable)
+
+
+VENV_PYTHON = resolve_venv_python()
 TRANSCRIBE_PY = ROOT / "transcribe.py"
 DICT_API_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
 ECDICT_DB_DEFAULT = ROOT / "models" / "ecdict.db"
@@ -367,16 +379,17 @@ def find_transcript(output_dir: Path) -> Path | None:
 
 
 def find_audio(root: Path, workdir: Path) -> Path | None:
-    for name in ("recording.wav",):
-        candidate = root / name
-        if candidate.exists():
-            return candidate
+    """Prefer workdir wavs. Ignore leftover root recording.wav (old default copy)."""
     if workdir.exists():
-        wavs = sorted(workdir.glob("*.wav"))
+        wavs = sorted(p for p in workdir.glob("*.wav") if p.is_file())
         if wavs:
             return wavs[0]
     for pattern in ("*.wav", "*.m4a", "*.mp3"):
-        hits = sorted(root.glob(pattern))
+        hits = sorted(
+            p
+            for p in root.glob(pattern)
+            if p.is_file() and p.name != "recording.wav"
+        )
         if hits:
             return hits[0]
     return None
@@ -964,7 +977,7 @@ class AppState:
             req = urllib.request.Request(
                 url,
                 headers={
-                    "User-Agent": "voice2txt-local-player/1.0",
+                    "User-Agent": "yingtingjun-local-player/1.0",
                     "Accept": "application/json",
                 },
                 method="GET",
@@ -1371,7 +1384,7 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Transcript sync player with highlight bar")
+    parser = argparse.ArgumentParser(description="英聽君（yingtingjun）：sync player with highlight bar")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--outdir", type=Path, default=ROOT / "output")
     parser.add_argument("--workdir", type=Path, default=ROOT / "workdir")

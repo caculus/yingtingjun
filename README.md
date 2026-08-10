@@ -1,7 +1,15 @@
-# voice2txt
+# 英聽君（yingtingjun）
+
+**把你每天真正遇到的英文，變成個人化聽力教材。**
+
+剛移居紐澳時，日常對話總是聽過就過。英聽君是作者為自己做的小工具：把生活裡真正遇到的英文，變成可以反覆跟讀的雙語教材。
 
 選任意錄音 → 偵測是否為英文對話 → 英文轉寫 + 下一行中文翻譯  
-（含話者區分、標點、分段、時間戳），並可用「光棒」邊聽邊對稿、記筆記、查詞典、局部重辨。
+（含話者區分、標點、分段、時間戳），並可用瀏覽器「英聽君」邊聽邊跟讀、記筆記、查詞典、局部重辨。
+
+語料來自你的生活，檔案留在你的 Mac，不上雲。
+
+**English:** Local macOS tool that turns *your* real English recordings into bilingual listening lessons. Built by an engineer newly settled in Australasia, to keep up with everyday conversations.
 
 ## 安裝（Install）
 
@@ -24,7 +32,7 @@
 ### 1. 進入專案並建立虛擬環境
 
 ```bash
-cd /path/to/voice2txt
+cd /path/to/yingtingjun
 
 # 若尚未建立虛擬環境：
 python3 -m venv .venv
@@ -41,9 +49,13 @@ source .venv/bin/activate
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+
+# 若要跑單元測試：
+pip install -r requirements-dev.txt
+pytest
 ```
 
-主要套件：`mlx-whisper`、`torch`／`torchaudio`、`speechbrain`、`transformers`（NLLB）、`soundfile`、`scikit-learn` 等。
+主要套件（版本已釘在 `requirements.txt`，對應當前可用環境）：`mlx-whisper`、`torch`／`torchaudio`、`speechbrain`、`transformers`（NLLB）、`soundfile`、`scikit-learn` 等。
 
 ### 3.（建議）編譯 speakrs 話者區分 CLI
 
@@ -233,11 +245,10 @@ python transcribe.py --from-json "output/meeting.json" --restore-range
 
 對應音訊與筆記：
 
-- `workdir/<檔名>.work.wav`（建議播放器用這個；勿與預設 `recording.wav` 搞混）
+- `workdir/<檔名>.work.wav`（播放器預設從這裡選；多支時請用頁面「選擇音檔」再載入）
 - `uploads/`（頁面「匯入音檔」上傳的原始檔）
 - `notes/<檔名>.json`（該錄音的學習筆記；刪錄音時一併刪除）
 - `notes/_dict_cache.json`（詞典查詢快取，跨錄音共用）
-- `recording.wav`（最後一次轉寫會覆寫，容易搞混）
 
 ## 英聽君（同步播放）
 
@@ -266,7 +277,7 @@ python3 serve_player.py \
 | **匯入音檔** | 選本機錄音 → 後端執行 `python transcribe.py <檔案>` → 顯示進度／日誌 → **完成後自動載入** |
 | **選擇音檔** | 下拉列出已匯入音檔（顯示檔名、不含 `.work.wav`；只選中，**不會**立刻切換） |
 | **載入** | 載入下拉目前選中的音檔；有對應 JSON 就播放；**沒有文稿**則提示並自動轉寫 |
-| **刪除** | 確認後刪除該 stem 在 `workdir/`、`output/`、`uploads/`、`notes/` 的相關檔（**不動** `recording.wav`） |
+| **刪除** | 確認後刪除該 stem 在 `workdir/`、`output/`、`uploads/`、`notes/` 的相關檔 |
 | **學習筆記** | 見下方：點詞查字典、存當前句、選字松手存、單句循環、編輯／NLLB 重翻 |
 | **點段落** | 只選中／反光該段，**不播放** |
 | **點詞** | 開詞典浮層（**不跳播**） |
@@ -348,5 +359,10 @@ API：
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`
 - Whisper 偶發重複幻覺（如連續 `that's right`）：用**局部重辨**修該時段
 - 詞典第一版只查**單字**；片語請拖選存筆記或靠文稿中譯
-- 多支錄音務必成對指定音檔＋文稿，勿只靠預設 `recording.wav`
+- 多支錄音請用頁面成對載入，或啟動時指定 `--audio` + `--transcript`（勿依賴根目錄殘留的 `recording.wav`）
+- 開發：`pip install -r requirements-dev.txt && pytest`（不跑 ASR／翻譯，只測切段、scrub、詞典、局部重辨拼接）
 - 大型檔案（`.venv/`、`models/`、音訊、`.whisper.json`、`uploads/`、`notes/`、`bin/`、`*.bak-range`）預設不進 git
+
+## License
+
+本專案原始碼為 [MIT License](LICENSE)。執行時下載的 Whisper／NLLB／ECDICT 等模型與詞典另依其各自授權。

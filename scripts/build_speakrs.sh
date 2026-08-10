@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build speakrs_diarize into repo bin/ for voice2txt.
+# Build speakrs_diarize into repo bin/ for 英聽君（yingtingjun）.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CLI="$ROOT/tools/speakrs_cli"
