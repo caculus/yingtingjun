@@ -35,24 +35,24 @@
 cd /path/to/yingtingjun
 
 # 若尚未建立虛擬環境：
-python3 -m venv .venv
+python -m venv .venv
 
 # 每次使用前先啟動：
 source .venv/bin/activate
 ```
 
-確認提示符前有 `(.venv)`，且 `which python` 指向專案內 `.venv/bin/python`。
+確認提示符前有 `(.venv)`，且 `which python` 指向專案內 `.venv/bin/python`（若你系統沒有 `python` 指令，請先安裝或配置為指向 Python 3）。
 
 ### 2. 安裝 Python 依賴
 
 ```bash
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # 若要跑單元測試：
-pip install -r requirements-dev.txt
-pytest
+python -m pip install -r requirements-dev.txt
+python -m pytest
 ```
 
 主要套件（版本已釘在 `requirements.txt`，對應當前可用環境）：`mlx-whisper`、`torch`／`torchaudio`、`speechbrain`、`transformers`（NLLB）、`soundfile`、`scikit-learn` 等。
@@ -112,7 +112,7 @@ source .venv/bin/activate
 python transcribe.py --pick
 
 # 另開終端：啟動英聽君
-python3 serve_player.py
+python serve_player.py
 # 瀏覽器：http://127.0.0.1:8765/
 ```
 
@@ -255,13 +255,13 @@ python transcribe.py --from-json "output/meeting.json" --restore-range
 ### 啟動
 
 ```bash
-python3 serve_player.py
+python serve_player.py
 ```
 
 也可仍用指令列指定初始檔（可選，保留相容）：
 
 ```bash
-python3 serve_player.py \
+python serve_player.py \
   --audio "workdir/meeting.work.wav" \
   --transcript "output/meeting.json"
 ```
@@ -360,7 +360,7 @@ API：
 - Whisper 偶發重複幻覺（如連續 `that's right`）：用**局部重辨**修該時段
 - 詞典第一版只查**單字**；片語請拖選存筆記或靠文稿中譯
 - 多支錄音請用頁面成對載入，或啟動時指定 `--audio` + `--transcript`（勿依賴根目錄殘留的 `recording.wav`）
-- 開發：`pip install -r requirements-dev.txt && pytest`（不跑 ASR／翻譯，只測切段、scrub、詞典、局部重辨拼接）
+- 開發：`python -m pip install -r requirements-dev.txt && python -m pytest`（不跑 ASR／翻譯，只測切段、scrub、詞典、局部重辨拼接）
 - 大型檔案（`.venv/`、`models/`、音訊、`.whisper.json`、`uploads/`、`notes/`、`bin/`、`*.bak-range`）預設不進 git
 
 ## License
