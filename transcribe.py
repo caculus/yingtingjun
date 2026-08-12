@@ -24,6 +24,11 @@ from asr_backend import (
     configured_asr_name,
     get_configured_asr,
 )
+from audio_convert import (
+    convert_to_work_wav,
+    find_afconvert_bin,
+    find_ffmpeg_bin,
+)
 
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
 
@@ -73,45 +78,25 @@ def pick_audio_file() -> Path | None:
 
 
 def ensure_work_wav(src: Path, out_dir: Path) -> Path:
-    """Convert any supported audio to 16 kHz mono WAV via afconvert/soundfile."""
+    """Convert any supported audio to 16 kHz mono WAV (afconvert → ffmpeg → soundfile)."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = media_stem(src)
-    dest = out_dir / f"{stem}.work.wav"
+    dest = out_dir / f"{media_stem(src)}.work.wav"
     if src.resolve() == dest.resolve():
         return dest
 
-    if src.suffix.lower() == ".wav":
-        try:
-            audio, sr = sf.read(str(src), always_2d=False)
-            if audio.ndim > 1:
-                audio = audio.mean(axis=1)
-            if sr == 16000:
-                sf.write(str(dest), audio, 16000, subtype="PCM_16")
-                return dest
-        except Exception:
-            pass
+    def _soundfile_fallback(source: Path, target: Path) -> None:
+        audio, _sr = load_audio_mono(source, target_sr=16000)
+        sf.write(str(target), audio, 16000, subtype="PCM_16")
 
-    afconvert = Path("/usr/bin/afconvert")
-    if afconvert.exists():
-        cmd = [
-            str(afconvert),
-            "-f",
-            "WAVE",
-            "-d",
-            "LEI16@16000",
-            "-c",
-            "1",
-            str(src),
-            str(dest),
-        ]
-        print(f"[0/4] Converting audio → {dest.name} ...", flush=True)
-        subprocess.run(cmd, check=True)
-        return dest
-
-    # Fallback: soundfile may still open some formats.
-    print(f"[0/4] Loading audio via soundfile → {dest.name} ...", flush=True)
-    audio, sr = load_audio_mono(src, target_sr=16000)
-    sf.write(str(dest), audio, 16000, subtype="PCM_16")
+    print(f"[0/4] Converting audio → {dest.name} ...", flush=True)
+    used = convert_to_work_wav(
+        src,
+        dest,
+        ffmpeg=find_ffmpeg_bin(),
+        afconvert=find_afconvert_bin(),
+        soundfile_fallback=_soundfile_fallback,
+    )
+    print(f"       via {used}", flush=True)
     return dest
 
 

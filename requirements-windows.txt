@@ -1,4 +1,6 @@
-# Windows (B-layer): no mlx-whisper. Install ffmpeg separately (next slice).
+# Windows (B-layer): no mlx-whisper.
+# Also install ffmpeg (PATH, YTJ_FFMPEG, or repo bin/ffmpeg.exe).
+#   winget install Gyan.FFmpeg
 # CPU default. NVIDIA: install a CUDA torch wheel first, then this file.
 faster-whisper==1.1.1
 torch==2.8.0

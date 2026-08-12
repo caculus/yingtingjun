@@ -17,7 +17,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 作業系統 | **macOS**（轉檔依賴系統內建 `afconvert`） |
+| 作業系統 | **macOS**（轉檔優先 `afconvert`，否則 ffmpeg）；**Windows**（進行中：需 [ffmpeg](https://ffmpeg.org)） |
 | 晶片 | **Apple Silicon** 建議（MLX Whisper、speakrs CoreML 較快） |
 | Python | **3.9+**（建議用專案內虛擬環境） |
 | 磁碟／網路 | 首次會下載模型（Whisper／NLLB／speakrs／ECAPA），合計約數 GB；需可連網 |
@@ -123,6 +123,7 @@ python serve_player.py
 | `.venv/` | Python 虛擬環境（不進 git） |
 | `models/` | ECAPA、`ecdict.db` 等（不進 git） |
 | `bin/speakrs_diarize` | speakrs CLI（編譯產出，不進 git） |
+| `bin/ffmpeg` / `ffmpeg.exe` | 可選：本機 ffmpeg（不進 git；也可用 PATH / `YTJ_FFMPEG`） |
 | `workdir/` | 標準化 16 kHz wav（不進 git） |
 | `uploads/` | 頁面匯入的原始音檔（不進 git） |
 | `notes/` | 學習筆記 `notes/<stem>.json`；詞典快取 `_dict_cache.json`（不進 git） |
@@ -147,7 +148,7 @@ python transcribe.py "interview.m4a"
 
 流程：
 
-1. 轉成 16 kHz WAV（存在 `workdir/`）
+1. 轉成 16 kHz WAV（`afconvert` → ffmpeg → soundfile，存在 `workdir/`）
 2. 偵測語種（非英文會停止；可加 `--force` 強制繼續）
 3. Whisper 英文轉寫（含詞級時間戳）
 4. 話者區分（SPEAKER_01 / SPEAKER_02 …）
@@ -343,6 +344,7 @@ API：
 | 步驟 | 方案 |
 |------|------|
 | 語種偵測 / ASR | **macOS**：MLX Whisper（`whisper-large-v3-turbo`）；**Windows／Linux**：faster-whisper（`--asr auto`） |
+| 轉檔 | 16 kHz mono WAV：`afconvert`（macOS）→ **ffmpeg** → soundfile |
 | 話者區分 | **speakrs**（CoreML，預設）→ 失敗時回退 SpeechBrain ECAPA |
 | 長段切分 | 依句號，每段最多 `--max-sentences`（預設 3）；播放器載入時也會即時切 |
 | 中文翻譯 | 本機 NLLB（`zho_Hant`；逐句；glossary + 幻覺 scrub） |
@@ -355,7 +357,7 @@ API：
 
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
 - 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）
-- **Windows（進行中，B 層第一刀）**：ASR 可用 `--asr faster`（`requirements-windows.txt`）。轉檔仍缺 ffmpeg、話者請用 ECAPA；完整安裝說明下一步再補
+- **Windows（進行中，B 層）**：`pip install -r requirements-windows.txt`（faster-whisper）+ 安裝 ffmpeg（PATH、`YTJ_FFMPEG`、或 `bin/ffmpeg.exe`）。話者請用 ECAPA；完整 Win 安裝說明下一步再補
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`
