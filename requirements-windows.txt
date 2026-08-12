@@ -2,9 +2,12 @@
 # Also install ffmpeg (PATH, YTJ_FFMPEG, or repo bin/ffmpeg.exe).
 #   winget install Gyan.FFmpeg
 # CPU default. NVIDIA: install a CUDA torch wheel first, then this file.
+#
+# Use THIS file on Windows — not requirements.txt (that one pins mlx-whisper + older torch).
+# torch 2.8.0 has no Windows wheel for newer Python (e.g. 3.13); 2.9.1+ is what pip offers.
 faster-whisper==1.1.1
-torch==2.8.0
-torchaudio==2.8.0
+torch==2.9.1
+torchaudio==2.9.1
 soundfile==0.13.1
 numpy==2.0.2
 scikit-learn==1.6.1

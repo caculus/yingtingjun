@@ -126,6 +126,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements-windows.txt
+# 注意：Windows 請用 requirements-windows.txt，不要用 requirements.txt（含 mlx-whisper，且 torch 釘版不同）
 
 # ffmpeg（擇一）
 winget install Gyan.FFmpeg
@@ -139,7 +140,7 @@ python serve_player.py
 # 瀏覽器：http://127.0.0.1:8765/
 ```
 
-Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
+Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。若 `torch==…` 安裝失敗，確認 Python 為 3.9–3.12（或更新 `requirements-windows.txt` 裡 pip 實際提供的 torch 版本）。
 
 ### 目錄（安裝後會用到）
 
