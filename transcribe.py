@@ -29,6 +29,7 @@ from audio_convert import (
     find_afconvert_bin,
     find_ffmpeg_bin,
 )
+from platform_runtime import configure_stdio, resolve_diarizer_name
 
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
 
@@ -447,11 +448,15 @@ def find_speakrs_bin() -> Path | None:
     candidates.extend(
         [
             ROOT / "bin" / "speakrs_diarize",
+            ROOT / "bin" / "speakrs_diarize.exe",
             ROOT / "tools" / "speakrs_cli" / "target" / "release" / "speakrs_diarize",
+            ROOT / "tools" / "speakrs_cli" / "target" / "release" / "speakrs_diarize.exe",
         ]
     )
     for path in candidates:
-        if path.is_file() and os.access(path, os.X_OK):
+        if not path.is_file():
+            continue
+        if sys.platform.startswith("win") or os.access(path, os.X_OK):
             return path
     return None
 
@@ -1271,6 +1276,7 @@ def write_outputs(turns: list[dict], out_dir: Path, stem: str, raw: dict) -> Non
 
 
 def main() -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(
         description="英聽君（yingtingjun）：select audio → English transcript + ZH + speakers/timestamps"
     )
@@ -1311,7 +1317,7 @@ def main() -> int:
         "--diarizer",
         choices=["auto", "speakrs", "ecapa"],
         default="auto",
-        help="Speaker diarization backend (default: auto → speakrs, else ECAPA)",
+        help="Speaker diarization: auto (macOS→speakrs then ECAPA; Windows/Linux→ECAPA), speakrs, or ecapa",
     )
     parser.add_argument(
         "--speakrs-mode",
@@ -1383,6 +1389,11 @@ def main() -> int:
         help="Continue even if detected language is not English",
     )
     args = parser.parse_args()
+
+    requested_diarizer = args.diarizer
+    args.diarizer = resolve_diarizer_name(args.diarizer)
+    if args.diarizer != requested_diarizer:
+        print(f"       diarizer auto → {args.diarizer}", flush=True)
 
     if args.num_speakers is not None and args.num_speakers < 1:
         print("--num-speakers must be >= 1", file=sys.stderr)

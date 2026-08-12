@@ -27,18 +27,16 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 
+from platform_runtime import (
+    configure_stdio,
+    resolve_venv_python,
+    subprocess_extra_kwargs,
+    transcribe_child_env,
+    transcribe_cmd,
+)
+
 ROOT = Path(__file__).resolve().parent
 PLAYER_DIR = ROOT / "player"
-
-
-def resolve_venv_python() -> Path:
-    unix = ROOT / ".venv" / "bin" / "python"
-    windows = ROOT / ".venv" / "Scripts" / "python.exe"
-    if unix.exists():
-        return unix
-    if windows.exists():
-        return windows
-    return Path(sys.executable)
 
 
 VENV_PYTHON = resolve_venv_python()
@@ -511,9 +509,9 @@ class AppState:
             return {"ok": False, "error": f"找不到還原快照：{bak.name}"}
 
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [
+        cmd = transcribe_cmd(
             py,
-            str(TRANSCRIBE_PY),
+            TRANSCRIBE_PY,
             "--from-json",
             str(transcript),
             "--outdir",
@@ -521,14 +519,18 @@ class AppState:
             "--workdir",
             str(self.workdir),
             "--restore-range",
-        ]
+        )
         try:
             proc = subprocess.run(
                 cmd,
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=False,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
         except Exception as exc:  # noqa: BLE001
             return {"ok": False, "error": f"還原失敗：{exc}"}
@@ -550,9 +552,9 @@ class AppState:
         self, transcript: Path, audio: Path, start: float, end: float
     ) -> None:
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [
+        cmd = transcribe_cmd(
             py,
-            str(TRANSCRIBE_PY),
+            TRANSCRIBE_PY,
             "--from-json",
             str(transcript),
             str(audio),
@@ -563,7 +565,7 @@ class AppState:
             "--retranscribe-range",
             f"{start}",
             f"{end}",
-        ]
+        )
         self.append_log(f"$ {' '.join(cmd)}")
         final_message = None
         try:
@@ -573,7 +575,11 @@ class AppState:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 bufsize=1,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
             assert proc.stdout is not None
             for line in proc.stdout:
@@ -612,7 +618,7 @@ class AppState:
 
     def _run_transcribe(self, source: Path) -> None:
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [py, str(TRANSCRIBE_PY), str(source)]
+        cmd = transcribe_cmd(py, TRANSCRIBE_PY, str(source))
         self.append_log(f"$ {' '.join(cmd)}")
         final_message = None
         try:
@@ -622,7 +628,11 @@ class AppState:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 bufsize=1,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
             assert proc.stdout is not None
             for line in proc.stdout:
@@ -1384,6 +1394,7 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(description="英聽君（yingtingjun）：sync player with highlight bar")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--outdir", type=Path, default=ROOT / "output")

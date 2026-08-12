@@ -17,7 +17,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 作業系統 | **macOS**（轉檔優先 `afconvert`，否則 ffmpeg）；**Windows**（進行中：需 [ffmpeg](https://ffmpeg.org)） |
+| 作業系統 | **macOS**（轉檔優先 `afconvert`，否則 ffmpeg）；**Windows 10/11**（需 [ffmpeg](https://ffmpeg.org)；話者為 ECAPA） |
 | 晶片 | **Apple Silicon** 建議（MLX Whisper、speakrs CoreML 較快） |
 | Python | **3.9+**（建議用專案內虛擬環境） |
 | 磁碟／網路 | 首次會下載模型（Whisper／NLLB／speakrs／ECAPA），合計約數 GB；需可連網 |
@@ -27,7 +27,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| Rust（`rustup`） | 用來編譯 `speakrs_diarize`；未安裝時仍可用 ECAPA 後備方案 |
+| Rust（`rustup`） | **macOS**：編譯 `speakrs_diarize`；未安裝或 **Windows** 時用 ECAPA |
 
 ### 1. 進入專案並建立虛擬環境
 
@@ -116,6 +116,31 @@ python serve_player.py
 # 瀏覽器：http://127.0.0.1:8765/
 ```
 
+### Windows 安裝（B 層）
+
+請用 [python.org](https://www.python.org/downloads/) 安裝 Python 3.9+（勾選 **Add python.exe to PATH**；勿用 Microsoft Store 版，否則 `--pick` / tkinter 常缺 tcl/tk）。
+
+```powershell
+cd path\to\yingtingjun
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements-windows.txt
+
+# ffmpeg（擇一）
+winget install Gyan.FFmpeg
+# 或把 ffmpeg.exe 放到專案 bin\，或設 YTJ_FFMPEG
+
+# 可選：本機英中詞典
+powershell -ExecutionPolicy Bypass -File scripts\setup_ecdict.ps1
+
+python transcribe.py "meeting.m4a"
+python serve_player.py
+# 瀏覽器：http://127.0.0.1:8765/
+```
+
+Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
+
 ### 目錄（安裝後會用到）
 
 | 路徑 | 說明 |
@@ -128,8 +153,8 @@ python serve_player.py
 | `uploads/` | 頁面匯入的原始音檔（不進 git） |
 | `notes/` | 學習筆記 `notes/<stem>.json`；詞典快取 `_dict_cache.json`（不進 git） |
 | `output/` | 文稿與快取；局部重辨快照 `*.json.bak-range`（**個人文稿不進 git**） |
-| `scripts/setup_ecdict.sh` | 下載／安裝 ECDICT |
-| `scripts/build_speakrs.sh` | 編譯 speakrs |
+| `scripts/setup_ecdict.sh` / `setup_ecdict.ps1` | 下載／安裝 ECDICT（macOS bash / Windows PowerShell） |
+| `scripts/build_speakrs.sh` | 編譯 speakrs（macOS；Windows 請跳過） |
 
 ## 轉寫（語音 → 雙語文稿）
 
@@ -174,7 +199,7 @@ python transcribe.py "interview.m4a"
 | `--estimate-speakers-only` | 只估說話人數（ECAPA + silhouette），印出 N 後結束；不跑 ASR／翻譯 |
 | `--max-sentences` | 同一說話者長段切成每段最多 N 句（預設 **3**） |
 | `--asr` | `auto`（預設：macOS→MLX，Windows／Linux→faster-whisper）／`mlx`／`faster` |
-| `--diarizer` | `auto`（預設，優先 speakrs）／`speakrs`／`ecapa` |
+| `--diarizer` | `auto`（macOS→speakrs 否則 ECAPA；**Windows／Linux→ECAPA**）／`speakrs`／`ecapa` |
 | `--speakrs-mode` | `coreml`（預設）／`coreml-fast`／`cpu` |
 | `--speakrs-models-dir` | 指定本機 speakrs 模型目錄（否則自動下載快取） |
 
@@ -345,7 +370,7 @@ API：
 |------|------|
 | 語種偵測 / ASR | **macOS**：MLX Whisper（`whisper-large-v3-turbo`）；**Windows／Linux**：faster-whisper（`--asr auto`） |
 | 轉檔 | 16 kHz mono WAV：`afconvert`（macOS）→ **ffmpeg** → soundfile |
-| 話者區分 | **speakrs**（CoreML，預設）→ 失敗時回退 SpeechBrain ECAPA |
+| 話者區分 | **macOS**：speakrs（CoreML）→ ECAPA；**Windows／Linux**：ECAPA（`--diarizer auto`） |
 | 長段切分 | 依句號，每段最多 `--max-sentences`（預設 3）；播放器載入時也會即時切 |
 | 中文翻譯 | 本機 NLLB（`zho_Hant`；逐句；glossary + 幻覺 scrub） |
 | 局部重辨 | 切 wav 區間重跑 Whisper（關 previous-text 條件）+ NLLB；話者不重跑 |
@@ -357,7 +382,7 @@ API：
 
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
 - 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）
-- **Windows（進行中，B 層）**：`pip install -r requirements-windows.txt`（faster-whisper）+ 安裝 ffmpeg（PATH、`YTJ_FFMPEG`、或 `bin/ffmpeg.exe`）。話者請用 ECAPA；完整 Win 安裝說明下一步再補
+- **Windows**：見上方「Windows 安裝」；faster-whisper + ffmpeg + ECAPA。CPU 較慢；speakrs 不支援
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`
