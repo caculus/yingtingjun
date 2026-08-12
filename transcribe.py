@@ -18,6 +18,13 @@ import torchaudio
 from sklearn.cluster import AgglomerativeClustering, SpectralClustering
 from sklearn.metrics import silhouette_score
 
+from asr_backend import (
+    MLX_DEFAULT_MODEL,
+    configure_asr,
+    configured_asr_name,
+    get_configured_asr,
+)
+
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
 
 
@@ -125,18 +132,8 @@ def load_audio_mono(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int
 
 
 def detect_language(audio: np.ndarray, sr: int, model: str, probe_sec: float = 45.0) -> str:
-    import mlx_whisper
-
     print("[1/4] Detecting language ...", flush=True)
-    n = min(len(audio), int(probe_sec * sr))
-    probe = audio[:n].astype(np.float32)
-    result = mlx_whisper.transcribe(
-        probe,
-        path_or_hf_repo=model,
-        word_timestamps=False,
-        verbose=False,
-    )
-    lang = (result.get("language") or "").strip().lower()
+    lang = get_configured_asr().detect_language(audio, sr, model, probe_sec=probe_sec)
     print(f"       Detected language: {lang or 'unknown'}", flush=True)
     return lang
 
@@ -149,20 +146,18 @@ def transcribe(
     condition_on_previous_text: bool = True,
     compression_ratio_threshold: float | None = 2.4,
 ) -> dict:
-    import mlx_whisper
-
-    print(f"[2/4] Transcribing ({language}) with {model} ...", flush=True)
-    kwargs: dict = {
-        "path_or_hf_repo": model,
-        "language": language,
-        "word_timestamps": True,
-        "verbose": False,
-        "condition_on_previous_text": condition_on_previous_text,
-    }
-    if compression_ratio_threshold is not None:
-        kwargs["compression_ratio_threshold"] = compression_ratio_threshold
-    result = mlx_whisper.transcribe(audio.astype(np.float32), **kwargs)
-    return result
+    backend = configured_asr_name()
+    print(
+        f"[2/4] Transcribing ({language}) with {model} [{backend}] ...",
+        flush=True,
+    )
+    return get_configured_asr().transcribe(
+        audio,
+        model,
+        language=language,
+        condition_on_previous_text=condition_on_previous_text,
+        compression_ratio_threshold=compression_ratio_threshold,
+    )
 
 
 def collect_words(segments: list[dict]) -> list[dict]:
@@ -1303,9 +1298,15 @@ def main() -> int:
     )
     parser.add_argument("--pick", action="store_true", help="Force file picker dialog")
     parser.add_argument(
+        "--asr",
+        choices=["auto", "mlx", "faster"],
+        default="auto",
+        help="ASR backend: auto (macOS→mlx, Windows/Linux→faster-whisper), mlx, or faster",
+    )
+    parser.add_argument(
         "--model",
-        default="mlx-community/whisper-large-v3-turbo",
-        help="MLX Whisper model repo",
+        default=MLX_DEFAULT_MODEL,
+        help="Whisper model id (MLX HF repo or faster-whisper name; auto-mapped by --asr)",
     )
     parser.add_argument("--min-speakers", type=int, default=2)
     parser.add_argument("--max-speakers", type=int, default=4)
@@ -1447,6 +1448,8 @@ def main() -> int:
             return 0
         if args.retranscribe_range:
             start_s, end_s = args.retranscribe_range
+            asr_name, args.model = configure_asr(args.asr, args.model)
+            print(f"       ASR backend={asr_name} model={args.model}", flush=True)
             try:
                 retranscribe_time_range(
                     args.from_json,
@@ -1556,6 +1559,8 @@ def main() -> int:
         result = json.loads(cache_path.read_text(encoding="utf-8"))
         lang = (result.get("language") or "en").lower()
     else:
+        asr_name, args.model = configure_asr(args.asr, args.model)
+        print(f"       ASR backend={asr_name} model={args.model}", flush=True)
         lang = detect_language(audio, sr, args.model)
         if lang not in {"en", "english"} and not args.force:
             print(

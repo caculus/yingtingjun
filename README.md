@@ -172,6 +172,7 @@ python transcribe.py "interview.m4a"
 | `--num-speakers N` | **強制**剛好 N 個說話人（覆寫 min/max；自動改用 **ECAPA**；speakrs 不支援） |
 | `--estimate-speakers-only` | 只估說話人數（ECAPA + silhouette），印出 N 後結束；不跑 ASR／翻譯 |
 | `--max-sentences` | 同一說話者長段切成每段最多 N 句（預設 **3**） |
+| `--asr` | `auto`（預設：macOS→MLX，Windows／Linux→faster-whisper）／`mlx`／`faster` |
 | `--diarizer` | `auto`（預設，優先 speakrs）／`speakrs`／`ecapa` |
 | `--speakrs-mode` | `coreml`（預設）／`coreml-fast`／`cpu` |
 | `--speakrs-models-dir` | 指定本機 speakrs 模型目錄（否則自動下載快取） |
@@ -341,7 +342,7 @@ API：
 
 | 步驟 | 方案 |
 |------|------|
-| 語種偵測 / ASR | MLX Whisper（`mlx-community/whisper-large-v3-turbo`） |
+| 語種偵測 / ASR | **macOS**：MLX Whisper（`whisper-large-v3-turbo`）；**Windows／Linux**：faster-whisper（`--asr auto`） |
 | 話者區分 | **speakrs**（CoreML，預設）→ 失敗時回退 SpeechBrain ECAPA |
 | 長段切分 | 依句號，每段最多 `--max-sentences`（預設 3）；播放器載入時也會即時切 |
 | 中文翻譯 | 本機 NLLB（`zho_Hant`；逐句；glossary + 幻覺 scrub） |
@@ -354,6 +355,7 @@ API：
 
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
 - 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）
+- **Windows（進行中，B 層第一刀）**：ASR 可用 `--asr faster`（`requirements-windows.txt`）。轉檔仍缺 ffmpeg、話者請用 ECAPA；完整安裝說明下一步再補
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`

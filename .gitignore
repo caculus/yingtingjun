@@ -23,6 +23,9 @@ output/*
 *.aiff
 *.aif
 
+# Local SSH helper keys (never publish)
+.ssh_tmp/
+
 # Tooling
 *.log
 __pycache__/

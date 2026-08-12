@@ -1,0 +1,12 @@
+# Windows (B-layer): no mlx-whisper. Install ffmpeg separately (next slice).
+# CPU default. NVIDIA: install a CUDA torch wheel first, then this file.
+faster-whisper==1.1.1
+torch==2.8.0
+torchaudio==2.8.0
+soundfile==0.13.1
+numpy==2.0.2
+scikit-learn==1.6.1
+speechbrain==1.1.0
+transformers==4.57.6
+sentencepiece==0.2.2
+sacremoses==0.1.1
