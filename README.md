@@ -118,7 +118,7 @@ python serve_player.py
 
 ### Windows 安裝（B 層）
 
-請用 [python.org](https://www.python.org/downloads/) 安裝 Python 3.9+（勾選 **Add python.exe to PATH**；勿用 Microsoft Store 版，否則 `--pick` / tkinter 常缺 tcl/tk）。
+請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.11 或 3.12**（勾選 **Add python.exe to PATH**；勿用 Microsoft Store 版，否則 `--pick` / tkinter 常缺 tcl/tk）。Python 3.13 也可，但套件輪子較新；若 pip 開始編譯原始碼（出現 Visual Studio / `cl` 錯誤），請改裝 3.12。
 
 ```powershell
 cd path\to\yingtingjun
