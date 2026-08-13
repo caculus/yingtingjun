@@ -1452,6 +1452,13 @@ def main() -> int:
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Transcript: {transcript.name if transcript else '(none)'}")
     print(f"Audio:      {audio.name if audio else '(none)'}")
+    try:
+        from audio_convert import find_ffmpeg_bin
+
+        ff = find_ffmpeg_bin()
+        print(f"ffmpeg:     {ff if ff else '(not found — m4a/mp3 need ffmpeg on PATH or bin/)'}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"ffmpeg:     (lookup failed: {exc})")
     print(f"Open:       {url}")
     if not args.no_open:
         webbrowser.open(url)

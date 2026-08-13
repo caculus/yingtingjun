@@ -45,6 +45,33 @@ def test_find_ffmpeg_path_which(tmp_path: Path):
     assert found == on_path
 
 
+def test_find_ffmpeg_winget_links(tmp_path: Path):
+    links = tmp_path / "Local" / "Microsoft" / "WinGet" / "Links"
+    links.mkdir(parents=True)
+    exe = links / "ffmpeg.exe"
+    exe.write_text("")
+    found = find_ffmpeg_bin(
+        env={"LOCALAPPDATA": str(tmp_path / "Local")},
+        repo_root=tmp_path / "no-bin",
+        which=lambda _: None,
+    )
+    assert found == exe
+
+
+def test_find_ffmpeg_winget_package_glob(tmp_path: Path):
+    pkg = tmp_path / "Local" / "Microsoft" / "WinGet" / "Packages" / "Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe"
+    bin_dir = pkg / "ffmpeg-7.1-full_build" / "bin"
+    bin_dir.mkdir(parents=True)
+    exe = bin_dir / "ffmpeg.exe"
+    exe.write_text("")
+    found = find_ffmpeg_bin(
+        env={"LOCALAPPDATA": str(tmp_path / "Local")},
+        repo_root=tmp_path / "no-bin",
+        which=lambda _: None,
+    )
+    assert found == exe
+
+
 def test_build_ffmpeg_cmd_is_16k_mono_pcm():
     cmd = build_ffmpeg_cmd(Path("/usr/bin/ffmpeg"), Path("in.m4a"), Path("out.work.wav"))
     assert cmd[0] == "/usr/bin/ffmpeg"

@@ -24,7 +24,7 @@ def find_ffmpeg_bin(
     repo_root: Path | None = None,
     which: Callable[[str], str | None] | None = None,
 ) -> Path | None:
-    """Look up ffmpeg: YTJ_FFMPEG / FFMPEG_BIN → repo bin/ → PATH."""
+    """Look up ffmpeg: YTJ_FFMPEG / FFMPEG_BIN → repo bin/ → PATH → common Windows installs."""
     env = os.environ if env is None else env
     for key in ("YTJ_FFMPEG", "FFMPEG_BIN"):
         raw = str(env.get(key) or "").strip()
@@ -42,7 +42,46 @@ def find_ffmpeg_bin(
 
     which_fn = shutil.which if which is None else which
     found = which_fn("ffmpeg")
-    return Path(found) if found else None
+    if found:
+        return Path(found)
+
+    return _find_ffmpeg_common_windows(env)
+
+
+def _find_ffmpeg_common_windows(env: Mapping[str, str]) -> Path | None:
+    """winget / scoop / Program Files — covers serve_player started before PATH refresh."""
+    local = str(env.get("LOCALAPPDATA") or "").strip()
+    home = str(env.get("USERPROFILE") or "").strip()
+    program_files = str(env.get("ProgramFiles") or r"C:\Program Files").strip()
+    program_files_x86 = str(env.get("ProgramFiles(x86)") or r"C:\Program Files (x86)").strip()
+
+    candidates: list[Path] = []
+    if local:
+        candidates.append(Path(local) / "Microsoft" / "WinGet" / "Links" / "ffmpeg.exe")
+        packages = Path(local) / "Microsoft" / "WinGet" / "Packages"
+        if packages.is_dir():
+            for pkg in sorted(packages.glob("Gyan.FFmpeg*"), reverse=True):
+                candidates.extend(sorted(pkg.glob("**/bin/ffmpeg.exe"), reverse=True))
+    if home:
+        candidates.append(Path(home) / "scoop" / "shims" / "ffmpeg.exe")
+        candidates.append(Path(home) / "scoop" / "apps" / "ffmpeg" / "current" / "bin" / "ffmpeg.exe")
+    for base in (program_files, program_files_x86):
+        if base:
+            candidates.append(Path(base) / "ffmpeg" / "bin" / "ffmpeg.exe")
+    candidates.append(Path(r"C:\ffmpeg\bin\ffmpeg.exe"))
+
+    seen: set[str] = set()
+    for path in candidates:
+        key = str(path).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        try:
+            if path.is_file():
+                return path
+        except OSError:
+            continue
+    return None
 
 
 def build_afconvert_cmd(afconvert: Path, src: Path, dest: Path) -> list[str]:
