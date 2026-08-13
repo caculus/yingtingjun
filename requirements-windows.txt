@@ -1,11 +1,14 @@
 # Windows (B-layer): no mlx-whisper.
 # Also install ffmpeg (PATH, YTJ_FFMPEG, or repo bin/ffmpeg.exe).
 #   winget install Gyan.FFmpeg
-# CPU default. NVIDIA: install a CUDA torch wheel first, then this file.
 #
-# Use THIS file on Windows — not requirements.txt (that one pins mlx-whisper + older torch).
-# Prefer Python 3.11–3.12 from python.org. Python 3.13 needs newer wheels (below).
-# Pins chosen so pip installs binary wheels (no Visual Studio C++ build).
+# Use THIS file on Windows — not requirements.txt (mlx-whisper + Mac torch pins).
+# Prefer Python 3.11–3.12 x86_64 from python.org (64-bit).
+#
+# PyTorch CPU wheels are also published on download.pytorch.org; include that index
+# so pip does not report "from versions: none" when the default index is incomplete.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 faster-whisper==1.1.1
 torch==2.9.1
 torchaudio==2.9.1

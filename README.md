@@ -122,11 +122,15 @@ python serve_player.py
 
 ```powershell
 cd path\to\yingtingjun
-python -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements-windows.txt
-# 注意：Windows 請用 requirements-windows.txt，不要用 requirements.txt（含 mlx-whisper，且 torch 釘版不同）
+# 建議用安裝腳本（先從 PyTorch CPU 索引裝 torch，再裝其餘）
+powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
+# 或手動：
+# python -m pip install torch==2.9.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cpu
+# python -m pip install -r requirements-windows.txt
+# 注意：Windows 請用 requirements-windows.txt，不要用 requirements.txt（含 mlx-whisper）
 
 # ffmpeg（擇一）
 winget install Gyan.FFmpeg
@@ -140,7 +144,15 @@ python serve_player.py
 # 瀏覽器：http://127.0.0.1:8765/
 ```
 
-Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。若 `torch==…` 安裝失敗，確認 Python 為 3.9–3.12（或更新 `requirements-windows.txt` 裡 pip 實際提供的 torch 版本）。
+Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
+
+若 `torch` 顯示 `from versions: none`：確認是 **64-bit x86_64** Python（不是 ARM64 / 32-bit），並用 PyTorch 官方 CPU 索引（見 `scripts\install_windows.ps1`）。先執行：
+
+```powershell
+python -c "import platform,struct,sys; print(sys.version); print(platform.machine(), struct.calcsize('P')*8)"
+```
+
+`AMD64 64` 正常；若是 `ARM64`，需改用支援 Win-ARM 的 torch 輪子或換 x64 機器／模擬。
 
 ### 目錄（安裝後會用到）
 
