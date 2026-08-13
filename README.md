@@ -118,7 +118,11 @@ python serve_player.py
 
 ### Windows 安裝（B 層）
 
-請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.11 或 3.12**（勾選 **Add python.exe to PATH**；勿用 Microsoft Store 版，否則 `--pick` / tkinter 常缺 tcl/tk）。Python 3.13 也可，但套件輪子較新；若 pip 開始編譯原始碼（出現 Visual Studio / `cl` 錯誤），請改裝 3.12。
+請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.12 Windows installer (64-bit)**（勾選 **Add python.exe to PATH**）。
+
+重要：若電腦是 **Snapdragon / Windows on ARM**，請下載標示 **Windows installer (64-bit)** 的 **AMD64** 版（在 ARM 上以模擬執行），**不要**選 **ARM64** 版。ARM64 Python 能裝 `torch`，但常 **沒有 `torchaudio` 輪子**，pip 會報 `from versions: none`。
+
+勿用 Microsoft Store 版 Python（`--pick` / tkinter 常缺 tcl/tk）。
 
 ```powershell
 cd path\to\yingtingjun
@@ -146,13 +150,19 @@ python serve_player.py
 
 Windows **不編譯 speakrs**；`--diarizer auto` 會直接用 ECAPA。CPU 轉寫會比 Apple Silicon 慢。若 PowerShell 禁止執行腳本，用上面的 `-ExecutionPolicy Bypass`，或先 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
 
-若 `torch` 顯示 `from versions: none`：確認是 **64-bit x86_64** Python（不是 ARM64 / 32-bit），並用 PyTorch 官方 CPU 索引（見 `scripts\install_windows.ps1`）。先執行：
+若 `torch` 顯示 `from versions: none`：確認是 **64-bit AMD64** Python。若診斷輸出是 `ARM64`，請改裝 python.org 的 **64-bit（AMD64）** 安裝包，刪除 `.venv` 後重建：
 
 ```powershell
 python -c "import platform,struct,sys; print(sys.version); print(platform.machine(), struct.calcsize('P')*8)"
+# 期望：AMD64 64
+# 若是 ARM64 64 → 重裝 AMD64 Python，再：
+Remove-Item -Recurse -Force .venv
+py -3.12-64 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
 ```
 
-`AMD64 64` 正常；若是 `ARM64`，需改用支援 Win-ARM 的 torch 輪子或換 x64 機器／模擬。
+（`py -3.12-64` 強制用 64-bit x86；若命令不存在，用「開始功能表」裡 Python 3.12 的完整路徑建立 venv。）
 
 ### 目錄（安裝後會用到）
 

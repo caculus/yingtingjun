@@ -14,7 +14,6 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 import torch
-import torchaudio
 from sklearn.cluster import AgglomerativeClustering, SpectralClustering
 from sklearn.metrics import silhouette_score
 
@@ -29,6 +28,7 @@ from audio_convert import (
     find_afconvert_bin,
     find_ffmpeg_bin,
 )
+from audio_resample import resample_mono
 from platform_runtime import configure_stdio, resolve_diarizer_name
 
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
@@ -107,9 +107,7 @@ def load_audio_mono(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int
         audio = audio.mean(axis=1)
     audio = audio.astype(np.float32)
     if sr != target_sr:
-        tensor = torch.from_numpy(audio).unsqueeze(0)
-        tensor = torchaudio.functional.resample(tensor, sr, target_sr)
-        audio = tensor.squeeze(0).numpy()
+        audio = resample_mono(audio, sr, target_sr)
         sr = target_sr
     peak = np.max(np.abs(audio)) if audio.size else 0.0
     if peak > 1.0:

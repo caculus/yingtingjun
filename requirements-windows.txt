@@ -2,16 +2,16 @@
 # Also install ffmpeg (PATH, YTJ_FFMPEG, or repo bin/ffmpeg.exe).
 #   winget install Gyan.FFmpeg
 #
-# Use THIS file on Windows — not requirements.txt (mlx-whisper + Mac torch pins).
-# Prefer Python 3.11–3.12 x86_64 from python.org (64-bit).
+# Prefer Python 3.12 **Windows installer (64-bit / AMD64)** from python.org —
+# even on Snapdragon / Windows on ARM (runs under x64 emulation). ARM64 Python
+# can install torch, but torchaudio wheels are often missing.
 #
-# PyTorch CPU wheels are also published on download.pytorch.org; include that index
-# so pip does not report "from versions: none" when the default index is incomplete.
+# Prefer: powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 faster-whisper==1.1.1
 torch==2.9.1
-torchaudio==2.9.1
+# torchaudio is installed by install_windows.ps1 on AMD64; optional on ARM64.
 soundfile==0.13.1
 numpy==2.2.6
 scikit-learn==1.6.1
