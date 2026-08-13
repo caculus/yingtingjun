@@ -574,6 +574,15 @@ def load_ecapa_window_embeddings(
     audio: np.ndarray, sr: int
 ) -> tuple[np.ndarray, np.ndarray]:
     """Load ECAPA encoder and compute sliding-window speaker embeddings."""
+    from torchaudio_compat import prepare_torchaudio_for_speechbrain
+
+    mode = prepare_torchaudio_for_speechbrain()
+    if mode == "stub":
+        print(
+            "       torchaudio: stub（Windows 略過損壞的 DLL；"
+            "設 YTJ_USE_TORCHAUDIO=1 可改用真實套件）",
+            flush=True,
+        )
     from speechbrain.inference.speaker import EncoderClassifier
 
     classifier = EncoderClassifier.from_hparams(

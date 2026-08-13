@@ -171,16 +171,17 @@ powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
 
 （`py -3.12-64` 強制用 64-bit x86；若命令不存在，用「開始功能表」裡 Python 3.12 的完整路徑建立 venv。）
 
-若轉寫到話者區分時跳出 **「無法找到程序輸入點 torch_library_impl」**（`torchaudio\lib\_torchaudio.pyd`）：
+若轉寫到話者區分時跳出 **「無法找到程序輸入點 torch_library_impl」**（`torchaudio\lib\_torchaudio.pyd`），或日誌出現 `WinError 127` / `Could not load this library: ..._torchaudio.pyd`：
+
+這是 **torchaudio 與 torch 不相容**。新版程式會在 Windows **自動用 stub**（不必卸載也能過 ECAPA）。也可手動卸載：
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -m pip uninstall -y torchaudio
-# 可選：確認 speechbrain 仍可用
 python -c "from speechbrain.inference.speaker import EncoderClassifier; print('ok')"
 ```
 
-然後重跑轉寫（Whisper／NLLB 快取會重用）。英聽君不需要 `torchaudio`。
+（若尚未 pull 含 stub 的更新，卸載後需有 stub 程式，否則 speechbrain 仍會因缺 torchaudio 失敗。）然後重跑轉寫（Whisper／NLLB 快取會重用）。
 
 ### 目錄（安裝後會用到）
 
