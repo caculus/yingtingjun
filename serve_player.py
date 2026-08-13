@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import cgi
 import csv
 import io
 import json
@@ -21,6 +20,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
+from email import message_from_bytes
+from email.policy import HTTP as EMAIL_HTTP_POLICY
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -46,6 +47,41 @@ ECDICT_DB_DEFAULT = ROOT / "models" / "ecdict.db"
 _DICT_QUERY_RE = re.compile(r"^[a-z]+(?:'[a-z]+)?(?:-[a-z]+)*$")
 _ecdict_conn: sqlite3.Connection | None = None
 _ecdict_lock = threading.Lock()
+
+
+def extract_multipart_file(
+    body: bytes,
+    content_type: str,
+    *,
+    field_name: str = "file",
+) -> tuple[str, bytes]:
+    """Parse multipart/form-data; return (safe_filename, bytes) for one file field.
+
+    Uses stdlib ``email`` instead of removed ``cgi`` (gone in Python 3.13+).
+    """
+    ctype = content_type or ""
+    if "multipart/form-data" not in ctype.lower():
+        raise ValueError("需要 multipart/form-data")
+    header = f"Content-Type: {ctype}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1")
+    msg = message_from_bytes(header + body, policy=EMAIL_HTTP_POLICY)
+    if not msg.is_multipart():
+        raise ValueError("無效的 multipart 內容")
+    for part in msg.iter_parts():
+        name = part.get_param("name", header="Content-Disposition")
+        if name != field_name:
+            continue
+        filename = Path(part.get_filename() or "upload.bin").name
+        if not filename or filename in {".", ".."}:
+            raise ValueError("無效檔名")
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            data = b""
+        elif isinstance(payload, str):
+            data = payload.encode("latin-1")
+        else:
+            data = payload
+        return filename, data
+    raise ValueError(f"缺少 {field_name} 欄位")
 
 
 def normalize_dict_query(q: str) -> str | None:
@@ -1264,30 +1300,16 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
     def _save_upload(self) -> Path:
         ctype = self.headers.get("Content-Type", "")
-        if "multipart/form-data" not in ctype:
-            raise ValueError("需要 multipart/form-data")
-        environ = {
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": ctype,
-            "CONTENT_LENGTH": self.headers.get("Content-Length", "0"),
-        }
-        form = cgi.FieldStorage(
-            fp=self.rfile, headers=self.headers, environ=environ, keep_blank_values=True
-        )
-        if "file" not in form:
-            raise ValueError("缺少 file 欄位")
-        field = form["file"]
-        if isinstance(field, list):
-            field = field[0]
-        filename = Path(getattr(field, "filename", None) or "upload.bin").name
-        if not filename or filename in {".", ".."}:
-            raise ValueError("無效檔名")
+        length = int(self.headers.get("Content-Length") or 0)
+        if length <= 0:
+            raise ValueError("空上傳")
+        body = self.rfile.read(length)
+        filename, data = extract_multipart_file(body, ctype, field_name="file")
         self.state.uploads.mkdir(parents=True, exist_ok=True)
         dest = self.state.uploads / filename
         # Avoid overwrite collisions
         if dest.exists():
             dest = self.state.uploads / f"{dest.stem}-{int(time.time())}{dest.suffix}"
-        data = field.file.read()
         dest.write_bytes(data)
         return dest
 

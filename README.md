@@ -13,6 +13,8 @@
 
 ## 安裝（Install）
 
+> **Windows 請直接跳到下方「[Windows 安裝（B 層）](#windows-安裝b-層)」**，不要跟下面的 macOS 步驟 1–6（尤其是第 3 步編譯 speakrs）。
+
 ### 系統需求
 
 | 項目 | 說明 |
@@ -27,7 +29,9 @@
 
 | 項目 | 說明 |
 |------|------|
-| Rust（`rustup`） | **macOS**：編譯 `speakrs_diarize`；未安裝或 **Windows** 時用 ECAPA |
+| Rust（`rustup`） | **僅 macOS**：編譯 `speakrs_diarize`（依賴 Apple CoreML）；**Windows 請跳過**，改用 ECAPA |
+
+### macOS 安裝步驟
 
 ### 1. 進入專案並建立虛擬環境
 
@@ -57,9 +61,11 @@ python -m pytest
 
 主要套件（版本已釘在 `requirements.txt`，對應當前可用環境）：`mlx-whisper`、`torch`／`torchaudio`、`speechbrain`、`transformers`（NLLB）、`soundfile`、`scikit-learn` 等。
 
-### 3.（建議）編譯 speakrs 話者區分 CLI
+### 3.（建議，僅 macOS）編譯 speakrs 話者區分 CLI
 
-預設 `--diarizer auto` 會優先使用 speakrs；編譯一次即可：
+**Windows／Linux：請整步跳過。** speakrs 依賴 Apple CoreML，無法在 Windows 編譯；`--diarizer auto` 會直接用 SpeechBrain ECAPA，話者區分仍可用。
+
+macOS 上預設 `--diarizer auto` 會優先使用 speakrs；編譯一次即可：
 
 ```bash
 # 安裝 Rust（若尚未安裝）：https://rustup.rs

@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 # Build speakrs_diarize into repo bin/ for 英聽君（yingtingjun）.
+# macOS only — speakrs is built with the CoreML feature (Apple).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CLI="$ROOT/tools/speakrs_cli"
 OUT_DIR="$ROOT/bin"
 mkdir -p "$OUT_DIR"
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  echo "speakrs_diarize 僅支援 macOS（CoreML）。Windows／Linux 請跳過此步；轉寫會用 ECAPA。" >&2
+  exit 1
+fi
 
 if [[ -f "$HOME/.cargo/env" ]]; then
   # shellcheck source=/dev/null
