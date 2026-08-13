@@ -9,6 +9,8 @@ from typing import Any, Protocol
 
 import numpy as np
 
+from progress_log import asr_progress_pct, heartbeat, log_line, should_emit_progress
+
 MLX_DEFAULT_MODEL = "mlx-community/whisper-large-v3-turbo"
 FASTER_DEFAULT_MODEL = "large-v3-turbo"
 
@@ -259,8 +261,13 @@ class FasterWhisperBackend:
         key = (model, device, compute)
         cached = _faster_models.get(key)
         if cached is None:
-            cached = WhisperModel(model, device=device, compute_type=compute)
+            with heartbeat(
+                f"載入／下載 faster-whisper 模型「{model}」（{device}/{compute}；"
+                "首次可能需數分鐘）…"
+            ):
+                cached = WhisperModel(model, device=device, compute_type=compute)
             _faster_models[key] = cached
+            log_line(f"模型就緒：{model}")
         return cached
 
     def detect_language(
@@ -310,7 +317,18 @@ class FasterWhisperBackend:
         }
         if compression_ratio_threshold is not None:
             kwargs["compression_ratio_threshold"] = compression_ratio_threshold
+        duration = float(len(audio)) / 16000.0 if len(audio) else 0.0
         segments_iter, info = fw.transcribe(audio.astype(np.float32), **kwargs)
-        segments = list(segments_iter)
+        segments: list[Any] = []
+        last_pct = -1
+        for seg in segments_iter:
+            segments.append(seg)
+            end = float(getattr(seg, "end", 0.0) or 0.0)
+            pct = asr_progress_pct(end, duration)
+            if should_emit_progress(last_pct, pct, step=5):
+                log_line(f"ASR {pct}%（{end:.1f}s / {duration:.1f}s）")
+                last_pct = pct
+        if duration > 0 and last_pct < 100:
+            log_line(f"ASR 100%（{duration:.1f}s / {duration:.1f}s）")
         lang = (language or getattr(info, "language", None) or "").strip().lower()
         return faster_whisper_result_to_dict(segments, lang)

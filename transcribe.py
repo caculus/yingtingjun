@@ -117,6 +117,7 @@ def load_audio_mono(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int
 
 def detect_language(audio: np.ndarray, sr: int, model: str, probe_sec: float = 45.0) -> str:
     print("[1/4] Detecting language ...", flush=True)
+    print("       （首次會下載／載入 Whisper，請稍候）", flush=True)
     lang = get_configured_asr().detect_language(audio, sr, model, probe_sec=probe_sec)
     print(f"       Detected language: {lang or 'unknown'}", flush=True)
     return lang
@@ -822,10 +823,12 @@ def get_translator():
         return _translator
     print(f"[4/4] Loading local EN→ZH-Hant translator ({_TRANSLATOR_MODEL}) ...", flush=True)
     _purge_speechbrain_lazy_modules()
+    from progress_log import heartbeat, log_line
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
-    tokenizer = AutoTokenizer.from_pretrained(_TRANSLATOR_MODEL)
-    model = AutoModelForSeq2SeqLM.from_pretrained(_TRANSLATOR_MODEL)
+    with heartbeat(f"下載／載入 NLLB「{_TRANSLATOR_MODEL}」（首次可能需數分鐘）…"):
+        tokenizer = AutoTokenizer.from_pretrained(_TRANSLATOR_MODEL)
+        model = AutoModelForSeq2SeqLM.from_pretrained(_TRANSLATOR_MODEL)
     _translator = pipeline(
         "translation",
         model=model,
@@ -834,6 +837,7 @@ def get_translator():
         tgt_lang=_TGT_LANG,
         device=-1,
     )
+    log_line("翻譯模型就緒")
     return _translator
 
 
