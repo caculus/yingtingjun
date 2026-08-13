@@ -138,9 +138,10 @@ python -m pip install --upgrade pip
 # 建議用安裝腳本（先從 PyTorch CPU 索引裝 torch，再裝其餘）
 powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
 # 或手動：
-# python -m pip install torch==2.9.1 torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cpu
+# python -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
 # python -m pip install -r requirements-windows.txt
 # 注意：Windows 請用 requirements-windows.txt，不要用 requirements.txt（含 mlx-whisper）
+# 注意：不要強裝 torchaudio；版本不合會跳出「無法找到程序輸入點 torch_library_impl」視窗
 
 # ffmpeg（擇一）
 winget install Gyan.FFmpeg
@@ -169,6 +170,17 @@ powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
 ```
 
 （`py -3.12-64` 強制用 64-bit x86；若命令不存在，用「開始功能表」裡 Python 3.12 的完整路徑建立 venv。）
+
+若轉寫到話者區分時跳出 **「無法找到程序輸入點 torch_library_impl」**（`torchaudio\lib\_torchaudio.pyd`）：
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip uninstall -y torchaudio
+# 可選：確認 speechbrain 仍可用
+python -c "from speechbrain.inference.speaker import EncoderClassifier; print('ok')"
+```
+
+然後重跑轉寫（Whisper／NLLB 快取會重用）。英聽君不需要 `torchaudio`。
 
 ### 目錄（安裝後會用到）
 

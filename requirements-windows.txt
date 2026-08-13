@@ -7,11 +7,12 @@
 # can install torch, but torchaudio wheels are often missing.
 #
 # Prefer: powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
+# torchaudio is OPTIONAL — mismatched wheels pop a Windows DLL dialog and break ECAPA.
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 faster-whisper==1.1.1
 torch==2.9.1
-# torchaudio is installed by install_windows.ps1 on AMD64; optional on ARM64.
+# Do not pin torchaudio here; install_windows.ps1 uninstalls it on purpose.
 soundfile==0.13.1
 numpy==2.2.6
 scikit-learn==1.6.1

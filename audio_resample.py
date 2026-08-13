@@ -20,13 +20,13 @@ def resample_mono(audio: np.ndarray, orig_sr: int, target_sr: int) -> np.ndarray
         return audio
 
     try:
-        import torchaudio
+        import torchaudio  # noqa: F401
 
         tensor = torch.from_numpy(audio).unsqueeze(0)
         tensor = torchaudio.functional.resample(tensor, orig_sr, target_sr)
         return tensor.squeeze(0).numpy().astype(np.float32, copy=False)
     except Exception:
-        # Windows ARM64 often has torch wheels but no torchaudio — linear resample.
+        # Missing or ABI-broken torchaudio (common on Windows) — linear resample.
         x = torch.from_numpy(audio).view(1, 1, -1)
         new_len = max(1, int(round(audio.shape[0] * float(target_sr) / float(orig_sr))))
         y = torch.nn.functional.interpolate(
