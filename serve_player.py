@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import cgi
 import csv
 import io
 import json
@@ -21,24 +20,24 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
+from email import message_from_bytes
+from email.policy import HTTP as EMAIL_HTTP_POLICY
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 
+from platform_runtime import (
+    configure_stdio,
+    resolve_venv_python,
+    subprocess_extra_kwargs,
+    transcribe_child_env,
+    transcribe_cmd,
+)
+
 ROOT = Path(__file__).resolve().parent
 PLAYER_DIR = ROOT / "player"
-
-
-def resolve_venv_python() -> Path:
-    unix = ROOT / ".venv" / "bin" / "python"
-    windows = ROOT / ".venv" / "Scripts" / "python.exe"
-    if unix.exists():
-        return unix
-    if windows.exists():
-        return windows
-    return Path(sys.executable)
 
 
 VENV_PYTHON = resolve_venv_python()
@@ -48,6 +47,41 @@ ECDICT_DB_DEFAULT = ROOT / "models" / "ecdict.db"
 _DICT_QUERY_RE = re.compile(r"^[a-z]+(?:'[a-z]+)?(?:-[a-z]+)*$")
 _ecdict_conn: sqlite3.Connection | None = None
 _ecdict_lock = threading.Lock()
+
+
+def extract_multipart_file(
+    body: bytes,
+    content_type: str,
+    *,
+    field_name: str = "file",
+) -> tuple[str, bytes]:
+    """Parse multipart/form-data; return (safe_filename, bytes) for one file field.
+
+    Uses stdlib ``email`` instead of removed ``cgi`` (gone in Python 3.13+).
+    """
+    ctype = content_type or ""
+    if "multipart/form-data" not in ctype.lower():
+        raise ValueError("需要 multipart/form-data")
+    header = f"Content-Type: {ctype}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1")
+    msg = message_from_bytes(header + body, policy=EMAIL_HTTP_POLICY)
+    if not msg.is_multipart():
+        raise ValueError("無效的 multipart 內容")
+    for part in msg.iter_parts():
+        name = part.get_param("name", header="Content-Disposition")
+        if name != field_name:
+            continue
+        filename = Path(part.get_filename() or "upload.bin").name
+        if not filename or filename in {".", ".."}:
+            raise ValueError("無效檔名")
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            data = b""
+        elif isinstance(payload, str):
+            data = payload.encode("latin-1")
+        else:
+            data = payload
+        return filename, data
+    raise ValueError(f"缺少 {field_name} 欄位")
 
 
 def normalize_dict_query(q: str) -> str | None:
@@ -511,9 +545,9 @@ class AppState:
             return {"ok": False, "error": f"找不到還原快照：{bak.name}"}
 
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [
+        cmd = transcribe_cmd(
             py,
-            str(TRANSCRIBE_PY),
+            TRANSCRIBE_PY,
             "--from-json",
             str(transcript),
             "--outdir",
@@ -521,14 +555,18 @@ class AppState:
             "--workdir",
             str(self.workdir),
             "--restore-range",
-        ]
+        )
         try:
             proc = subprocess.run(
                 cmd,
                 cwd=str(ROOT),
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=False,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
         except Exception as exc:  # noqa: BLE001
             return {"ok": False, "error": f"還原失敗：{exc}"}
@@ -550,9 +588,9 @@ class AppState:
         self, transcript: Path, audio: Path, start: float, end: float
     ) -> None:
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [
+        cmd = transcribe_cmd(
             py,
-            str(TRANSCRIBE_PY),
+            TRANSCRIBE_PY,
             "--from-json",
             str(transcript),
             str(audio),
@@ -563,7 +601,7 @@ class AppState:
             "--retranscribe-range",
             f"{start}",
             f"{end}",
-        ]
+        )
         self.append_log(f"$ {' '.join(cmd)}")
         final_message = None
         try:
@@ -573,7 +611,11 @@ class AppState:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 bufsize=1,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
             assert proc.stdout is not None
             for line in proc.stdout:
@@ -612,7 +654,7 @@ class AppState:
 
     def _run_transcribe(self, source: Path) -> None:
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = [py, str(TRANSCRIBE_PY), str(source)]
+        cmd = transcribe_cmd(py, TRANSCRIBE_PY, str(source))
         self.append_log(f"$ {' '.join(cmd)}")
         final_message = None
         try:
@@ -622,7 +664,11 @@ class AppState:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 bufsize=1,
+                env=transcribe_child_env(),
+                **subprocess_extra_kwargs(),
             )
             assert proc.stdout is not None
             for line in proc.stdout:
@@ -1254,30 +1300,16 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
     def _save_upload(self) -> Path:
         ctype = self.headers.get("Content-Type", "")
-        if "multipart/form-data" not in ctype:
-            raise ValueError("需要 multipart/form-data")
-        environ = {
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": ctype,
-            "CONTENT_LENGTH": self.headers.get("Content-Length", "0"),
-        }
-        form = cgi.FieldStorage(
-            fp=self.rfile, headers=self.headers, environ=environ, keep_blank_values=True
-        )
-        if "file" not in form:
-            raise ValueError("缺少 file 欄位")
-        field = form["file"]
-        if isinstance(field, list):
-            field = field[0]
-        filename = Path(getattr(field, "filename", None) or "upload.bin").name
-        if not filename or filename in {".", ".."}:
-            raise ValueError("無效檔名")
+        length = int(self.headers.get("Content-Length") or 0)
+        if length <= 0:
+            raise ValueError("空上傳")
+        body = self.rfile.read(length)
+        filename, data = extract_multipart_file(body, ctype, field_name="file")
         self.state.uploads.mkdir(parents=True, exist_ok=True)
         dest = self.state.uploads / filename
         # Avoid overwrite collisions
         if dest.exists():
             dest = self.state.uploads / f"{dest.stem}-{int(time.time())}{dest.suffix}"
-        data = field.file.read()
         dest.write_bytes(data)
         return dest
 
@@ -1384,6 +1416,7 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(description="英聽君（yingtingjun）：sync player with highlight bar")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--outdir", type=Path, default=ROOT / "output")
@@ -1419,6 +1452,13 @@ def main() -> int:
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Transcript: {transcript.name if transcript else '(none)'}")
     print(f"Audio:      {audio.name if audio else '(none)'}")
+    try:
+        from audio_convert import find_ffmpeg_bin
+
+        ff = find_ffmpeg_bin()
+        print(f"ffmpeg:     {ff if ff else '(not found — m4a/mp3 need ffmpeg on PATH or bin/)'}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"ffmpeg:     (lookup failed: {exc})")
     print(f"Open:       {url}")
     if not args.no_open:
         webbrowser.open(url)

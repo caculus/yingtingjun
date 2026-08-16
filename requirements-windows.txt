@@ -1,0 +1,22 @@
+# Windows (B-layer): no mlx-whisper.
+# Also install ffmpeg (PATH, YTJ_FFMPEG, or repo bin/ffmpeg.exe).
+#   winget install Gyan.FFmpeg
+#
+# Prefer Python 3.12 **Windows installer (64-bit / AMD64)** from python.org —
+# even on Snapdragon / Windows on ARM (runs under x64 emulation). ARM64 Python
+# can install torch, but torchaudio wheels are often missing.
+#
+# Prefer: powershell -ExecutionPolicy Bypass -File scripts\install_windows.ps1
+# torchaudio is OPTIONAL — mismatched wheels pop a Windows DLL dialog and break ECAPA.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+faster-whisper==1.1.1
+torch==2.9.1
+# Do not pin torchaudio here; install_windows.ps1 uninstalls it on purpose.
+soundfile==0.13.1
+numpy==2.2.6
+scikit-learn==1.6.1
+speechbrain==1.1.0
+transformers==4.57.6
+sentencepiece==0.2.2
+sacremoses==0.1.1

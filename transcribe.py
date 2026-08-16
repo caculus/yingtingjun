@@ -14,9 +14,22 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 import torch
-import torchaudio
 from sklearn.cluster import AgglomerativeClustering, SpectralClustering
 from sklearn.metrics import silhouette_score
+
+from asr_backend import (
+    MLX_DEFAULT_MODEL,
+    configure_asr,
+    configured_asr_name,
+    get_configured_asr,
+)
+from audio_convert import (
+    convert_to_work_wav,
+    find_afconvert_bin,
+    find_ffmpeg_bin,
+)
+from audio_resample import resample_mono
+from platform_runtime import configure_stdio, resolve_diarizer_name
 
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
 
@@ -66,45 +79,25 @@ def pick_audio_file() -> Path | None:
 
 
 def ensure_work_wav(src: Path, out_dir: Path) -> Path:
-    """Convert any supported audio to 16 kHz mono WAV via afconvert/soundfile."""
+    """Convert any supported audio to 16 kHz mono WAV (afconvert → ffmpeg → soundfile)."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = media_stem(src)
-    dest = out_dir / f"{stem}.work.wav"
+    dest = out_dir / f"{media_stem(src)}.work.wav"
     if src.resolve() == dest.resolve():
         return dest
 
-    if src.suffix.lower() == ".wav":
-        try:
-            audio, sr = sf.read(str(src), always_2d=False)
-            if audio.ndim > 1:
-                audio = audio.mean(axis=1)
-            if sr == 16000:
-                sf.write(str(dest), audio, 16000, subtype="PCM_16")
-                return dest
-        except Exception:
-            pass
+    def _soundfile_fallback(source: Path, target: Path) -> None:
+        audio, _sr = load_audio_mono(source, target_sr=16000)
+        sf.write(str(target), audio, 16000, subtype="PCM_16")
 
-    afconvert = Path("/usr/bin/afconvert")
-    if afconvert.exists():
-        cmd = [
-            str(afconvert),
-            "-f",
-            "WAVE",
-            "-d",
-            "LEI16@16000",
-            "-c",
-            "1",
-            str(src),
-            str(dest),
-        ]
-        print(f"[0/4] Converting audio → {dest.name} ...", flush=True)
-        subprocess.run(cmd, check=True)
-        return dest
-
-    # Fallback: soundfile may still open some formats.
-    print(f"[0/4] Loading audio via soundfile → {dest.name} ...", flush=True)
-    audio, sr = load_audio_mono(src, target_sr=16000)
-    sf.write(str(dest), audio, 16000, subtype="PCM_16")
+    print(f"[0/4] Converting audio → {dest.name} ...", flush=True)
+    used = convert_to_work_wav(
+        src,
+        dest,
+        ffmpeg=find_ffmpeg_bin(),
+        afconvert=find_afconvert_bin(),
+        soundfile_fallback=_soundfile_fallback,
+    )
+    print(f"       via {used}", flush=True)
     return dest
 
 
@@ -114,9 +107,7 @@ def load_audio_mono(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int
         audio = audio.mean(axis=1)
     audio = audio.astype(np.float32)
     if sr != target_sr:
-        tensor = torch.from_numpy(audio).unsqueeze(0)
-        tensor = torchaudio.functional.resample(tensor, sr, target_sr)
-        audio = tensor.squeeze(0).numpy()
+        audio = resample_mono(audio, sr, target_sr)
         sr = target_sr
     peak = np.max(np.abs(audio)) if audio.size else 0.0
     if peak > 1.0:
@@ -125,18 +116,9 @@ def load_audio_mono(path: Path, target_sr: int = 16000) -> tuple[np.ndarray, int
 
 
 def detect_language(audio: np.ndarray, sr: int, model: str, probe_sec: float = 45.0) -> str:
-    import mlx_whisper
-
     print("[1/4] Detecting language ...", flush=True)
-    n = min(len(audio), int(probe_sec * sr))
-    probe = audio[:n].astype(np.float32)
-    result = mlx_whisper.transcribe(
-        probe,
-        path_or_hf_repo=model,
-        word_timestamps=False,
-        verbose=False,
-    )
-    lang = (result.get("language") or "").strip().lower()
+    print("       （首次會下載／載入 Whisper，請稍候）", flush=True)
+    lang = get_configured_asr().detect_language(audio, sr, model, probe_sec=probe_sec)
     print(f"       Detected language: {lang or 'unknown'}", flush=True)
     return lang
 
@@ -149,20 +131,18 @@ def transcribe(
     condition_on_previous_text: bool = True,
     compression_ratio_threshold: float | None = 2.4,
 ) -> dict:
-    import mlx_whisper
-
-    print(f"[2/4] Transcribing ({language}) with {model} ...", flush=True)
-    kwargs: dict = {
-        "path_or_hf_repo": model,
-        "language": language,
-        "word_timestamps": True,
-        "verbose": False,
-        "condition_on_previous_text": condition_on_previous_text,
-    }
-    if compression_ratio_threshold is not None:
-        kwargs["compression_ratio_threshold"] = compression_ratio_threshold
-    result = mlx_whisper.transcribe(audio.astype(np.float32), **kwargs)
-    return result
+    backend = configured_asr_name()
+    print(
+        f"[2/4] Transcribing ({language}) with {model} [{backend}] ...",
+        flush=True,
+    )
+    return get_configured_asr().transcribe(
+        audio,
+        model,
+        language=language,
+        condition_on_previous_text=condition_on_previous_text,
+        compression_ratio_threshold=compression_ratio_threshold,
+    )
 
 
 def collect_words(segments: list[dict]) -> list[dict]:
@@ -467,11 +447,15 @@ def find_speakrs_bin() -> Path | None:
     candidates.extend(
         [
             ROOT / "bin" / "speakrs_diarize",
+            ROOT / "bin" / "speakrs_diarize.exe",
             ROOT / "tools" / "speakrs_cli" / "target" / "release" / "speakrs_diarize",
+            ROOT / "tools" / "speakrs_cli" / "target" / "release" / "speakrs_diarize.exe",
         ]
     )
     for path in candidates:
-        if path.is_file() and os.access(path, os.X_OK):
+        if not path.is_file():
+            continue
+        if sys.platform.startswith("win") or os.access(path, os.X_OK):
             return path
     return None
 
@@ -590,6 +574,15 @@ def load_ecapa_window_embeddings(
     audio: np.ndarray, sr: int
 ) -> tuple[np.ndarray, np.ndarray]:
     """Load ECAPA encoder and compute sliding-window speaker embeddings."""
+    from torchaudio_compat import prepare_torchaudio_for_speechbrain
+
+    mode = prepare_torchaudio_for_speechbrain()
+    if mode == "stub":
+        print(
+            "       torchaudio: stub（Windows 略過損壞的 DLL；"
+            "設 YTJ_USE_TORCHAUDIO=1 可改用真實套件）",
+            flush=True,
+        )
     from speechbrain.inference.speaker import EncoderClassifier
 
     classifier = EncoderClassifier.from_hparams(
@@ -839,10 +832,12 @@ def get_translator():
         return _translator
     print(f"[4/4] Loading local EN→ZH-Hant translator ({_TRANSLATOR_MODEL}) ...", flush=True)
     _purge_speechbrain_lazy_modules()
+    from progress_log import heartbeat, log_line
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
-    tokenizer = AutoTokenizer.from_pretrained(_TRANSLATOR_MODEL)
-    model = AutoModelForSeq2SeqLM.from_pretrained(_TRANSLATOR_MODEL)
+    with heartbeat(f"下載／載入 NLLB「{_TRANSLATOR_MODEL}」（首次可能需數分鐘）…"):
+        tokenizer = AutoTokenizer.from_pretrained(_TRANSLATOR_MODEL)
+        model = AutoModelForSeq2SeqLM.from_pretrained(_TRANSLATOR_MODEL)
     _translator = pipeline(
         "translation",
         model=model,
@@ -851,6 +846,7 @@ def get_translator():
         tgt_lang=_TGT_LANG,
         device=-1,
     )
+    log_line("翻譯模型就緒")
     return _translator
 
 
@@ -1291,6 +1287,7 @@ def write_outputs(turns: list[dict], out_dir: Path, stem: str, raw: dict) -> Non
 
 
 def main() -> int:
+    configure_stdio()
     parser = argparse.ArgumentParser(
         description="英聽君（yingtingjun）：select audio → English transcript + ZH + speakers/timestamps"
     )
@@ -1303,9 +1300,15 @@ def main() -> int:
     )
     parser.add_argument("--pick", action="store_true", help="Force file picker dialog")
     parser.add_argument(
+        "--asr",
+        choices=["auto", "mlx", "faster"],
+        default="auto",
+        help="ASR backend: auto (macOS→mlx, Windows/Linux→faster-whisper), mlx, or faster",
+    )
+    parser.add_argument(
         "--model",
-        default="mlx-community/whisper-large-v3-turbo",
-        help="MLX Whisper model repo",
+        default=MLX_DEFAULT_MODEL,
+        help="Whisper model id (MLX HF repo or faster-whisper name; auto-mapped by --asr)",
     )
     parser.add_argument("--min-speakers", type=int, default=2)
     parser.add_argument("--max-speakers", type=int, default=4)
@@ -1325,7 +1328,7 @@ def main() -> int:
         "--diarizer",
         choices=["auto", "speakrs", "ecapa"],
         default="auto",
-        help="Speaker diarization backend (default: auto → speakrs, else ECAPA)",
+        help="Speaker diarization: auto (macOS→speakrs then ECAPA; Windows/Linux→ECAPA), speakrs, or ecapa",
     )
     parser.add_argument(
         "--speakrs-mode",
@@ -1398,6 +1401,11 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    requested_diarizer = args.diarizer
+    args.diarizer = resolve_diarizer_name(args.diarizer)
+    if args.diarizer != requested_diarizer:
+        print(f"       diarizer auto → {args.diarizer}", flush=True)
+
     if args.num_speakers is not None and args.num_speakers < 1:
         print("--num-speakers must be >= 1", file=sys.stderr)
         return 1
@@ -1447,6 +1455,8 @@ def main() -> int:
             return 0
         if args.retranscribe_range:
             start_s, end_s = args.retranscribe_range
+            asr_name, args.model = configure_asr(args.asr, args.model)
+            print(f"       ASR backend={asr_name} model={args.model}", flush=True)
             try:
                 retranscribe_time_range(
                     args.from_json,
@@ -1556,6 +1566,8 @@ def main() -> int:
         result = json.loads(cache_path.read_text(encoding="utf-8"))
         lang = (result.get("language") or "en").lower()
     else:
+        asr_name, args.model = configure_asr(args.asr, args.model)
+        print(f"       ASR backend={asr_name} model={args.model}", flush=True)
         lang = detect_language(audio, sr, args.model)
         if lang not in {"en", "english"} and not args.force:
             print(
