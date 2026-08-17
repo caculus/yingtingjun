@@ -42,7 +42,11 @@ foreach ($name in $appFiles) {
 }
 Copy-Item -Recurse (Join-Path $Repo "player") (Join-Path $AppDir "player")
 Copy-Item (Join-Path $PSScriptRoot "Yingtingjun.bat") (Join-Path $Dist "Yingtingjun.bat")
-Copy-Item (Join-Path $PSScriptRoot "Install-PythonDeps.ps1") (Join-Path $Dist "Install-PythonDeps.ps1")
+# PowerShell 5.1 needs a UTF-8 BOM to parse Chinese strings; Copy-Item may drop it.
+$ps1Src = Join-Path $PSScriptRoot "Install-PythonDeps.ps1"
+$ps1Dst = Join-Path $Dist "Install-PythonDeps.ps1"
+$utf8Bom = New-Object System.Text.UTF8Encoding $true
+[System.IO.File]::WriteAllText($ps1Dst, [System.IO.File]::ReadAllText($ps1Src), $utf8Bom)
 
 if (-not (Test-Path (Join-Path $AppDir "serve_player.py"))) {
     throw "app\serve_player.py missing"

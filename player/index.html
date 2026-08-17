@@ -45,17 +45,24 @@
 
     .topbar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.85rem 1.1rem;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 1rem 1.5rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+      padding: 1rem 1.5rem 0.75rem;
       border-bottom: 1px solid rgba(243, 239, 230, 0.08);
       backdrop-filter: blur(8px);
       position: sticky;
       top: 0;
       z-index: 5;
       background: rgba(26, 35, 32, 0.92);
+    }
+
+    .topbar-main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem 1.1rem;
+      align-items: center;
+      justify-content: flex-start;
     }
 
     .brand-block {
@@ -75,11 +82,12 @@
     .meta {
       color: rgba(243, 239, 230, 0.68);
       font-size: 0.85rem;
-      margin-top: 0.2rem;
-      max-width: 280px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.4;
+      margin: 0;
+      max-width: none;
+      overflow: visible;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .file-actions {
@@ -864,7 +872,6 @@
       .controls { justify-content: stretch; }
       .transport { width: 100%; }
       select { width: 100%; max-width: none; flex: 1 1 140px; }
-      .meta { max-width: 100%; }
       .stage { grid-template-columns: 1fr; }
       .notes-panel {
         border-left: 0;
@@ -876,9 +883,9 @@
 </head>
 <body>
   <header class="topbar">
+    <div class="topbar-main">
     <div class="brand-block">
       <h1 class="brand">英聽君</h1>
-      <div class="meta" id="meta">載入中…</div>
     </div>
     <div class="file-actions">
       <button class="secondary file-btn" id="importBtn" type="button">匯入音檔</button>
@@ -902,6 +909,8 @@
         </div>
       </div>
     </div>
+    </div>
+    <div class="meta" id="meta">載入中…</div>
   </header>
 
   <div class="log-panel" id="logPanel">
@@ -1748,9 +1757,13 @@
       else if (e.code === "ArrowRight") seekTo(audio.currentTime + 5, { autoPlay: false });
     });
 
+    function hideLogPanel() {
+      logPanel.classList.remove("visible");
+    }
+
     function updateLogUI(job) {
-      if (!job || job.status === "idle") {
-        if (!busy) logPanel.classList.remove("visible");
+      if (!job || job.status === "idle" || job.status === "done") {
+        if (!busy || job?.status === "done") hideLogPanel();
         return;
       }
       logPanel.classList.add("visible");
@@ -2619,6 +2632,7 @@
           pollTimer = 0;
           setBusy(false);
           if (job.status === "done") {
+            hideLogPanel();
             await loadCurrentSession();
             metaEl.textContent = (metaEl.textContent || "") + "（已自動載入）";
           } else if (job.status === "error") {

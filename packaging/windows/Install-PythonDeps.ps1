@@ -1,13 +1,16 @@
-# Download everything not in the slim installer (visible progress in this window):
+﻿# Download everything not in the slim installer (visible progress in this window):
 #   1) CPython embed-amd64 + pip
 #   2) Gyan ffmpeg essentials → bin\ffmpeg.exe
 #   3) ECDICT SQLite → models\ecdict.db
 #   4) Python wheels (torch, faster-whisper, ...)
 #   5) SpeechBrain ECAPA → models\spkrec-ecapa-voxceleb
 $ErrorActionPreference = "Stop"
-$Host.UI.RawUI.WindowTitle = "英聽君 — 下載執行階段"
-
+# Windows PowerShell 5.1 (Inno / Yingtingjun.bat) parses this file as ANSI unless UTF-8 BOM is present.
 $Root = (Resolve-Path $PSScriptRoot).Path
+$Log = Join-Path $Root "install-runtime.log"
+try { Start-Transcript -Path $Log -Force | Out-Null } catch { }
+try { $Host.UI.RawUI.WindowTitle = "英聽君 — 下載執行階段" } catch { }
+
 $PyDir = Join-Path $Root "python"
 $Py = Join-Path $PyDir "python.exe"
 $Marker = Join-Path $PyDir ".deps-ok"
@@ -267,9 +270,14 @@ try {
     Show-YtjProgress 100 "完成"
     Write-Progress -Activity "英聽君 安裝" -Completed
     Write-Host "`nAll runtime extras ready." -ForegroundColor Green
+    Write-Host "Log: $Log"
 }
 catch {
     Write-Progress -Activity "英聽君 安裝" -Completed
     Write-Host "`nFAILED: $_" -ForegroundColor Red
+    Write-Host "Log: $Log"
     throw
+}
+finally {
+    try { Stop-Transcript | Out-Null } catch { }
 }
