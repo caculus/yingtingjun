@@ -30,10 +30,13 @@ from urllib.parse import parse_qs, urlparse
 
 from platform_runtime import (
     configure_stdio,
+    port_is_listening,
+    resolve_models_dir,
     resolve_venv_python,
     subprocess_extra_kwargs,
     transcribe_child_env,
     transcribe_cmd,
+    transcribe_import_args,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -43,7 +46,6 @@ PLAYER_DIR = ROOT / "player"
 VENV_PYTHON = resolve_venv_python()
 TRANSCRIBE_PY = ROOT / "transcribe.py"
 DICT_API_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
-ECDICT_DB_DEFAULT = ROOT / "models" / "ecdict.db"
 _DICT_QUERY_RE = re.compile(r"^[a-z]+(?:'[a-z]+)?(?:-[a-z]+)*$")
 _ecdict_conn: sqlite3.Connection | None = None
 _ecdict_lock = threading.Lock()
@@ -176,8 +178,11 @@ def compact_ecdict_row(query_lemma: str, row: sqlite3.Row) -> dict | None:
 
 def resolve_ecdict_path() -> Path | None:
     env = (os.environ.get("ECDICT_DB") or "").strip()
-    path = Path(env).expanduser() if env else ECDICT_DB_DEFAULT
-    return path if path.exists() else None
+    if env:
+        path = Path(env).expanduser()
+        return path if path.exists() else None
+    candidate = resolve_models_dir(ROOT) / "ecdict.db"
+    return candidate if candidate.exists() else None
 
 
 def get_ecdict_conn() -> sqlite3.Connection | None:
@@ -654,7 +659,11 @@ class AppState:
 
     def _run_transcribe(self, source: Path) -> None:
         py = str(VENV_PYTHON if VENV_PYTHON.exists() else sys.executable)
-        cmd = transcribe_cmd(py, TRANSCRIBE_PY, str(source))
+        cmd = transcribe_cmd(
+            py,
+            TRANSCRIBE_PY,
+            *transcribe_import_args(source, self.workdir, self.outdir),
+        )
         self.append_log(f"$ {' '.join(cmd)}")
         final_message = None
         try:
@@ -1433,6 +1442,13 @@ def main() -> int:
     args.uploads.mkdir(parents=True, exist_ok=True)
     args.notesdir.mkdir(parents=True, exist_ok=True)
 
+    url = f"http://127.0.0.1:{args.port}/"
+    if port_is_listening("127.0.0.1", args.port):
+        print(f"Already running at {url}", flush=True)
+        if not args.no_open:
+            webbrowser.open(url)
+        return 0
+
     transcript = args.transcript or find_transcript(args.outdir)
     audio = args.audio or find_audio(ROOT, args.workdir)
     if not PLAYER_DIR.joinpath("index.html").exists():
@@ -1449,7 +1465,6 @@ def main() -> int:
     )
     handler = partial(PlayerHandler, state=state)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
-    url = f"http://127.0.0.1:{args.port}/"
     print(f"Transcript: {transcript.name if transcript else '(none)'}")
     print(f"Audio:      {audio.name if audio else '(none)'}")
     try:

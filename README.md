@@ -7,19 +7,19 @@
 選任意錄音 → 偵測是否為英文對話 → 英文轉寫 + 下一行中文翻譯  
 （含話者區分、標點、分段、時間戳），並可用瀏覽器「英聽君」邊聽邊跟讀、記筆記、查詞典、局部重辨。
 
-語料來自你的生活，檔案留在你的 Mac，不上雲。
+語料來自你的生活，檔案留在你的電腦（Mac 或 Windows），不上雲。
 
 **English:** Local macOS tool that turns *your* real English recordings into bilingual listening lessons. Built by an engineer newly settled in Australasia, to keep up with everyday conversations.
 
 ## 安裝（Install）
 
-> **Windows 請直接跳到下方「[Windows 安裝（B 層）](#windows-安裝b-層)」**，不要跟下面的 macOS 步驟 1–6（尤其是第 3 步編譯 speakrs）。
+> **Windows 一般使用者請直接跳到「[Windows 安裝檔](#windows-安裝檔建議)」**。從原始碼開發再看「[Windows 開發安裝（B 層）](#windows-開發安裝b-層)」。不要跟下面的 macOS 步驟 1–6（尤其是第 3 步編譯 speakrs）。
 
 ### 系統需求
 
 | 項目 | 說明 |
 |------|------|
-| 作業系統 | **macOS**（轉檔優先 `afconvert`，否則 ffmpeg）；**Windows 10/11**（需 [ffmpeg](https://ffmpeg.org)；話者為 ECAPA） |
+| 作業系統 | **macOS**（轉檔優先 `afconvert`，否則 ffmpeg）；**Windows 10/11**（安裝檔會連線下載 ffmpeg；話者為 ECAPA） |
 | 晶片 | **Apple Silicon** 建議（MLX Whisper、speakrs CoreML 較快） |
 | Python | **3.9+**（建議用專案內虛擬環境） |
 | 磁碟／網路 | 首次會下載模型（Whisper／NLLB／speakrs／ECAPA），合計約數 GB；需可連網 |
@@ -122,9 +122,39 @@ python serve_player.py
 # 瀏覽器：http://127.0.0.1:8765/
 ```
 
-### Windows 安裝（B 層）
+### Windows 安裝檔（建議）
 
-請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.12 Windows installer (64-bit)**（勾選 **Add python.exe to PATH**）。
+給不想自己裝 Python 的使用者。安裝包約 **2 MB**，**不含** Python／ffmpeg／模型；安裝時會連網下載，並跳出進度視窗顯示百分比。
+
+1. 執行 `dist\Yingtingjun-Setup-x64.exe`（或發佈的同名安裝檔）
+2. 安裝到 `%LOCALAPPDATA%\Yingtingjun`（不需系統管理員）
+3. 複製檔案後會開 **「英聽君 — 下載執行階段」** 視窗，依序下載：
+   - CPython **3.13.15 AMD64 embed** + pip
+   - ffmpeg essentials → `bin\ffmpeg.exe`
+   - ECDICT 英中詞典 → `models\ecdict.db`
+   - torch／faster-whisper／transformers 等套件
+   - SpeechBrain ECAPA 話者模型
+4. 完成後用桌面或開始功能表捷徑啟動（實際是 `Yingtingjun.bat`）
+
+安裝需穩定網路，第一次可能要數分鐘。若下載失敗，安裝精靈仍會結束；之後再開捷徑會再試一次。
+
+**Windows on ARM（Snapdragon）**：安裝檔下載的是 **AMD64** Python（在 ARM 上模擬執行）。**不要**另外裝 ARM64 Python 來取代它。
+
+文稿與筆記在安裝目錄的 `data\`（`workdir`／`output`／`uploads`／`notes`）。卸載時**不會**刪這些資料。
+
+從原始碼重編安裝檔：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging\windows\build_portable.ps1
+# 產物：dist\Yingtingjun\（便攜目錄）與 dist\Yingtingjun-Setup-x64.exe
+# 只要便攜目錄、不編 Inno：加上 -SkipInstaller
+```
+
+需 [Inno Setup 6](https://jrsoftware.org/isinfo.php)（腳本找不到 `ISCC.exe` 時會嘗試 `winget install JRSoftware.InnoSetup`）。Git 樹保持扁平（`*.py` 在倉庫根目錄）；`packaging\windows\` 只負責組裝，`dist\` 不進 git。
+
+### Windows 開發安裝（B 層）
+
+請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.12 Windows installer (64-bit)**（勾選 **Add python.exe to PATH**）。開發用 venv；上面的安裝檔則自帶 3.13 embed，兩者分開。
 
 重要：若電腦是 **Snapdragon / Windows on ARM**，請下載標示 **Windows installer (64-bit)** 的 **AMD64** 版（在 ARM 上以模擬執行），**不要**選 **ARM64** 版。ARM64 Python 能裝 `torch`，但常 **沒有 `torchaudio` 輪子**，pip 會報 `from versions: none`。
 
@@ -197,6 +227,8 @@ python -c "from speechbrain.inference.speaker import EncoderClassifier; print('o
 | `output/` | 文稿與快取；局部重辨快照 `*.json.bak-range`（**個人文稿不進 git**） |
 | `scripts/setup_ecdict.sh` / `setup_ecdict.ps1` | 下載／安裝 ECDICT（macOS bash / Windows PowerShell） |
 | `scripts/build_speakrs.sh` | 編譯 speakrs（macOS；Windows 請跳過） |
+| `packaging/windows/` | Windows 便攜組裝與 Inno 腳本（開發打包用） |
+| `dist/Yingtingjun-Setup-x64.exe` | 編譯出的安裝檔（不進 git） |
 
 ## 轉寫（語音 → 雙語文稿）
 
@@ -402,7 +434,7 @@ API：
 | `--audio` / `--transcript` | 啟動時預載的音訊與文稿 |
 | `--port` | 預設 `8765` |
 | `--no-open` | 不自動開瀏覽器 |
-| `--workdir` / `--outdir` / `--uploads` / `--notesdir` | 目錄覆寫 |
+| `--workdir` / `--outdir` / `--uploads` / `--notesdir` | 目錄覆寫（Windows 安裝檔會指向 `data\` 底下） |
 
 不帶 `--audio` / `--transcript` 時會嘗試預設載入一支；有多支時請用頁面「選擇音檔」再「載入」，或啟動時明確指定成對路徑。
 
@@ -424,7 +456,7 @@ API：
 
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
 - 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）
-- **Windows**：見上方「Windows 安裝」；faster-whisper + ffmpeg + ECAPA。CPU 較慢；speakrs 不支援
+- **Windows**：一般使用者用安裝檔（見上方）；開發見「Windows 開發安裝」。faster-whisper + ffmpeg + ECAPA。CPU 較慢；speakrs 不支援。若 8765 已被佔用，再開一次會打開既有頁面、不會起第二個伺服器
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`

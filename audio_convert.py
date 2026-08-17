@@ -35,10 +35,11 @@ def find_ffmpeg_bin(
             return candidate
 
     root = repo_root if repo_root is not None else Path(__file__).resolve().parent
-    for name in ("ffmpeg.exe", "ffmpeg"):
-        candidate = root / "bin" / name
-        if candidate.is_file():
-            return candidate
+    for base in (root, root.parent):
+        for name in ("ffmpeg.exe", "ffmpeg"):
+            candidate = base / "bin" / name
+            if candidate.is_file():
+                return candidate
 
     which_fn = shutil.which if which is None else which
     found = which_fn("ffmpeg")

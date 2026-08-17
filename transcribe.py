@@ -29,7 +29,7 @@ from audio_convert import (
     find_ffmpeg_bin,
 )
 from audio_resample import resample_mono
-from platform_runtime import configure_stdio, resolve_diarizer_name
+from platform_runtime import configure_stdio, resolve_diarizer_name, resolve_models_dir
 
 AUDIO_SUFFIXES = {".wav", ".m4a", ".mp3", ".aac", ".flac", ".ogg", ".caf", ".aiff", ".aif"}
 
@@ -585,9 +585,10 @@ def load_ecapa_window_embeddings(
         )
     from speechbrain.inference.speaker import EncoderClassifier
 
+    savedir = resolve_models_dir() / "spkrec-ecapa-voxceleb"
     classifier = EncoderClassifier.from_hparams(
         source="speechbrain/spkrec-ecapa-voxceleb",
-        savedir="models/spkrec-ecapa-voxceleb",
+        savedir=str(savedir),
         run_opts={"device": "cpu"},
     )
     return sliding_window_embeddings(classifier, audio, sr)

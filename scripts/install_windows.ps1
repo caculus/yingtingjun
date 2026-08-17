@@ -26,7 +26,10 @@ python -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/
 # torchaudio is optional: resample uses torch fallback; ECAPA uses numpy tensors.
 # Broken torchaudio on Windows pops a modal DLL dialog (torch_library_impl) and blocks ECAPA.
 Write-Host "`n== Skip torchaudio (optional; avoids Windows DLL mismatch) ==" -ForegroundColor Yellow
-python -m pip uninstall -y torchaudio 2>$null
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = "SilentlyContinue"
+python -m pip uninstall -y torchaudio | Out-Null
+$ErrorActionPreference = $prevEap
 
 Write-Host "`n== Install speechbrain without pulling torchaudio ==" -ForegroundColor Cyan
 python -m pip install hyperpyyaml joblib scipy tqdm huggingface_hub packaging pyyaml
@@ -42,8 +45,11 @@ import torch, numpy
 print('torch', torch.__version__, 'cuda?', torch.cuda.is_available())
 print('numpy', numpy.__version__)
 print('torchaudio', 'installed' if importlib.util.find_spec('torchaudio') else 'no (OK)')
-import faster_whisper, speechbrain
+import faster_whisper
+from torchaudio_compat import prepare_torchaudio_for_speechbrain
+prepare_torchaudio_for_speechbrain()
 from speechbrain.inference.speaker import EncoderClassifier
+print('faster-whisper', faster_whisper.__version__)
 print('speechbrain EncoderClassifier OK')
 print('ok')
 "@

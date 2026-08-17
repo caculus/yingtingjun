@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""OS-specific runtime helpers: stdio, diarizer defaults, venv python, child env."""
+"""OS-specific runtime helpers: stdio, diarizer defaults, venv python, child env.
+
+Launch contract (packaged Win/macOS/Linux launchers must honor this):
+  CLI: --workdir --outdir --uploads --notesdir on serve_player.py
+  Env: YTJ_MODELS_DIR, YTJ_FFMPEG, ECDICT_DB, PYTHONUTF8=1
+  If YTJ_MODELS_DIR is set, Hugging Face caches are pointed there.
+  If port 8765 is already bound, open the existing UI instead of a second server.
+"""
 
 from __future__ import annotations
 
 import os
+import socket
 import subprocess
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent
@@ -58,12 +67,57 @@ def resolve_venv_python(root: Path | None = None) -> Path:
     return Path(sys.executable)
 
 
+def resolve_models_dir(
+    root: Path | None = None,
+    env: Mapping[str, str] | None = None,
+) -> Path:
+    """YTJ_MODELS_DIR → packaged sibling models/ (when code lives in app/) → <root>/models."""
+    environ = os.environ if env is None else env
+    raw = str(environ.get("YTJ_MODELS_DIR") or "").strip()
+    if raw:
+        return Path(raw).expanduser()
+    root = Path(root) if root is not None else _ROOT
+    if root.name.lower() == "app":
+        sibling = root.parent / "models"
+        if sibling.is_dir():
+            return sibling
+    return root / "models"
+
+
+def apply_model_cache_env(env: dict[str, str] | None = None) -> dict[str, str]:
+    """When YTJ_MODELS_DIR is set, keep HF / transformers caches inside it."""
+    out = dict(os.environ if env is None else env)
+    models = str(out.get("YTJ_MODELS_DIR") or "").strip()
+    if models:
+        models_path = Path(models).expanduser()
+        out.setdefault("HF_HOME", str(models_path))
+        hub = str(models_path / "hub")
+        out.setdefault("HUGGINGFACE_HUB_CACHE", hub)
+        out.setdefault("TRANSFORMERS_CACHE", hub)
+    return out
+
+
 def transcribe_child_env(base: dict[str, str] | None = None) -> dict[str, str]:
-    env = dict(os.environ if base is None else base)
+    env = apply_model_cache_env(dict(os.environ if base is None else base))
     env["PYTHONUNBUFFERED"] = "1"
     env["PYTHONUTF8"] = "1"
     env.setdefault("PYTHONIOENCODING", "utf-8")
     return env
+
+
+def transcribe_import_args(
+    source: Path | str, workdir: Path | str, outdir: Path | str
+) -> list[str]:
+    """CLI tail so player import jobs write into the launched data dirs."""
+    return [str(source), "--workdir", str(workdir), "--outdir", str(outdir)]
+
+
+def port_is_listening(host: str, port: int, timeout: float = 0.25) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
 
 
 def transcribe_cmd(python: Path | str, transcribe_py: Path | str, *args: str) -> list[str]:

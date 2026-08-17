@@ -34,6 +34,17 @@ def test_find_ffmpeg_repo_bin_exe(tmp_path: Path):
     assert found == exe
 
 
+def test_find_ffmpeg_packaged_parent_bin(tmp_path: Path):
+    app = tmp_path / "app"
+    app.mkdir()
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    exe = bin_dir / "ffmpeg.exe"
+    exe.write_text("")
+    found = find_ffmpeg_bin(env={}, repo_root=app, which=lambda _: None)
+    assert found == exe
+
+
 def test_find_ffmpeg_path_which(tmp_path: Path):
     on_path = tmp_path / "ffmpeg"
     on_path.write_text("")
@@ -74,7 +85,7 @@ def test_find_ffmpeg_winget_package_glob(tmp_path: Path):
 
 def test_build_ffmpeg_cmd_is_16k_mono_pcm():
     cmd = build_ffmpeg_cmd(Path("/usr/bin/ffmpeg"), Path("in.m4a"), Path("out.work.wav"))
-    assert cmd[0] == "/usr/bin/ffmpeg"
+    assert Path(cmd[0]) == Path("/usr/bin/ffmpeg")
     assert "-ar" in cmd and str(TARGET_SR) in cmd
     assert "-ac" in cmd and "1" in cmd
     assert "pcm_s16le" in cmd
@@ -100,7 +111,7 @@ def test_convert_prefers_afconvert_over_ffmpeg(tmp_path: Path):
         run=fake_run,
     )
     assert used == "afconvert"
-    assert ran[0][0] == "/usr/bin/afconvert"
+    assert Path(ran[0][0]) == Path("/usr/bin/afconvert")
     assert dest.exists()
 
 
@@ -123,7 +134,7 @@ def test_convert_uses_ffmpeg_when_no_afconvert(tmp_path: Path):
         run=fake_run,
     )
     assert used == "ffmpeg"
-    assert ran[0][0] == "/usr/bin/ffmpeg"
+    assert Path(ran[0][0]) == Path("/usr/bin/ffmpeg")
     assert "-ar" in ran[0] and "16000" in ran[0]
 
 

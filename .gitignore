@@ -2,6 +2,7 @@
 .venv/
 models/
 bin/
+dist/
 workdir/
 uploads/
 notes/
@@ -9,6 +10,7 @@ tools/speakrs_cli/target/
 
 # Personal transcripts & session handoff (PII / internal)
 HANDOFF.md
+handoff.md
 output/*
 !output/.gitkeep
 
