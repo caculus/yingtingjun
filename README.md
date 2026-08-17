@@ -202,7 +202,7 @@ powershell -ExecutionPolicy Bypass -File packaging\windows\build_portable.ps1
 
 請用 [python.org](https://www.python.org/downloads/) 安裝 **Python 3.12 Windows installer (64-bit)**（勾選 **Add python.exe to PATH**）。開發用 venv；上面的安裝檔則自帶 3.13 embed，兩者分開。
 
-重要：若電腦是 **Snapdragon / Windows on ARM**，請下載標示 **Windows installer (64-bit)** 的 **AMD64** 版（在 ARM 上以模擬執行），**不要**選 **ARM64** 版。ARM64 Python 能裝 `torch`，但常 **沒有 `torchaudio` 輪子**，pip 會報 `from versions: none`。
+重要：若電腦是 **Snapdragon / Windows on ARM**，請下載標示 **Windows installer (64-bit)** 的 **AMD64** 版（在 ARM 上以模擬執行），**不要**選 **ARM64** 版。ARM64 Python 能裝 `torch`，但常 **沒有 `torchaudio` **，pip 會報 `from versions: none`。
 
 勿用 Microsoft Store 版 Python（`--pick` / tkinter 常缺 tcl/tk）。
 
