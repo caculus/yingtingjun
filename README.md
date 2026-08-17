@@ -13,7 +13,7 @@
 
 ## 安裝（Install）
 
-> **Windows 一般使用者請直接跳到「[Windows 安裝檔](#windows-安裝檔建議)」**。從原始碼開發再看「[Windows 開發安裝（B 層）](#windows-開發安裝b-層)」。不要跟下面的 macOS 步驟 1–6（尤其是第 3 步編譯 speakrs）。
+> **一般使用者：** macOS（Apple Silicon）用「[macOS 安裝檔](#macos-安裝檔建議apple-silicon)」；Windows 用「[Windows 安裝檔](#windows-安裝檔建議)」。從原始碼開發再看對應開發步驟。不要在 Windows 編譯 speakrs。
 
 ### 系統需求
 
@@ -31,7 +31,53 @@
 |------|------|
 | Rust（`rustup`） | **僅 macOS**：編譯 `speakrs_diarize`（依賴 Apple CoreML）；**Windows 請跳過**，改用 ECAPA |
 
-### macOS 安裝步驟
+### macOS 安裝檔（建議，Apple Silicon）
+
+給不想自己裝 Python 的使用者。安裝包是精簡 `.dmg`（約 10 MB，含 speakrs），**不含** Python／模型；第一次開啟會連網下載，並在終端機顯示進度。
+
+**僅支援 Apple Silicon（M1 起）。** Intel Mac 請用下方「macOS 開發安裝」。
+
+1. 開啟 `dist/Yingtingjun-macos-arm64.dmg`（或發佈的同名檔）
+2. 把 **Yingtingjun** 拖到「應用程式」
+3. **第一次請右鍵 → 打開**（未簽名，系統會詢問；不要只雙擊，可能被擋）
+4. 會開終端機視窗「英聽君」，依序下載：
+   - CPython **3.12** arm64 standalone + pip
+   - ECDICT 英中詞典 → `models/ecdict.db`
+   - torch／MLX Whisper／transformers 等套件
+   - SpeechBrain ECAPA 話者模型
+5. 完成後瀏覽器開啟 [http://127.0.0.1:8765/](http://127.0.0.1:8765/)
+6. 關閉：在終端機按 `Ctrl+C`。已在跑時再點一次圖示會打開既有頁面、不會起第二個伺服器
+
+安裝需穩定網路，第一次可能要數分鐘（套件較大）。若下載失敗，之後再開一次會再試。
+
+文稿與筆記在 **`~/Documents/Yingtingjun/data/`**（Finder 可能顯示為「文稿／Yingtingjun／data」；內含 `workdir`／`output`／`uploads`／`notes`）。
+
+Python 與模型仍在 `~/Library/Application Support/Yingtingjun/`（`python/`、`models/`）。
+
+**卸載：** 雙擊 dmg 裡的 **`Uninstall Yingtingjun.command`**。會移除 App、`python/`、`models/`；**文稿與筆記一律保留**在「文件」的 `Yingtingjun/data/`。**只把 App 丟垃圾桶不會清掉** Application Support 裡的下載內容。
+
+若提示「已損壞、無法打開」：
+
+```bash
+xattr -cr /Applications/Yingtingjun.app
+```
+
+然後再右鍵 → 打開。
+
+從原始碼重編安裝包（須在 **Apple Silicon Mac** 上）：
+
+```bash
+bash packaging/macos/build_portable.sh
+# 產物：dist/Yingtingjun.app 與 dist/Yingtingjun-macos-arm64.dmg
+# 只要 .app、不編 dmg：加上 --skip-dmg
+# 不編譯 speakrs：加上 --skip-speakrs（執行時話者改走 ECAPA）
+```
+
+組裝時會編譯並打進 `speakrs_diarize`（需 Rust／cargo；沒有則警告並省略）。`packaging/macos/` 只負責組裝，`dist/` 不進 git。執行階段 Python／模型下載到 Application Support，不寫進 `.app`。
+
+### macOS 開發安裝
+
+從原始碼跑（Intel Mac、或本機已有 Python 的開發者）。
 
 ### 1. 進入專案並建立虛擬環境
 
@@ -227,8 +273,12 @@ python -c "from speechbrain.inference.speaker import EncoderClassifier; print('o
 | `output/` | 文稿與快取；局部重辨快照 `*.json.bak-range`（**個人文稿不進 git**） |
 | `scripts/setup_ecdict.sh` / `setup_ecdict.ps1` | 下載／安裝 ECDICT（macOS bash / Windows PowerShell） |
 | `scripts/build_speakrs.sh` | 編譯 speakrs（macOS；Windows 請跳過） |
+| `packaging/macos/` | macOS Apple Silicon `.app`／`.dmg` 組裝（開發打包用） |
 | `packaging/windows/` | Windows 便攜組裝與 Inno 腳本（開發打包用） |
-| `dist/Yingtingjun-Setup-x64.exe` | 編譯出的安裝檔（不進 git） |
+| `dist/Yingtingjun-macos-arm64.dmg` | 編譯出的 Mac 安裝映像（不進 git） |
+| `dist/Yingtingjun-Setup-x64.exe` | 編譯出的 Windows 安裝檔（不進 git） |
+| `~/Documents/Yingtingjun/data/` | macOS 安裝檔的文稿／音檔／筆記（不進 git） |
+| `~/Library/Application Support/Yingtingjun/` | macOS 安裝檔的 Python／模型（不進 git） |
 
 ## 轉寫（語音 → 雙語文稿）
 
@@ -434,7 +484,7 @@ API：
 | `--audio` / `--transcript` | 啟動時預載的音訊與文稿 |
 | `--port` | 預設 `8765` |
 | `--no-open` | 不自動開瀏覽器 |
-| `--workdir` / `--outdir` / `--uploads` / `--notesdir` | 目錄覆寫（Windows 安裝檔會指向 `data\` 底下） |
+| `--workdir` / `--outdir` / `--uploads` / `--notesdir` | 目錄覆寫（Windows 安裝檔指向 `data\`；macOS 安裝檔指向 `~/Documents/Yingtingjun/data/`） |
 
 不帶 `--audio` / `--transcript` 時會嘗試預設載入一支；有多支時請用頁面「選擇音檔」再「載入」，或啟動時明確指定成對路徑。
 
@@ -455,8 +505,9 @@ API：
 ## 注意
 
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
-- 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）
+- 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）。一般使用者用安裝檔（僅 arm64）；開發見「macOS 開發安裝」
 - **Windows**：一般使用者用安裝檔（見上方）；開發見「Windows 開發安裝」。faster-whisper + ffmpeg + ECAPA。CPU 較慢；speakrs 不支援。若 8765 已被佔用，再開一次會打開既有頁面、不會起第二個伺服器
+- **macOS 安裝檔**：僅 Apple Silicon；未簽名，第一次需右鍵打開。文稿在 `~/Documents/Yingtingjun/data/`；Python／模型在 Application Support。卸載用 dmg 內 `Uninstall Yingtingjun.command`。若 8765 已被佔用，再開一次會打開既有頁面
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`

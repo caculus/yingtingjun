@@ -1,0 +1,118 @@
+#!/bin/bash
+# 英聽君 launcher (Apple Silicon). Honor platform_runtime.py launch contract:
+#   CLI: --workdir --outdir --uploads --notesdir
+#   Env: YTJ_MODELS_DIR, YTJ_FFMPEG, ECDICT_DB, PYTHONUTF8=1, SPEAKRS_BIN
+#   If port 8765 is already bound, serve_player.py opens the existing UI.
+set -euo pipefail
+
+LAUNCHER="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+RESOURCES="$(cd "$(dirname "$0")/../Resources" && pwd)"
+APP_DIR="$RESOURCES/app"
+INSTALL_SH="$RESOURCES/install_runtime.sh"
+SUPPORT="${YTJ_SUPPORT:-$HOME/Library/Application Support/Yingtingjun}"
+PY="$SUPPORT/python/bin/python3"
+MARKER="$SUPPORT/python/.deps-ok"
+SPEAKRS="$APP_DIR/bin/speakrs_diarize"
+
+documents_dir() {
+  if [[ -n "${YTJ_DOCUMENTS:-}" ]]; then
+    printf '%s\n' "${YTJ_DOCUMENTS%/}"
+    return
+  fi
+  local p
+  p="$(/usr/bin/osascript -e 'tell application "Finder" to get POSIX path of (path to documents folder)' 2>/dev/null | tr -d '\n\r')"
+  if [[ -n "$p" ]]; then
+    printf '%s\n' "${p%/}"
+    return
+  fi
+  printf '%s\n' "$HOME/Documents"
+}
+
+DATA_ROOT="${YTJ_DATA:-$(documents_dir)/Yingtingjun/data}"
+
+die() {
+  echo "$*" >&2
+  if [[ ! -t 1 ]]; then
+    /usr/bin/osascript -e "display dialog \"$*\" buttons {\"確定\"} default button 1 with icon stop" >/dev/null || true
+  fi
+  exit 1
+}
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+  die "英聽君 macOS 安裝包只能在 macOS 上執行。"
+fi
+if [[ "$(uname -m)" != "arm64" ]]; then
+  die "英聽君 macOS 安裝包僅支援 Apple Silicon（M1 起）。Intel Mac 請從原始碼安裝。"
+fi
+
+# Double-clicking .app has no TTY; reopen in Terminal so first-run download is visible
+# (same role as Yingtingjun.bat's console window).
+if [[ -z "${YTJ_IN_TERMINAL:-}" && ! -t 1 ]]; then
+  /usr/bin/osascript - "$LAUNCHER" <<'APPLESCRIPT'
+on run argv
+  set launcher to item 1 of argv
+  tell application "Terminal"
+    activate
+    do script "export YTJ_IN_TERMINAL=1; exec " & quoted form of launcher
+  end tell
+end run
+APPLESCRIPT
+  exit 0
+fi
+
+printf '\033]0;英聽君\007'
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+export PYTHONUNBUFFERED=1
+export YTJ_MODELS_DIR="$SUPPORT/models"
+export HF_HOME="$SUPPORT/models"
+export YTJ_APP_RESOURCES="$RESOURCES"
+export YTJ_SUPPORT="$SUPPORT"
+export YTJ_DATA="$DATA_ROOT"
+
+if [[ ! -f "$APP_DIR/serve_player.py" ]]; then
+  die "找不到 app/serve_player.py"
+fi
+if [[ ! -f "$INSTALL_SH" ]]; then
+  die "找不到 install_runtime.sh"
+fi
+
+need_download=""
+if [[ ! -x "$PY" ]]; then need_download=1; fi
+if [[ ! -f "$MARKER" ]]; then need_download=1; fi
+if [[ ! -f "$SUPPORT/models/ecdict.db" ]]; then need_download=1; fi
+if [[ ! -f "$SUPPORT/models/spkrec-ecapa-voxceleb/embedding_model.ckpt" ]]; then need_download=1; fi
+
+if [[ -n "$need_download" ]]; then
+  echo
+  echo "第一次啟動：下載 Python、詞典、ECAPA 與套件（需連網，可能要數分鐘）。"
+  echo
+  bash "$INSTALL_SH"
+  PY="$SUPPORT/python/bin/python3"
+fi
+
+if [[ ! -x "$PY" ]]; then
+  die "下載後仍找不到 Python：$PY"
+fi
+
+if [[ -f "$SUPPORT/models/ecdict.db" ]]; then
+  export ECDICT_DB="$SUPPORT/models/ecdict.db"
+fi
+if [[ -x "$SPEAKRS" ]]; then
+  export SPEAKRS_BIN="$SPEAKRS"
+fi
+if [[ -x "$SUPPORT/bin/ffmpeg" ]]; then
+  export YTJ_FFMPEG="$SUPPORT/bin/ffmpeg"
+fi
+
+mkdir -p "$DATA_ROOT/workdir" "$DATA_ROOT/output" "$DATA_ROOT/uploads" "$DATA_ROOT/notes"
+
+echo "資料目錄：$DATA_ROOT"
+echo "模型目錄：$YTJ_MODELS_DIR"
+echo
+
+exec "$PY" -u "$APP_DIR/serve_player.py" \
+  --workdir "$DATA_ROOT/workdir" \
+  --outdir "$DATA_ROOT/output" \
+  --uploads "$DATA_ROOT/uploads" \
+  --notesdir "$DATA_ROOT/notes"
