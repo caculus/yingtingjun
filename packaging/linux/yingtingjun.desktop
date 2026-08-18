@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=英聽君
+Name[en]=Yingtingjun
+Comment=本機英文聽力播放器
+Comment[en]=Local English listening player
+Exec=yingtingjun
+Terminal=true
+Categories=AudioVideo;Education;
+StartupNotify=true
+StartupWMClass=yingtingjun

@@ -1,0 +1,17 @@
+# Linux (CPU): faster-whisper + matching torchaudio. No mlx-whisper.
+# Also install ffmpeg (PATH, YTJ_FFMPEG, or packaged bin/ffmpeg).
+#
+# Prefer: bash scripts/install_linux.sh
+# Do not use requirements.txt on Linux (it pulls mlx-whisper).
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+faster-whisper==1.1.1
+torch==2.9.1
+torchaudio==2.9.1
+soundfile==0.13.1
+numpy==2.2.6
+scikit-learn==1.6.1
+speechbrain==1.1.0
+transformers==4.57.6
+sentencepiece==0.2.2
+sacremoses==0.1.1

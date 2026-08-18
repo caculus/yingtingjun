@@ -244,7 +244,8 @@ class FasterWhisperBackend:
         except ImportError as exc:
             raise RuntimeError(
                 "faster-whisper 未安裝。Windows 請執行："
-                "python -m pip install -r requirements-windows.txt"
+                "python -m pip install -r requirements-windows.txt；"
+                "Linux 請執行：python -m pip install -r requirements-linux.txt"
             ) from exc
 
         device = (os.environ.get("YTJ_FASTER_WHISPER_DEVICE") or "").strip().lower()

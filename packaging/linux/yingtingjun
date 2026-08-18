@@ -1,0 +1,148 @@
+#!/bin/bash
+# 英聽君 launcher (Linux x86_64 / aarch64). Honor platform_runtime.py launch contract:
+#   CLI: --workdir --outdir --uploads --notesdir
+#   Env: YTJ_MODELS_DIR, YTJ_FFMPEG, ECDICT_DB, PYTHONUTF8=1
+#   If port 8765 is already bound, serve_player.py opens the existing UI.
+set -euo pipefail
+
+resolve_self() {
+  local src="$0"
+  while [[ -L "$src" ]]; do
+    local dir
+    dir="$(cd "$(dirname "$src")" && pwd)"
+    src="$(readlink "$src")"
+    [[ "$src" == /* ]] || src="$dir/$src"
+  done
+  cd "$(dirname "$src")" && pwd
+}
+
+PACK_DIR="$(resolve_self)"
+LAUNCHER="$PACK_DIR/yingtingjun"
+APP_DIR="$PACK_DIR/app"
+INSTALL_SH="$PACK_DIR/install_runtime.sh"
+SUPPORT="${YTJ_SUPPORT:-${XDG_DATA_HOME:-$HOME/.local/share}/yingtingjun}"
+PY="$SUPPORT/python/bin/python3"
+MARKER="$SUPPORT/python/.deps-ok"
+
+documents_dir() {
+  if [[ -n "${YTJ_DOCUMENTS:-}" ]]; then
+    printf '%s\n' "${YTJ_DOCUMENTS%/}"
+    return
+  fi
+  if command -v xdg-user-dir >/dev/null 2>&1; then
+    local p
+    p="$(xdg-user-dir DOCUMENTS 2>/dev/null || true)"
+    if [[ -n "$p" ]]; then
+      printf '%s\n' "${p%/}"
+      return
+    fi
+  fi
+  printf '%s\n' "${HOME}/Documents"
+}
+
+DATA_ROOT="${YTJ_DATA:-$(documents_dir)/Yingtingjun/data}"
+
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
+if [[ "$(uname -s)" != "Linux" ]]; then
+  die "英聽君 Linux 安裝包只能在 Linux 上執行。"
+fi
+if [[ ! -f "$PACK_DIR/arch.sh" ]]; then
+  die "找不到 arch.sh。請用新版安裝包重新解壓後再執行 bash install.sh。"
+fi
+# shellcheck source=arch.sh
+source "$PACK_DIR/arch.sh"
+ARCH="$(ytj_require_linux_arch)" || die "英聽君 Linux 安裝包僅支援 x86_64 與 ARM64（aarch64）。其他架構請從原始碼安裝。"
+
+open_in_terminal() {
+  local self="$1"
+  local inner="export YTJ_IN_TERMINAL=1; exec $(printf '%q' "$self")"
+  if command -v x-terminal-emulator >/dev/null 2>&1; then
+    x-terminal-emulator -e bash -lc "$inner" >/dev/null 2>&1 &
+    return 0
+  fi
+  if command -v gnome-terminal >/dev/null 2>&1; then
+    gnome-terminal -- bash -lc "$inner" >/dev/null 2>&1 &
+    return 0
+  fi
+  if command -v konsole >/dev/null 2>&1; then
+    konsole -e bash -lc "$inner" >/dev/null 2>&1 &
+    return 0
+  fi
+  if command -v xfce4-terminal >/dev/null 2>&1; then
+    xfce4-terminal -e "bash -lc $(printf '%q' "$inner")" >/dev/null 2>&1 &
+    return 0
+  fi
+  if command -v xterm >/dev/null 2>&1; then
+    xterm -e bash -lc "$inner" >/dev/null 2>&1 &
+    return 0
+  fi
+  return 1
+}
+
+# .desktop with Terminal=true already has a TTY; file-manager double-click may not.
+if [[ -z "${YTJ_IN_TERMINAL:-}" && ! -t 1 ]]; then
+  if open_in_terminal "$LAUNCHER"; then
+    exit 0
+  fi
+fi
+
+printf '\033]0;英聽君\007'
+export PYTHONUTF8=1
+export PYTHONIOENCODING=utf-8
+export PYTHONUNBUFFERED=1
+export YTJ_MODELS_DIR="$SUPPORT/models"
+export HF_HOME="$SUPPORT/models"
+export YTJ_APP_RESOURCES="$PACK_DIR"
+export YTJ_SUPPORT="$SUPPORT"
+export YTJ_DATA="$DATA_ROOT"
+
+if [[ ! -f "$APP_DIR/serve_player.py" ]]; then
+  die "找不到 app/serve_player.py"
+fi
+if [[ ! -f "$INSTALL_SH" ]]; then
+  die "找不到 install_runtime.sh"
+fi
+
+need_download=""
+if [[ ! -x "$PY" ]]; then need_download=1; fi
+if [[ ! -f "$MARKER" ]]; then need_download=1; fi
+if [[ ! -f "$SUPPORT/models/ecdict.db" ]]; then need_download=1; fi
+if [[ ! -f "$SUPPORT/models/spkrec-ecapa-voxceleb/embedding_model.ckpt" ]]; then need_download=1; fi
+if [[ ! -x "$SUPPORT/bin/ffmpeg" ]] && ! command -v ffmpeg >/dev/null 2>&1; then
+  need_download=1
+fi
+
+if [[ -n "$need_download" ]]; then
+  echo
+  echo "第一次啟動：下載 Python、ffmpeg、詞典、ECAPA 與套件（需連網，可能要數分鐘）。"
+  echo
+  bash "$INSTALL_SH"
+  PY="$SUPPORT/python/bin/python3"
+fi
+
+if [[ ! -x "$PY" ]]; then
+  die "下載後仍找不到 Python：$PY"
+fi
+
+if [[ -f "$SUPPORT/models/ecdict.db" ]]; then
+  export ECDICT_DB="$SUPPORT/models/ecdict.db"
+fi
+if [[ -x "$SUPPORT/bin/ffmpeg" ]]; then
+  export YTJ_FFMPEG="$SUPPORT/bin/ffmpeg"
+fi
+
+mkdir -p "$DATA_ROOT/workdir" "$DATA_ROOT/output" "$DATA_ROOT/uploads" "$DATA_ROOT/notes"
+
+echo "資料目錄：$DATA_ROOT"
+echo "模型目錄：$YTJ_MODELS_DIR"
+echo
+
+exec "$PY" -u "$APP_DIR/serve_player.py" \
+  --workdir "$DATA_ROOT/workdir" \
+  --outdir "$DATA_ROOT/output" \
+  --uploads "$DATA_ROOT/uploads" \
+  --notesdir "$DATA_ROOT/notes"
