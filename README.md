@@ -7,9 +7,17 @@
 選任意錄音 → 偵測是否為英文對話 → 英文轉寫 + 下一行中文翻譯  
 （含話者區分、標點、分段、時間戳），並可用瀏覽器「英聽君」邊聽邊跟讀、記筆記、查詞典、局部重辨。
 
-語料來自你的生活，檔案留在你的電腦（Mac、Windows 或 Linux），不上雲。
+語料來自你的生活，檔案留在你的電腦（Mac、Windows 或 Linux），不上雲端。
 
-**English:** Local tool that turns *your* real English recordings into bilingual listening lessons. Built by an engineer newly settled in Australasia, to keep up with everyday conversations.
+**English:** Cross-platform local tool (macOS, Windows, Linux) that turns *your* real English recordings into bilingual listening lessons. Built by an engineer newly settled in Australasia, to keep up with everyday conversations.
+
+三平台皆有**精簡安裝包**（不含 Python／模型；首次啟動或安裝時連網下載）：
+
+| 平台 | 安裝包 | 話者／ASR |
+|------|--------|-----------|
+| macOS Apple Silicon | `Yingtingjun-macos-arm64.dmg` | MLX Whisper + speakrs→ECAPA |
+| Windows 10/11 x64 | `Yingtingjun-Setup-x64.exe` | faster-whisper + ECAPA |
+| Linux x86_64／ARM64 | `Yingtingjun-linux.tar.gz` | faster-whisper + ECAPA |
 
 ## 安裝（Install）
 
@@ -29,7 +37,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| Rust（`rustup`） | **僅 macOS**：編譯 `speakrs_diarize`（依賴 Apple CoreML）；**Windows 請跳過**，改用 ECAPA |
+| Rust（`rustup`） | **僅 macOS**：編譯 `speakrs_diarize`（依賴 Apple CoreML）；**Windows／Linux 請跳過**，改用 ECAPA |
 
 ### macOS 安裝檔（建議，Apple Silicon）
 
@@ -261,31 +269,38 @@ python -c "from speechbrain.inference.speaker import EncoderClassifier; print('o
 
 ### Linux 安裝檔（建議，x86_64 與 ARM64）
 
-給不想自己裝 Python 的使用者。安裝包是精簡 `.tar.gz`（約數 MB），**不含** Python／ffmpeg／模型；第一次啟動會依本機架構連網下載，並在終端機顯示進度。
+給不想自己裝 Python 的使用者。安裝包是精簡 `Yingtingjun-linux.tar.gz`（約 70 KB），**不含** Python／ffmpeg／模型；**同一份 tarball** 在 x86_64 與 ARM64 上通用，第一次啟動會依本機 CPU 連網下載對應的 standalone Python 與套件，並在終端機顯示進度。
 
-**支援 x86_64 與 ARM64（aarch64），glibc（如 Ubuntu 22.04+）。** Alpine／musl 請用下方「Linux 開發安裝」。
+**支援 x86_64 與 ARM64（aarch64），glibc（如 Ubuntu 22.04+）。** 已在 Ubuntu ARM64 實機驗證。Alpine／musl 請用下方「Linux 開發安裝」。
 
-1. 解壓 `dist/Yingtingjun-linux.tar.gz`
-2. 進入解壓出的 `Yingtingjun` 目錄，執行 `bash install.sh`（不需管理員；裝到 `~/.local/share/yingtingjun/`，並加應用程式選單與 `~/.local/bin/yingtingjun`）
-3. 從應用程式選單開 **英聽君**，或執行 `yingtingjun`（會開終端機視窗）
-4. 第一次依序下載：
+1. 解壓 `dist/Yingtingjun-linux.tar.gz`（或發佈的同名檔）
+2. 進入解壓出的 `Yingtingjun` 目錄，執行 `bash install.sh`（不需 root；裝到 `~/.local/share/yingtingjun/`，並加應用程式選單與 `~/.local/bin/yingtingjun`）
+3. 若終端找不到 `yingtingjun`，確認 `~/.local/bin` 在 `PATH` 內（或重新登入）
+4. 從應用程式選單開 **英聽君**，或執行 `yingtingjun`（會開終端機視窗）
+5. 第一次依序下載：
    - CPython **3.12** standalone + pip（**x86_64 或 ARM64**，依本機）
-   - 若系統沒有 ffmpeg：靜態 ffmpeg → `bin/ffmpeg`（同樣依架構）
+   - **ffmpeg**：若 PATH 上已有（建議 Debian／Ubuntu 先 `sudo apt install ffmpeg`），會跳過下載；否則下載靜態組建 → `~/.local/share/yingtingjun/bin/ffmpeg`
    - ECDICT 英中詞典 → `models/ecdict.db`
-   - torch／faster-whisper／transformers 等套件（含 torchaudio）
+   - torch／faster-whisper／transformers 等套件（含 **torchaudio**；請用 `requirements-linux.txt`，**不要**用 Windows 那份）
    - SpeechBrain ECAPA 話者模型
-5. 完成後瀏覽器開啟 [http://127.0.0.1:8765/](http://127.0.0.1:8765/)
-6. 關閉：在終端機按 `Ctrl+C`。已在跑時再啟動一次會打開既有頁面、不會起第二個伺服器
+6. 完成後瀏覽器開啟 [http://127.0.0.1:8765/](http://127.0.0.1:8765/)
+7. 關閉：在終端機按 `Ctrl+C`。已在跑時再啟動一次會打開既有頁面、不會起第二個伺服器
 
 也可不解壓後直接 `./yingtingjun`（便攜）；Python／模型仍下載到 `~/.local/share/yingtingjun/`。
 
-安裝需穩定網路，第一次可能要數分鐘。若下載失敗，之後再開一次會再試。
+安裝需穩定網路，第一次可能要數分鐘。若下載中斷，之後再開 `yingtingjun` 會從未完成處繼續。日誌：`~/.local/share/yingtingjun/install-runtime.log`。
 
 文稿與筆記在 **`~/Documents/Yingtingjun/data/`**（若桌面環境把「文件」指到別處，會跟 `xdg-user-dir DOCUMENTS`）。
 
 Python、模型與（必要時）ffmpeg 在 `~/.local/share/yingtingjun/`（`python/`、`models/`、`bin/`）。
 
 **卸載：** `bash ~/.local/share/yingtingjun/uninstall.sh`。會移除程式、`python/`、`models/`、ffmpeg 與選單捷徑；**文稿與筆記一律保留**。解壓出來的資料夾請自行刪除。
+
+**常見問題**
+
+- **ffmpeg 下載失敗**：先 `sudo apt install ffmpeg`（Debian／Ubuntu），再執行 `yingtingjun`。
+- **仍顯示「僅支援 x86_64」**： tarball 太舊；請用含 `arch.sh` 的新版 `Yingtingjun-linux.tar.gz` 重新解壓並 `bash install.sh`。
+- **依賴檔**：Linux 用 `requirements-linux.txt` + `scripts/install_linux.sh`；勿用 `requirements.txt`（含 mlx-whisper）或 `requirements-windows.txt`（刻意不安裝 torchaudio）。
 
 從原始碼重編安裝包（macOS 或 Linux 皆可組裝）：
 
@@ -347,6 +362,7 @@ python -m pytest
 | `uploads/` | 頁面匯入的原始音檔（不進 git） |
 | `notes/` | 學習筆記 `notes/<stem>.json`；詞典快取 `_dict_cache.json`（不進 git） |
 | `output/` | 文稿與快取；局部重辨快照 `*.json.bak-range`（**個人文稿不進 git**） |
+| `requirements-linux.txt` | **Linux**（faster-whisper + torchaudio；勿用 `requirements.txt`） |
 | `scripts/setup_ecdict.sh` / `setup_ecdict.ps1` | 下載／安裝 ECDICT（macOS／Linux bash / Windows PowerShell） |
 | `scripts/install_linux.sh` | Linux 開發依賴（PyTorch CPU；不要用 `requirements.txt`） |
 | `scripts/build_speakrs.sh` | 編譯 speakrs（macOS；Windows／Linux 請跳過） |
@@ -588,16 +604,16 @@ API：
 - 真實錄音、文稿、筆記含生活內容，**預設不進 git**；公開分享前請勿提交 `output/`、`notes/`、音檔
 - 需 macOS（`afconvert`）與 Apple Silicon 較佳體驗（MLX / speakrs CoreML）。一般使用者用安裝檔（僅 arm64）；開發見「macOS 開發安裝」
 - **Windows**：一般使用者用安裝檔（見上方）；開發見「Windows 開發安裝」。faster-whisper + ffmpeg + ECAPA。CPU 較慢；speakrs 不支援。若 8765 已被佔用，再開一次會打開既有頁面、不會起第二個伺服器
-- **Linux**：一般使用者用安裝檔（x86_64 與 ARM64，見上方）；開發見「Linux 開發安裝」。faster-whisper + ffmpeg + ECAPA（與 Windows 同一條路，但會安裝 torchaudio）。speakrs 不支援。若 8765 已被佔用，再開一次會打開既有頁面
-- **macOS 安裝檔**：僅 Apple Silicon；未簽名，第一次需右鍵打開。文稿在 `~/Documents/Yingtingjun/data/`；Python／模型在 Application Support。卸載用 dmg 內 `Uninstall Yingtingjun.command`。若 8765 已被佔用，再開一次會打開既有頁面
-- **Linux 安裝檔**：x86_64 與 ARM64（aarch64）。解壓後 `bash install.sh`（不需 root）。第一次啟動依本機架構下載 Python／ffmpeg。文稿在 `~/Documents/Yingtingjun/data/`；Python／模型在 `~/.local/share/yingtingjun/`。卸載用其中的 `uninstall.sh`
+- **Linux 安裝檔**：`Yingtingjun-linux.tar.gz`（x86_64 與 ARM64 同一份）。解壓 → `bash install.sh`（不需 root）→ `yingtingjun`。文稿在 `~/Documents/Yingtingjun/data/`；執行階段在 `~/.local/share/yingtingjun/`。建議先 `sudo apt install ffmpeg`。卸載：`~/.local/share/yingtingjun/uninstall.sh`（保留文稿）
+- **macOS 安裝檔**：僅 Apple Silicon；未簽名，第一次需右鍵打開。若 8765 已被佔用，再開一次會打開既有頁面
+- **Linux 開發**：見「Linux 開發安裝」。`requirements-linux.txt` + `scripts/install_linux.sh`；Linux 上跑 `pytest` 請只裝 `pytest`（勿用 `requirements-dev.txt`，會拉 mlx-whisper）
 - speakrs 未編譯時 `--diarizer auto` 會回退 ECAPA；**強制人數**必須 ECAPA（`--num-speakers`）
 - **勿**把多句英文合併成一大 chunk 送 NLLB（會整句丟譯）
 - NLLB「樓盤／搜尋」幻覺：翻譯時會過濾；舊稿可用 `--scrub-zh`
 - Whisper 偶發重複幻覺（如連續 `that's right`）：用**局部重辨**修該時段
 - 詞典第一版只查**單字**；片語請拖選存筆記或靠文稿中譯
 - 多支錄音請用頁面成對載入，或啟動時指定 `--audio` + `--transcript`（勿依賴根目錄殘留的 `recording.wav`）
-- 開發：`python -m pip install -r requirements-dev.txt && python -m pytest`（不跑 ASR／翻譯，只測切段、scrub、詞典、局部重辨拼接）
+- 開發（**macOS／Windows**）：`python -m pip install -r requirements-dev.txt && python -m pytest`（不跑 ASR／翻譯，只測切段、scrub、詞典、局部重辨拼接）
 - 大型檔案（`.venv/`、`models/`、音訊、`.whisper.json`、`uploads/`、`notes/`、`bin/`、`*.bak-range`）預設不進 git
 
 ## License
