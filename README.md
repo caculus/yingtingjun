@@ -4,7 +4,7 @@
 
 Yingtingjun is a local-first listening tool for macOS, Windows, and Linux. Bring your own real recordings, and it turns them into replayable bilingual study material with speaker labels, timestamps, notes, dictionary lookup, and partial re-transcription.
 
-[繁體中文說明](README.zh-TW.md) · [Installation](docs/installation.md) / [安裝說明](docs/installation.zh-TW.md) · [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md) · [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
+[繁體中文說明](README.zh-TW.md) · [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md) · [Installation](docs/installation.md) / [安裝說明](docs/installation.zh-TW.md) · [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md) · [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
 
 ## How It Works
 
@@ -52,13 +52,28 @@ Use the installer that matches your platform if you are a normal user. If you ar
 - [Installation](docs/installation.md) / [安裝說明](docs/installation.zh-TW.md)
 - [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md)
 - [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
+- [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md)
 
-## Current Status
+## Roadmap
 
-- Slim installers for Windows, Apple Silicon macOS, and Linux are in `main`
-- Installer smoke tests passed on macOS, Linux, and Windows
+### Now
 
-Next public-facing work is contributor docs, seed issues, and a short public roadmap.
+- Keep the three-platform slim installers stable
+- Make it easy for newcomers to report bugs, improve docs, and join in
+
+### Next
+
+- Search and filter in the learning-notes sidebar ([#4](https://github.com/caculus/yingtingjun/issues/4))
+- Lightweight `windows-latest` CI for unit tests ([#3](https://github.com/caculus/yingtingjun/issues/3))
+- Phrase lookup in the dictionary overlay ([#5](https://github.com/caculus/yingtingjun/issues/5))
+
+### Exploring
+
+- Linux `.deb` / AppImage ([#6](https://github.com/caculus/yingtingjun/issues/6))
+- macOS signing and notarization
+- A short demo GIF or video
+- Cross-recording vocabulary notebook ([#8](https://github.com/caculus/yingtingjun/issues/8))
+- Highlight Whisper repetition loops ([#7](https://github.com/caculus/yingtingjun/issues/7))
 
 ## License
 

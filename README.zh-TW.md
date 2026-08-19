@@ -4,7 +4,7 @@
 
 英聽君是給 macOS、Windows、Linux 使用的本機工具。只要匯入你每天真正遇到的英文錄音，它就會把內容整理成可反覆跟讀的雙語教材，並在瀏覽器裡提供同步播放、查詞、記筆記與局部重辨。
 
-[English](README.md) · [安裝說明](docs/installation.zh-TW.md) · [開發說明](docs/development.zh-TW.md) · [疑難排解](docs/troubleshooting.zh-TW.md)
+[English](README.md) · [如何參與](CONTRIBUTING.zh-TW.md) · [安裝說明](docs/installation.zh-TW.md) · [開發說明](docs/development.zh-TW.md) · [疑難排解](docs/troubleshooting.zh-TW.md)
 
 ## 怎麼運作
 
@@ -49,16 +49,31 @@
 
 一般使用者直接安裝對應平台的安裝包；如果你是開發者，請從分拆後的文件開始：
 
+- [如何參與](CONTRIBUTING.zh-TW.md)
 - [安裝說明](docs/installation.zh-TW.md)
 - [開發說明](docs/development.zh-TW.md)
 - [疑難排解](docs/troubleshooting.zh-TW.md)
 
-## 目前狀態
+## 路線圖
 
-- Windows、Apple Silicon macOS、Linux 的精簡安裝包都已在 `main`
-- macOS、Linux、Windows 安裝檔 smoke test 皆已通過
+### 現在
 
-接下來的公開工作是貢獻者文件、第一批 issues，以及短版 public roadmap。
+- 維持三平台精簡安裝包穩定
+- 讓新人容易回報 bug、改文件、一起參與
+
+### 下一步
+
+- 學習筆記側欄搜尋與過濾（[#4](https://github.com/caculus/yingtingjun/issues/4)）
+- 輕量的 `windows-latest` 單元測試 CI（[#3](https://github.com/caculus/yingtingjun/issues/3)）
+- 詞典浮層支援片語查詢（[#5](https://github.com/caculus/yingtingjun/issues/5)）
+
+### 探索中
+
+- Linux `.deb` / AppImage（[#6](https://github.com/caculus/yingtingjun/issues/6)）
+- macOS 簽名與公證
+- 短版 Demo GIF 或影片
+- 跨錄音生字本（[#8](https://github.com/caculus/yingtingjun/issues/8)）
+- 標示 Whisper 迴圈（[#7](https://github.com/caculus/yingtingjun/issues/7)）
 
 ## 授權
 

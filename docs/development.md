@@ -1,6 +1,6 @@
 # Development
 
-[English README](../README.md) · [繁中 README](../README.zh-TW.md) · [Installation](installation.md) / [安裝說明](installation.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
+[English README](../README.md) · [繁中 README](../README.zh-TW.md) · [Contributing](../CONTRIBUTING.md) / [如何參與](../CONTRIBUTING.zh-TW.md) · [Installation](installation.md) / [安裝說明](installation.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
 
 ## Project Structure
 
