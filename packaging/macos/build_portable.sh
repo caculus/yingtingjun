@@ -122,8 +122,11 @@ cat >"$STAGE/第一次開啟.txt" <<'EOF'
 
 1. 把 Yingtingjun 拖到「應用程式」
 2. 第一次請右鍵 → 打開（未簽名，系統會詢問）
-3. 會跳出終端機，連網下載 Python／詞典／模型（數分鐘）
-4. 瀏覽器開啟 http://127.0.0.1:8765/
+3. 若出現「無法打開」或「已損壞」，先開 Terminal 執行：
+   xattr -cr /Applications/Yingtingjun.app
+   執行後再回 Finder 右鍵 → 打開一次
+4. 會跳出終端機，連網下載 Python／詞典／模型（數分鐘）
+5. 瀏覽器開啟 http://127.0.0.1:8765/
 
 文稿與筆記在「文件」資料夾：
 ~/Documents/Yingtingjun/data/
