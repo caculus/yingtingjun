@@ -77,6 +77,7 @@ For packaged installs:
 - Partial re-transcription only reruns ASR and translation for a selected range
 - Speaker labels are preserved during partial re-transcription instead of re-running diarization
 - The player can lock actions while import or re-transcription is running
+- Playback speed can be set to 0.5×, 0.75×, 1.0× (default), 1.25×, 1.5×, or 2.0×; the choice persists while switching recordings in the same session
 
 ## Release-Facing Priorities
 

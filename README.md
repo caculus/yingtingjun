@@ -40,7 +40,7 @@ Slim installers are available for all three platforms. They do not bundle Python
 
 - Local-first transcription and translation
 - Speaker labels, punctuation, timestamps, and word timing
-- Browser player for shadowing and review
+- Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
 - Click-to-lookup dictionary with local ECDICT first
 - Per-recording notes with CSV export
 - Partial re-transcription for only the problematic range

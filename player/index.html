@@ -160,6 +160,12 @@
     .file-btn { display: inline-flex; align-items: center; }
     #importInput { display: none; }
 
+    #speedSelect {
+      min-width: 5.5rem;
+      max-width: 6.5rem;
+      flex: 0 0 auto;
+    }
+
     .transport {
       display: grid;
       gap: 0.35rem;
@@ -901,6 +907,14 @@
       <button id="playBtn" type="button">播放</button>
       <button class="secondary" id="backBtn" type="button">-5s</button>
       <button class="secondary" id="fwdBtn" type="button">+5s</button>
+      <select id="speedSelect" title="播放速度" aria-label="播放速度">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1.0×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2.0×</option>
+      </select>
       <div class="transport">
         <input id="seek" type="range" min="0" max="0" step="0.01" value="0" />
         <div class="time-row">
@@ -1032,6 +1046,7 @@
   <script>
     const audio = document.getElementById("audio");
     const playBtn = document.getElementById("playBtn");
+    const speedSelect = document.getElementById("speedSelect");
     const seek = document.getElementById("seek");
     const curTime = document.getElementById("curTime");
     const durTime = document.getElementById("durTime");
@@ -1097,6 +1112,17 @@
     let seeking = false;
     let rafId = 0;
     let busy = false;
+    let playbackSpeed = 1;
+
+    function applyPlaybackSpeed() {
+      audio.playbackRate = playbackSpeed;
+    }
+
+    function setPlaybackSpeed(rate) {
+      playbackSpeed = rate;
+      speedSelect.value = String(rate);
+      applyPlaybackSpeed();
+    }
     let pollTimer = 0;
     let suppressSelectChange = false;
     let scrollLockUntil = 0;
@@ -1137,6 +1163,7 @@
       deleteBtn.disabled = busy || !has;
       importBtn.disabled = busy;
       audioSelect.disabled = busy;
+      speedSelect.disabled = busy;
       updateRangeUI();
     }
 
@@ -1717,6 +1744,14 @@
       seekTo(audio.currentTime + 5, { autoPlay: false });
     });
 
+    speedSelect.addEventListener("change", () => {
+      if (busy) {
+        speedSelect.value = String(playbackSpeed);
+        return showToastBusy();
+      }
+      setPlaybackSpeed(Number(speedSelect.value));
+    });
+
     seek.addEventListener("input", () => {
       seeking = true;
       curTime.textContent = fmt(Number(seek.value));
@@ -1731,6 +1766,7 @@
     audio.addEventListener("loadedmetadata", () => {
       seek.max = String(audio.duration || 0);
       durTime.textContent = fmt(audio.duration || 0);
+      applyPlaybackSpeed();
     });
     audio.addEventListener("play", () => { playBtn.textContent = "暫停"; startClock(); });
     audio.addEventListener("pause", () => {
@@ -1746,6 +1782,8 @@
         updateHighlight(audio.currentTime);
       }
     });
+
+    applyPlaybackSpeed();
 
     document.addEventListener("keydown", (e) => {
       if (e.target.matches("input, textarea, select")) return;
