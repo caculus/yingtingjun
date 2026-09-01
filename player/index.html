@@ -1026,6 +1026,20 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="importModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="importModalTitle">
+      <h3 id="importModalTitle">匯入音檔</h3>
+      <p class="time-hint" id="importModalFile"></p>
+      <label for="importStem">教材名稱</label>
+      <input id="importStem" type="text" autocomplete="off" />
+      <p class="time-hint">用於檔案與文稿名稱；可含中文。留空則使用原檔名。</p>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="importModalCancel">取消</button>
+        <button type="button" id="importModalOk">開始轉寫</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dict-popover" id="dictPopover" hidden role="dialog" aria-label="詞典">
     <div class="dict-head">
       <span class="dict-lemma" id="dictLemma">—</span>
@@ -1087,6 +1101,11 @@
     const noteModalSave = document.getElementById("noteModalSave");
     const noteModalRetranslate = document.getElementById("noteModalRetranslate");
     const noteModalDict = document.getElementById("noteModalDict");
+    const importModal = document.getElementById("importModal");
+    const importModalFile = document.getElementById("importModalFile");
+    const importStem = document.getElementById("importStem");
+    const importModalCancel = document.getElementById("importModalCancel");
+    const importModalOk = document.getElementById("importModalOk");
     const dictPopover = document.getElementById("dictPopover");
     const dictLemma = document.getElementById("dictLemma");
     const dictPhonetic = document.getElementById("dictPhonetic");
@@ -1141,6 +1160,7 @@
     let loopRange = null;
     let selectingInTranscript = false;
     let toastTimer = 0;
+    let pendingImportFile = null;
 
     function displayAudioName(name) {
       if (!name) return "";
@@ -2695,18 +2715,39 @@
       importInput.click();
     });
 
-    importInput.addEventListener("change", async () => {
-      const file = importInput.files && importInput.files[0];
-      importInput.value = "";
+    function openImportModal(file) {
+      pendingImportFile = file;
+      importModalFile.textContent = `檔案：${file.name}`;
+      importStem.value = displayAudioName(file.name);
+      importModal.classList.add("visible");
+      importModal.setAttribute("aria-hidden", "false");
+      importStem.focus();
+      importStem.select();
+    }
+
+    function closeImportModal() {
+      importModal.classList.remove("visible");
+      importModal.setAttribute("aria-hidden", "true");
+      pendingImportFile = null;
+    }
+
+    async function uploadPendingImport() {
+      const file = pendingImportFile;
       if (!file) return;
       if (busy) return showToastBusy();
 
+      const stem = importStem.value.trim();
+      closeImportModal();
+
       const fd = new FormData();
       fd.append("file", file, file.name);
-      setBusy(true, `上傳並轉寫：${file.name}`);
+      if (stem) fd.append("stem", stem);
+
+      const label = stem || file.name;
+      setBusy(true, `上傳並轉寫：${label}`);
       logPanel.classList.add("visible");
       logBadge.textContent = "uploading";
-      logTitle.textContent = `上傳 ${file.name}`;
+      logTitle.textContent = `上傳 ${label}`;
       logBody.textContent = "上傳中…";
 
       try {
@@ -2723,6 +2764,24 @@
         setBusy(false);
         alert("匯入失敗：" + (err.message || err));
       }
+    }
+
+    importInput.addEventListener("change", () => {
+      const file = importInput.files && importInput.files[0];
+      importInput.value = "";
+      if (!file) return;
+      if (busy) return showToastBusy();
+      openImportModal(file);
+    });
+
+    importModalOk.addEventListener("click", () => {
+      uploadPendingImport();
+    });
+    importModalCancel.addEventListener("click", () => {
+      closeImportModal();
+    });
+    importModal.addEventListener("click", (e) => {
+      if (e.target === importModal) closeImportModal();
     });
 
     audioSelect.addEventListener("change", () => {
@@ -2838,6 +2897,10 @@
       }
       if (noteModal.classList.contains("visible")) {
         closeNoteModal();
+        return;
+      }
+      if (importModal.classList.contains("visible")) {
+        closeImportModal();
       }
     });
 
