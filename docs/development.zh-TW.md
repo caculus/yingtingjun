@@ -64,6 +64,8 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 
 ## 執行資料目錄
 
+從原始碼執行時，這些目錄在 repo 旁邊（或由 `--workdir` / `--outdir` / `--uploads` / `--notesdir` 指定）：
+
 - `workdir/`：正規化後音訊
 - `uploads/`：匯入的原始檔
 - `output/`：逐字稿與快取
@@ -71,11 +73,13 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 - `models/`：本機話者與詞典資產
 - `bin/`：本機輔助二進位，例如 `speakrs_diarize`
 
-對於封裝安裝：
+精簡安裝包會拆開：學習資料（`workdir`、`uploads`、`output`、`notes`）一律在 `~/Documents/Yingtingjun/data/`（Windows：`%USERPROFILE%\Documents\Yingtingjun\data\`）。執行階段（`python`、`models`、`bin`）另外存放：
 
-- macOS 執行階段資料：`~/Library/Application Support/Yingtingjun/`
-- Linux 執行階段資料：`~/.local/share/yingtingjun/`
-- 使用者學習資料：`~/Documents/Yingtingjun/data/`
+- macOS：`~/Library/Application Support/Yingtingjun/`
+- Windows：`%LOCALAPPDATA%\Yingtingjun\`（Inno 安裝目錄）
+- Linux：`~/.local/share/yingtingjun/`
+
+啟動腳本接受 `YTJ_DATA`、`YTJ_DOCUMENTS`。卸載只刪執行階段。Windows 舊版若把資料留在 `{app}\data`，第一次啟動或卸載時會先複製到「文件」。
 
 ## 產品特有行為
 

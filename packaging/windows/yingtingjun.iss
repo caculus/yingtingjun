@@ -36,7 +36,16 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\Yingtingjun.bat"; WorkingD
 Filename: "{app}\Yingtingjun.bat"; Description: "啟動英聽君"; Flags: nowait postinstall skipifsilent unchecked
 
 [UninstallDelete]
-; Do not list data\ — user transcripts and notes should survive uninstall.
+; Runtime is downloaded after Setup, so Inno's installed-file list does not cover it.
+; Study data in {userdocs}\Yingtingjun\data is outside {app} and is not deleted.
+Type: filesandordirs; Name: "{app}\python"
+Type: filesandordirs; Name: "{app}\bin"
+Type: filesandordirs; Name: "{app}\models"
+Type: filesandordirs; Name: "{app}\app"
+Type: filesandordirs; Name: "{app}\data"
+Type: files; Name: "{app}\install-runtime.log"
+Type: files; Name: "{app}\requirements-youtube.txt"
+Type: filesandordirs; Name: "{app}"
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -62,4 +71,29 @@ begin
       MsgBox('執行階段下載失敗（代碼 ' + IntToStr(ResultCode) + '）。之後開啟英聽君會再試一次。', mbError, MB_OK);
     end;
   end;
+end;
+
+procedure MigrateLegacyAppData;
+var
+  ResultCode: Integer;
+  Src, Dst: String;
+begin
+  Src := ExpandConstant('{app}\data');
+  Dst := ExpandConstant('{userdocs}\Yingtingjun\data');
+  if not DirExists(Src) then
+    Exit;
+  ForceDirectories(Dst);
+  Exec(
+    ExpandConstant('{cmd}'),
+    '/C xcopy /E /I /Y "' + Src + '" "' + Dst + '"',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then
+    MigrateLegacyAppData;
 end;

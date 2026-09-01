@@ -30,9 +30,21 @@ You are likely using the wrong Python architecture. Reinstall AMD64 Python, dele
 
 Windows should not force-install `torchaudio` for this project. Use `requirements-windows.txt` and the provided installer script.
 
+### Installer shows `ERROR: pip's dependency resolver` / `requires torchaudio`
+
+That is not a failed install. `speechbrain` declares a `torchaudio` dependency; the Windows package skips it on purpose and uses a stub. If you later see `Python packages ready.`, `yt-dlp ready.`, or `All runtime extras ready.`, the runtime download succeeded. `Scripts which is not on PATH` warnings can also be ignored.
+
 ### Windows on ARM behaves strangely
 
 Use AMD64 Python under emulation, not ARM64 Python.
+
+### Recordings are not under the install folder
+
+Packaged Windows installs store transcripts and notes in `%USERPROFILE%\Documents\Yingtingjun\data\`, not `%LOCALAPPDATA%\Yingtingjun\`. Python, ffmpeg, and models stay in the install directory.
+
+### Uninstall left `%LOCALAPPDATA%\Yingtingjun`
+
+Older installers only removed files copied by Setup. Downloaded Python, ffmpeg, and models were left behind. Current uninstallers delete that directory after copying leftover `{app}\data` into Documents. If an old uninstall already finished, delete `%LOCALAPPDATA%\Yingtingjun` yourself. Keep `%USERPROFILE%\Documents\Yingtingjun\data\`.
 
 ## Linux
 
