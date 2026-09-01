@@ -44,6 +44,9 @@ from stem_utils import (
     build_stem_rename_plan,
     execute_stem_rename,
     iter_files_for_stem,
+    media_stem,
+    path_matches_stem,
+    recording_stem_from_filename,
     sanitize_stem,
 )
 
@@ -406,14 +409,6 @@ def compact_dictionary_entry(lemma: str, payload: list) -> dict:
     }
 
 
-def media_stem(path: Path) -> str:
-    """meeting.work.wav → meeting"""
-    name = path.name
-    if name.endswith(".work.wav"):
-        return name[: -len(".work.wav")]
-    return path.stem
-
-
 def find_transcript_for_stem(outdir: Path, stem: str) -> Path | None:
     candidates = [
         outdir / f"{stem}.json",
@@ -430,17 +425,17 @@ def find_transcript_for_stem(outdir: Path, stem: str) -> Path | None:
             continue
         if isinstance(data, dict) and data.get("turns"):
             return path
-    # Fuzzy: any json whose stem matches after stripping suffixes
     for path in sorted(outdir.glob("*.json")):
         if path.name.endswith(".whisper.json") or path.name.endswith(".turns.json"):
             continue
-        if media_stem(path) == stem or path.stem == stem:
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
-                continue
-            if isinstance(data, dict) and data.get("turns"):
-                return path
+        if recording_stem_from_filename(path.name) != stem:
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict) and data.get("turns"):
+            return path
     return None
 
 
@@ -829,7 +824,7 @@ class AppState:
         }
 
     def _same_stem(self, path: Path, stem: str) -> bool:
-        return media_stem(path) == stem or path.stem == stem or path.name.startswith(stem + ".")
+        return path_matches_stem(path, stem)
 
     def delete_workdir_file(self, name: str) -> dict:
         if self.busy():

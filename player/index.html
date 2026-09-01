@@ -1182,6 +1182,7 @@
     let selectingInTranscript = false;
     let toastTimer = 0;
     let pendingImportFile = null;
+    let loadedAudioName = "";
 
     function displayAudioName(name) {
       if (!name) return "";
@@ -1395,6 +1396,7 @@
       curTime.textContent = "00:00";
       durTime.textContent = "00:00";
       currentStem = "";
+      loadedAudioName = "";
       notes = [];
       renderNotesList();
     }
@@ -2688,6 +2690,7 @@
       hasRangeBackup = Boolean(meta.has_range_backup);
       updateRangeUI();
       await refreshLibrary(meta.audio_name);
+      loadedAudioName = meta.audio_name || "";
       await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
       return meta;
     }
@@ -2876,6 +2879,10 @@
     audioSelect.addEventListener("change", () => {
       if (suppressSelectChange) return;
       updateFileActionButtons();
+      const name = audioSelect.value;
+      if (name && loadedAudioName && name !== loadedAudioName) {
+        clearPlayerUI(`已選擇「${displayAudioName(name)}」，請按「載入」。`);
+      }
     });
 
     async function loadSelectedAudio() {

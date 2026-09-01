@@ -47,6 +47,35 @@ def test_path_matches_stem_work_wav():
     path = Path("lesson.work.wav")
     assert path_matches_stem(path, "lesson")
     assert path_matches_stem(Path("lesson.json.bak-range"), "lesson")
+    assert not path_matches_stem(Path("lesson.extra.work.wav"), "lesson")
+
+
+def test_path_matches_stem_does_not_prefix_match_dotted_names():
+    assert path_matches_stem(Path("foo.bar.work.wav"), "foo.bar")
+    assert not path_matches_stem(Path("foo.bar.work.wav"), "foo")
+    assert not path_matches_stem(Path("foo.bar.json"), "foo")
+
+
+def test_iter_files_for_stem_ignores_dotted_neighbor(tmp_path: Path):
+    workdir = tmp_path / "workdir"
+    outdir = tmp_path / "output"
+    uploads = tmp_path / "uploads"
+    notesdir = tmp_path / "notes"
+    for d in (workdir, outdir, uploads, notesdir):
+        d.mkdir()
+    (workdir / "foo.work.wav").write_bytes(b"a")
+    (workdir / "foo.bar.work.wav").write_bytes(b"b")
+    (outdir / "foo.json").write_text('{"turns":[]}', encoding="utf-8")
+    (outdir / "foo.bar.json").write_text('{"turns":[]}', encoding="utf-8")
+
+    foo_files = {p.name for p in iter_files_for_stem(
+        workdir=workdir,
+        outdir=outdir,
+        uploads=uploads,
+        notesdir=notesdir,
+        stem="foo",
+    )}
+    assert foo_files == {"foo.work.wav", "foo.json"}
 
 
 def test_iter_files_for_stem_collects_related_files(tmp_path: Path):

@@ -25,20 +25,40 @@ class StemCollisionError(StemError):
     """Target stem already exists or rename plan conflicts."""
 
 
-def media_stem(path: Path) -> str:
-    """meeting.work.wav → meeting"""
-    name = path.name
+_RECORDING_SUFFIXES = (
+    ".json.bak-range",
+    ".json.range-meta.json",
+    ".whisper.json",
+    ".turns.json",
+    ".json",
+    ".md",
+    ".txt",
+    ".srt",
+)
+
+
+def recording_stem_from_filename(name: str) -> str | None:
+    """Map a data-dir filename back to its recording stem."""
     if name.endswith(".work.wav"):
         return name[: -len(".work.wav")]
+    for suffix in _RECORDING_SUFFIXES:
+        if name.endswith(suffix):
+            return name[: -len(suffix)]
+    if "." in name:
+        return Path(name).stem
+    return name or None
+
+
+def media_stem(path: Path) -> str:
+    """meeting.work.wav → meeting; lesson.json → lesson."""
+    key = recording_stem_from_filename(path.name)
+    if key is not None:
+        return key
     return path.stem
 
 
 def path_matches_stem(path: Path, stem: str) -> bool:
-    return (
-        media_stem(path) == stem
-        or path.stem == stem
-        or path.name.startswith(stem + ".")
-    )
+    return recording_stem_from_filename(path.name) == stem
 
 
 def sanitize_stem(raw: str) -> str:
@@ -97,13 +117,16 @@ def iter_files_for_stem(
 
 def renamed_file_path(path: Path, old_stem: str, new_stem: str) -> Path:
     """Compute destination path when migrating *old_stem* → *new_stem*."""
+    current = recording_stem_from_filename(path.name)
+    if current != old_stem:
+        raise StemError(f"無法重新命名：{path.name}")
     name = path.name
-    if name == old_stem:
-        return path.with_name(new_stem)
-    prefix = old_stem + "."
-    if name.startswith(prefix):
-        return path.with_name(new_stem + name[len(old_stem) :])
-    raise StemError(f"無法重新命名：{name}")
+    if name.endswith(".work.wav"):
+        return path.with_name(f"{new_stem}.work.wav")
+    for suffix in _RECORDING_SUFFIXES:
+        if name.endswith(suffix):
+            return path.with_name(f"{new_stem}{suffix}")
+    return path.with_name(f"{new_stem}{path.suffix}")
 
 
 def build_stem_rename_plan(
