@@ -72,6 +72,7 @@ python serve_player.py
 可選額外安裝：
 
 - `python -m pip install -r requirements-dev.txt`
+- `python -m pip install -r requirements-youtube.txt`（播放器內 YouTube 匯入）
 - `bash scripts/setup_ecdict.sh`
 - `bash scripts/build_speakrs.sh`，僅限 Apple Silicon
 
@@ -113,7 +114,16 @@ python serve_player.py
 - 可以的話，優先用套件管理器安裝 `ffmpeg`
 - `--pick` 可能需要 `tkinter`
 
+## YouTube 匯入（選用）
 
+播放器 **匯入 ▾ → YouTube…** 需要本機已安裝 [yt-dlp](https://github.com/yt-dlp/yt-dlp)：
+
+```bash
+python -m pip install -r requirements-youtube.txt
+# 或：brew install yt-dlp
+```
+
+仍需 `ffmpeg`（英聽君轉檔流程通常已具備）。**精簡安裝包**會在首次啟動時透過 `install_runtime` 自動安裝 `yt-dlp`。
 
 ## 封裝
 

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>yt-decoder</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --ink: #1a1a1a;
+      --muted: #5c5a54;
+      --line: #d4cfc3;
+      --accent: #0f5c4c;
+      --accent-soft: #d8ebe4;
+      --danger: #8b1e1e;
+      --card: #fffcf7;
+      --mono: "SF Mono", "Menlo", "Consolas", monospace;
+      --sans: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, #e8d9c4 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, #cfe0d9 0%, transparent 50%),
+        var(--bg);
+    }
+    main {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 3.5rem 1.25rem 4rem;
+    }
+    .brand {
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.75rem;
+      font-family: var(--mono);
+    }
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      line-height: 1.15;
+      font-weight: 600;
+      margin: 0 0 0.6rem;
+    }
+    .lede {
+      margin: 0 0 2rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.45;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 1.25rem;
+    }
+    label.field {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    input[type="url"], select {
+      width: 100%;
+      font: inherit;
+      padding: 0.7rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: #fff;
+      color: var(--ink);
+    }
+    input[type="url"]:focus, select:focus {
+      outline: 2px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+    .row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      align-items: flex-end;
+    }
+    .row > div { flex: 1; min-width: 8rem; }
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    button {
+      font: inherit;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 2px;
+      cursor: pointer;
+      min-width: 6.5rem;
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .meta {
+      margin-top: 0.85rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .progress, .result, .error {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 2px;
+      display: none;
+    }
+    .progress.visible, .result.visible, .error.visible { display: block; }
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+    .progress h2, .result h2, .error h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #faf8f4;
+      white-space: nowrap;
+    }
+    .status-pill[data-status="running"] {
+      color: var(--accent);
+      border-color: #a8cfc4;
+      background: var(--accent-soft);
+    }
+    .status-pill[data-status="done"] {
+      color: var(--accent);
+      border-color: #a8cfc4;
+      background: #eef8f4;
+    }
+    .status-pill[data-status="error"] {
+      color: var(--danger);
+      border-color: #e2b4b4;
+      background: #fdf3f3;
+    }
+    .status-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .status-pill[data-status="running"] .status-dot {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    #log {
+      margin: 0;
+      max-height: 14rem;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      color: var(--muted);
+    }
+    .error { border-color: #e2b4b4; color: var(--danger); }
+    .result strong { display: block; margin-bottom: 0.35rem; }
+    .hint {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 2px;
+      line-height: 1.4;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">yt-decoder</p>
+    <h1>把 YouTube 變成英聽君教材</h1>
+    <p class="lede">貼上連結，本機匯入雙語文稿與音檔。深度跟讀請到英聽君。</p>
+
+    <form class="panel" id="form">
+      <label class="field" for="url">YouTube URL</label>
+      <input id="url" name="url" type="url" required placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" />
+
+      <div class="row">
+        <div>
+          <label class="field" for="mode">模式</label>
+          <select id="mode" name="mode">
+            <option value="auto" selected>auto（字幕優先，否則 Whisper）</option>
+            <option value="caption">caption（僅字幕）</option>
+            <option value="whisper">whisper（強制 Whisper）</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="check">
+        <input id="skipTranslate" type="checkbox" />
+        略過中文翻譯（較快，除錯用）
+      </label>
+
+      <div class="row">
+        <button id="submit" type="submit">匯入</button>
+      </div>
+      <p class="meta" id="outdirMeta">outdir：…</p>
+    </form>
+
+    <section class="progress" id="progress">
+      <div class="progress-header">
+        <h2>進度</h2>
+        <span class="status-pill" id="statusPill" data-status="running" hidden>
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">處理中</span>
+        </span>
+      </div>
+      <pre id="log"></pre>
+    </section>
+
+    <section class="result" id="result">
+      <h2>完成</h2>
+      <strong id="resultStem"></strong>
+      <div id="resultMeta"></div>
+      <p class="hint" id="resultHint"></p>
+    </section>
+
+    <section class="error" id="error">
+      <h2>失敗</h2>
+      <div id="errorBody"></div>
+    </section>
+
+    <footer>本機工具 · 僅供個人學習 · 不修改英聽君原始碼</footer>
+  </main>
+
+  <script>
+    const form = document.getElementById("form");
+    const submitBtn = document.getElementById("submit");
+    const logEl = document.getElementById("log");
+    const progress = document.getElementById("progress");
+    const result = document.getElementById("result");
+    const error = document.getElementById("error");
+    const statusPill = document.getElementById("statusPill");
+    const statusText = document.getElementById("statusText");
+
+    const STAGE_LABELS = {
+      job: "已建立任務",
+      probe: "探測影片",
+      caption: "下載字幕",
+      audio: "下載音訊",
+      translate: "翻譯中",
+      write: "寫入檔案",
+      whisper: "Whisper 轉寫",
+    };
+
+    async function loadConfig() {
+      const res = await fetch("/api/config");
+      const data = await res.json();
+      document.getElementById("outdirMeta").textContent = "outdir：" + data.outdir;
+      if (data.default_mode) {
+        document.getElementById("mode").value = data.default_mode;
+      }
+    }
+
+    function resetPanels() {
+      logEl.textContent = "";
+      progress.classList.remove("visible");
+      result.classList.remove("visible");
+      error.classList.remove("visible");
+      statusPill.hidden = true;
+    }
+
+    function setStatus(status, label) {
+      progress.classList.add("visible");
+      statusPill.hidden = false;
+      statusPill.dataset.status = status;
+      statusText.textContent = label;
+    }
+
+    function stageLabel(stage, message) {
+      const base = STAGE_LABELS[stage] || stage;
+      if (stage === "translate" && message) {
+        return `${base}（${message}）`;
+      }
+      return base;
+    }
+
+    function appendLog(stage, message) {
+      setStatus("running", stageLabel(stage, message));
+      logEl.textContent += `[${stage}] ${message}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function showError(code, message) {
+      setStatus("error", "失敗");
+      error.classList.add("visible");
+      document.getElementById("errorBody").textContent = code ? `[${code}] ${message}` : message;
+    }
+
+    function showDone(data) {
+      setStatus("done", "完成");
+      result.classList.add("visible");
+      document.getElementById("resultStem").textContent = data.stem || "";
+      document.getElementById("resultMeta").textContent =
+        `${data.caption_kind || ""} · ${data.turns_count || 0} turns · ${data.audio_name || ""}`;
+      document.getElementById("resultHint").textContent =
+        data.hint || "若英聽君已開啟，請先重新整理頁面（Cmd+R），再從下拉選單選擇對應音檔。";
+    }
+
+    function listenEvents(jobId) {
+      return new Promise((resolve) => {
+        const es = new EventSource(`/api/import/${jobId}/events`);
+        es.onmessage = (ev) => {
+          let data;
+          try { data = JSON.parse(ev.data); } catch (_) { return; }
+          if (data.type === "status") {
+            setStatus("running", "處理中…");
+          } else if (data.type === "log") {
+            appendLog(data.stage, data.message);
+          } else if (data.type === "done") {
+            showDone(data);
+          } else if (data.type === "error") {
+            showError(data.code, data.message);
+          } else if (data.type === "end") {
+            es.close();
+            resolve();
+          }
+        };
+        es.onerror = () => {
+          es.close();
+          resolve();
+        };
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      resetPanels();
+      submitBtn.disabled = true;
+      setStatus("running", "準備中…");
+      try {
+        const res = await fetch("/api/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: document.getElementById("url").value.trim(),
+            mode: document.getElementById("mode").value,
+            skip_translate: document.getElementById("skipTranslate").checked,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          showError(data.error || String(res.status), data.message || "匯入失敗");
+          return;
+        }
+        appendLog("job", data.job_id);
+        await listenEvents(data.job_id);
+      } catch (err) {
+        showError("error", String(err));
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadConfig().catch(() => {
+      document.getElementById("outdirMeta").textContent = "outdir：（無法讀取設定）";
+    });
+  </script>
+</body>
+</html>

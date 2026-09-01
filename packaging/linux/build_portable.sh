@@ -39,6 +39,7 @@ step "Copy application (no Python / models / ffmpeg)"
 APP_FILES=(
   transcribe.py
   serve_player.py
+  stem_utils.py
   asr_backend.py
   audio_convert.py
   audio_resample.py
@@ -51,10 +52,13 @@ for name in "${APP_FILES[@]}"; do
 done
 if command -v ditto >/dev/null 2>&1; then
   ditto "$ROOT/player" "$APP_DIR/player"
+  ditto "$ROOT/yt_decoder" "$APP_DIR/yt_decoder"
 else
   cp -a "$ROOT/player/." "$APP_DIR/player/"
+  cp -a "$ROOT/yt_decoder/." "$APP_DIR/yt_decoder/"
 fi
 cp "$ROOT/requirements-linux.txt" "$STAGE/requirements-linux.txt"
+cp "$ROOT/requirements-youtube.txt" "$STAGE/requirements-youtube.txt"
 cp "$ROOT/LICENSE" "$STAGE/LICENSE"
 cp "$PACK/yingtingjun" "$STAGE/yingtingjun"
 cp "$PACK/arch.sh" "$STAGE/arch.sh"

@@ -14,6 +14,8 @@ try { $Host.UI.RawUI.WindowTitle = "英聽君 — 下載執行階段" } catch { 
 $PyDir = Join-Path $Root "python"
 $Py = Join-Path $PyDir "python.exe"
 $Marker = Join-Path $PyDir ".deps-ok"
+$YtMarker = Join-Path $PyDir ".youtube-deps-ok"
+$YtReq = Join-Path $Root "requirements-youtube.txt"
 $BinDir = Join-Path $Root "bin"
 $Ffmpeg = Join-Path $BinDir "ffmpeg.exe"
 $ModelsDir = Join-Path $Root "models"
@@ -227,6 +229,34 @@ function Install-PythonPackages {
     Write-Host "Python packages ready." -ForegroundColor Green
 }
 
+function Test-YtdlpOk {
+    $bin = Join-Path $PyDir "Scripts\yt-dlp.exe"
+    if (Test-Path $bin) {
+        & $bin --version | Out-Null
+        return ($LASTEXITCODE -eq 0)
+    }
+    & $Py -m yt_dlp --version | Out-Null
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Install-YoutubeTools {
+    if (-not (Test-Path $YtReq)) {
+        Write-Host "Skipping yt-dlp (missing requirements-youtube.txt)."
+        return
+    }
+    $hash = (Get-FileHash $YtReq -Algorithm SHA256).Hash
+    if ((Test-Path $YtMarker) -and (Select-String -Path $YtMarker -Pattern $hash -Quiet) -and (Test-YtdlpOk)) {
+        Write-Host "yt-dlp already installed." -ForegroundColor Green
+        return
+    }
+    Show-YtjProgress 85 "安裝 YouTube 匯入（yt-dlp）"
+    & $Py -m pip install -r $YtReq
+    if ($LASTEXITCODE -ne 0) { throw "yt-dlp install failed" }
+    if (-not (Test-YtdlpOk)) { throw "yt-dlp installed but not runnable" }
+    "ok $hash $(Get-Date -Format o)" | Set-Content -Path $YtMarker -Encoding ascii
+    Write-Host "yt-dlp ready." -ForegroundColor Green
+}
+
 function Install-Ecapa {
     if (Test-Path $EcapaCkpt) {
         Write-Host "ECAPA already present: $EcapaDir" -ForegroundColor Green
@@ -266,6 +296,7 @@ try {
     Install-FfmpegEssentials
     Install-Ecdict
     Install-PythonPackages
+    Install-YoutubeTools
     Install-Ecapa
     Show-YtjProgress 100 "完成"
     Write-Progress -Activity "英聽君 安裝" -Completed

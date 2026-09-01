@@ -10,9 +10,11 @@ RESOURCES="${YTJ_APP_RESOURCES:-$(cd "$(dirname "$0")" && pwd)}"
 SUPPORT="${YTJ_SUPPORT:-$HOME/Library/Application Support/Yingtingjun}"
 APP_DIR="$RESOURCES/app"
 REQ="$RESOURCES/requirements.txt"
+REQ_YT="$RESOURCES/requirements-youtube.txt"
 PY_DIR="$SUPPORT/python"
 PY="$PY_DIR/bin/python3"
 MARKER="$PY_DIR/.deps-ok"
+YTDLP_MARKER="$PY_DIR/.youtube-deps-ok"
 MODELS="$SUPPORT/models"
 ECDICT="$MODELS/ecdict.db"
 ECAPA_DIR="$MODELS/spkrec-ecapa-voxceleb"
@@ -138,6 +140,29 @@ print('ok')
   echo "Python packages ready."
 }
 
+ytdlp_ok() {
+  [[ -x "$PY_DIR/bin/yt-dlp" ]] && "$PY_DIR/bin/yt-dlp" --version >/dev/null 2>&1 && return 0
+  "$PY" -m yt_dlp --version >/dev/null 2>&1
+}
+
+install_youtube_tools() {
+  local hash
+  [[ -f "$REQ_YT" ]] || {
+    echo "Skipping yt-dlp (missing $REQ_YT)."
+    return 0
+  }
+  hash="$(shasum -a 256 "$REQ_YT" | awk '{print $1}')"
+  if [[ -f "$YTDLP_MARKER" ]] && grep -q "$hash" "$YTDLP_MARKER" && ytdlp_ok; then
+    echo "yt-dlp already installed."
+    return 0
+  fi
+  progress 72 "安裝 YouTube 匯入（yt-dlp）"
+  PYTHONPATH="$APP_DIR" "$PY" -m pip install -r "$REQ_YT" || die "yt-dlp install failed"
+  ytdlp_ok || die "yt-dlp installed but not runnable"
+  echo "ok $hash $(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$YTDLP_MARKER"
+  echo "yt-dlp ready."
+}
+
 install_ecapa() {
   if [[ -f "$ECAPA_CKPT" ]]; then
     echo "ECAPA already present: $ECAPA_DIR"
@@ -174,6 +199,7 @@ install_python
 ensure_pip
 install_ecdict
 install_packages
+install_youtube_tools
 install_ecapa
 progress 100 "完成"
 echo

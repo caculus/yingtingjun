@@ -8,8 +8,8 @@
 
 ## 怎麼運作
 
-1. 匯入任意英文對話錄音
-2. 偵測語言、轉寫英文、加上中文翻譯
+1. 匯入任意英文對話錄音，或從播放器 **匯入 → YouTube** 貼上影片連結
+2. 偵測語言、轉寫英文、加上中文翻譯（YouTube 有英文字幕時可走字幕快徑）
 3. 在瀏覽器播放器裡邊聽邊跟讀、查詞、做筆記、修正問題片段
 
 ## 它和一般逐字稿工具不同的地方
@@ -39,6 +39,7 @@
 ## 核心功能
 
 - 本機轉寫與翻譯
+- **YouTube 匯入**（內建；開發環境需 `pip install -r requirements-youtube.txt`；安裝包首次啟動會自動安裝 `yt-dlp`）
 - 話者標記、時間戳、詞級時間
 - 瀏覽器同步播放與跟讀，支援 0.5×–2.0× 播放速度
 - ECDICT 優先的點詞查詢
@@ -53,6 +54,12 @@
 - [安裝說明](docs/installation.zh-TW.md)
 - [開發說明](docs/development.zh-TW.md)
 - [疑難排解](docs/troubleshooting.zh-TW.md)
+
+### 從 YouTube 匯入（選用）
+
+播放器內 **匯入 ▾ → YouTube…**：貼 URL、可改教材名稱，完成後自動載入雙語文稿。  
+開發環境請先執行 `pip install -r requirements-youtube.txt`（或 `brew install yt-dlp`）。  
+YouTube 只是輸入來源之一；產品主線仍是你在真實生活裡遇到的錄音。
 
 ## 路線圖
 
