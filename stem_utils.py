@@ -21,6 +21,10 @@ class StemError(ValueError):
     """Invalid user-provided stem."""
 
 
+class StemCollisionError(StemError):
+    """Target stem already exists or rename plan conflicts."""
+
+
 def media_stem(path: Path) -> str:
     """meeting.work.wav → meeting"""
     name = path.name
@@ -89,3 +93,61 @@ def iter_files_for_stem(
     if notes_path.is_file():
         add(notes_path)
     return paths
+
+
+def renamed_file_path(path: Path, old_stem: str, new_stem: str) -> Path:
+    """Compute destination path when migrating *old_stem* → *new_stem*."""
+    name = path.name
+    if name == old_stem:
+        return path.with_name(new_stem)
+    prefix = old_stem + "."
+    if name.startswith(prefix):
+        return path.with_name(new_stem + name[len(old_stem) :])
+    raise StemError(f"無法重新命名：{name}")
+
+
+def build_stem_rename_plan(
+    files: list[Path],
+    old_stem: str,
+    new_stem: str,
+) -> list[tuple[Path, Path]]:
+    if old_stem == new_stem:
+        raise StemError("名稱未變更")
+    if not files:
+        raise StemError("找不到可重新命名的檔案")
+
+    plan: list[tuple[Path, Path]] = []
+    destinations: set[str] = set()
+    sources = {str(path.resolve()) for path in files}
+
+    for src in files:
+        dst = renamed_file_path(src, old_stem, new_stem)
+        dst_key = str(dst.resolve())
+        if dst_key in destinations:
+            raise StemCollisionError(f"重新命名會造成衝突：{dst.name}")
+        if dst.exists() and dst_key not in sources:
+            raise StemCollisionError(f"「{new_stem}」已存在，請換一個名稱")
+        destinations.add(dst_key)
+        plan.append((src, dst))
+    return plan
+
+
+def execute_stem_rename(plan: list[tuple[Path, Path]]) -> list[tuple[Path, Path]]:
+    """Rename files in *plan*; rollback on failure."""
+    done: list[tuple[Path, Path]] = []
+    try:
+        for src, dst in plan:
+            if src.resolve() == dst.resolve():
+                continue
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            src.rename(dst)
+            done.append((src, dst))
+    except OSError as exc:
+        for src, dst in reversed(done):
+            try:
+                if dst.exists():
+                    dst.rename(src)
+            except OSError:
+                pass
+        raise StemError(f"重新命名失敗：{exc}") from exc
+    return done

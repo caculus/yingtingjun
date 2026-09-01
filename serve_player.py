@@ -38,7 +38,14 @@ from platform_runtime import (
     transcribe_cmd,
     transcribe_import_args,
 )
-from stem_utils import StemError, sanitize_stem
+from stem_utils import (
+    StemCollisionError,
+    StemError,
+    build_stem_rename_plan,
+    execute_stem_rename,
+    iter_files_for_stem,
+    sanitize_stem,
+)
 
 ROOT = Path(__file__).resolve().parent
 PLAYER_DIR = ROOT / "player"
@@ -893,6 +900,85 @@ class AppState:
             "message": f"已刪除「{stem}」相關檔案（{len(deleted)} 個）",
         }
 
+    def _update_notes_stem(self, notes_path: Path, new_stem: str) -> None:
+        if not notes_path.is_file():
+            return
+        try:
+            data = json.loads(notes_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return
+        if not isinstance(data, dict):
+            return
+        data["stem"] = new_stem
+        notes_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    def rename_workdir_file(self, name: str, new_stem_raw: str) -> dict:
+        if self.busy():
+            return {"ok": False, "error": "處理中，請稍候再試。"}
+        target = (self.workdir / name).resolve()
+        if not target.exists() or not target.is_file():
+            return {"ok": False, "error": f"找不到檔案：{name}"}
+        try:
+            target.relative_to(self.workdir.resolve())
+        except ValueError:
+            return {"ok": False, "error": "非法路徑"}
+
+        old_stem = media_stem(target)
+        try:
+            new_stem = sanitize_stem(new_stem_raw)
+        except StemError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        files = iter_files_for_stem(
+            workdir=self.workdir,
+            outdir=self.outdir,
+            uploads=self.uploads,
+            notesdir=self.notesdir,
+            stem=old_stem,
+        )
+        try:
+            plan = build_stem_rename_plan(files, old_stem, new_stem)
+            done = execute_stem_rename(plan)
+        except StemCollisionError as exc:
+            return {"ok": False, "error": str(exc), "status": "collision"}
+        except StemError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        relocated = {str(src.resolve()): dst for src, dst in done}
+        primary_name = name
+        for src, dst in done:
+            if src.resolve() == target.resolve():
+                primary_name = dst.name
+            if dst.parent.resolve() == self.notesdir.resolve():
+                self._update_notes_stem(dst, new_stem)
+
+        reloaded = False
+        with self.lock:
+            if self.audio:
+                audio_key = str(Path(self.audio).resolve())
+                if audio_key in relocated:
+                    self.audio = relocated[audio_key]
+                    reloaded = True
+            if self.transcript:
+                transcript_key = str(Path(self.transcript).resolve())
+                if transcript_key in relocated:
+                    self.transcript = relocated[transcript_key]
+                    reloaded = True
+
+        return {
+            "ok": True,
+            "old_stem": old_stem,
+            "new_stem": new_stem,
+            "name": primary_name,
+            "reloaded": reloaded,
+            "renamed": len(done),
+            "message": f"已重新命名為「{new_stem}」",
+            "meta": self.meta() if reloaded else None,
+        }
+
     def current_stem(self) -> str | None:
         if self.transcript and Path(self.transcript).exists():
             return media_stem(Path(self.transcript))
@@ -1284,6 +1370,23 @@ class PlayerHandler(SimpleHTTPRequestHandler):
                 return self._send_json({"ok": False, "error": "缺少檔名"}, status=400)
             result = self.state.delete_workdir_file(name)
             status = 200 if result.get("ok") else 409 if "處理中" in (result.get("error") or "") else 400
+            return self._send_json(result, status=status)
+
+        if path == "/api/rename":
+            body = self._read_json_body()
+            name = (body.get("name") or "").strip()
+            new_stem = (body.get("new_stem") or "").strip()
+            if not name:
+                return self._send_json({"ok": False, "error": "缺少檔名"}, status=400)
+            if not new_stem:
+                return self._send_json({"ok": False, "error": "缺少新名稱"}, status=400)
+            result = self.state.rename_workdir_file(name, new_stem)
+            if result.get("ok"):
+                status = 200
+            elif result.get("status") == "collision" or "處理中" in (result.get("error") or ""):
+                status = 409
+            else:
+                status = 400
             return self._send_json(result, status=status)
 
         if path == "/api/import":

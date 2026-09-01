@@ -901,6 +901,7 @@
         <option value="">（載入匯入的音檔中…）</option>
       </select>
       <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
+      <button class="secondary" id="renameBtn" type="button" disabled>重新命名</button>
       <button class="danger" id="deleteBtn" type="button" disabled>刪除</button>
     </div>
     <div class="controls">
@@ -1040,6 +1041,20 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="renameModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="renameModalTitle">
+      <h3 id="renameModalTitle">重新命名</h3>
+      <p class="time-hint" id="renameModalFile"></p>
+      <label for="renameStem">新名稱</label>
+      <input id="renameStem" type="text" autocomplete="off" />
+      <p class="time-hint">將一併更新音檔、文稿、筆記等相關檔案名稱。</p>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="renameModalCancel">取消</button>
+        <button type="button" id="renameModalOk">確定</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dict-popover" id="dictPopover" hidden role="dialog" aria-label="詞典">
     <div class="dict-head">
       <span class="dict-lemma" id="dictLemma">—</span>
@@ -1073,6 +1088,7 @@
     const importInput = document.getElementById("importInput");
     const audioSelect = document.getElementById("audioSelect");
     const loadBtn = document.getElementById("loadBtn");
+    const renameBtn = document.getElementById("renameBtn");
     const deleteBtn = document.getElementById("deleteBtn");
     const logPanel = document.getElementById("logPanel");
     const logBody = document.getElementById("logBody");
@@ -1106,6 +1122,11 @@
     const importStem = document.getElementById("importStem");
     const importModalCancel = document.getElementById("importModalCancel");
     const importModalOk = document.getElementById("importModalOk");
+    const renameModal = document.getElementById("renameModal");
+    const renameModalFile = document.getElementById("renameModalFile");
+    const renameStem = document.getElementById("renameStem");
+    const renameModalCancel = document.getElementById("renameModalCancel");
+    const renameModalOk = document.getElementById("renameModalOk");
     const dictPopover = document.getElementById("dictPopover");
     const dictLemma = document.getElementById("dictLemma");
     const dictPhonetic = document.getElementById("dictPhonetic");
@@ -1180,6 +1201,7 @@
     function updateFileActionButtons() {
       const has = Boolean(audioSelect.value);
       loadBtn.disabled = busy || !has;
+      renameBtn.disabled = busy || !has;
       deleteBtn.disabled = busy || !has;
       importBtn.disabled = busy;
       audioSelect.disabled = busy;
@@ -2784,6 +2806,73 @@
       if (e.target === importModal) closeImportModal();
     });
 
+    function openRenameModal(name) {
+      renameModalFile.textContent = `目前：${displayAudioName(name)}`;
+      renameStem.value = displayAudioName(name);
+      renameModal.classList.add("visible");
+      renameModal.setAttribute("aria-hidden", "false");
+      renameStem.focus();
+      renameStem.select();
+    }
+
+    function closeRenameModal() {
+      renameModal.classList.remove("visible");
+      renameModal.setAttribute("aria-hidden", "true");
+    }
+
+    async function submitRename() {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇要重新命名的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      const newStem = renameStem.value.trim();
+      if (!newStem) {
+        alert("請輸入新名稱。");
+        return;
+      }
+      closeRenameModal();
+      try {
+        const res = await fetch("/api/rename", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, new_stem: newStem }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "重新命名失敗");
+          return;
+        }
+        await refreshLibrary(data.name || name);
+        if (data.reloaded) {
+          await loadCurrentSession();
+        }
+        metaEl.textContent = data.message || "已重新命名";
+      } catch (err) {
+        alert("重新命名失敗：" + (err.message || err));
+      }
+    }
+
+    renameBtn.addEventListener("click", () => {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇要重新命名的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      openRenameModal(name);
+    });
+    renameModalOk.addEventListener("click", () => {
+      submitRename();
+    });
+    renameModalCancel.addEventListener("click", () => {
+      closeRenameModal();
+    });
+    renameModal.addEventListener("click", (e) => {
+      if (e.target === renameModal) closeRenameModal();
+    });
+
     audioSelect.addEventListener("change", () => {
       if (suppressSelectChange) return;
       updateFileActionButtons();
@@ -2901,6 +2990,10 @@
       }
       if (importModal.classList.contains("visible")) {
         closeImportModal();
+        return;
+      }
+      if (renameModal.classList.contains("visible")) {
+        closeRenameModal();
       }
     });
 
