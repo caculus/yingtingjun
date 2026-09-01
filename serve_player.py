@@ -38,6 +38,17 @@ from platform_runtime import (
     transcribe_cmd,
     transcribe_import_args,
 )
+from stem_utils import (
+    StemCollisionError,
+    StemError,
+    build_stem_rename_plan,
+    execute_stem_rename,
+    iter_files_for_stem,
+    media_stem,
+    path_matches_stem,
+    recording_stem_from_filename,
+    sanitize_stem,
+)
 
 ROOT = Path(__file__).resolve().parent
 PLAYER_DIR = ROOT / "player"
@@ -51,6 +62,17 @@ _ecdict_conn: sqlite3.Connection | None = None
 _ecdict_lock = threading.Lock()
 
 
+def _parse_multipart_message(body: bytes, content_type: str):
+    ctype = content_type or ""
+    if "multipart/form-data" not in ctype.lower():
+        raise ValueError("需要 multipart/form-data")
+    header = f"Content-Type: {ctype}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1")
+    msg = message_from_bytes(header + body, policy=EMAIL_HTTP_POLICY)
+    if not msg.is_multipart():
+        raise ValueError("無效的 multipart 內容")
+    return msg
+
+
 def extract_multipart_file(
     body: bytes,
     content_type: str,
@@ -61,13 +83,7 @@ def extract_multipart_file(
 
     Uses stdlib ``email`` instead of removed ``cgi`` (gone in Python 3.13+).
     """
-    ctype = content_type or ""
-    if "multipart/form-data" not in ctype.lower():
-        raise ValueError("需要 multipart/form-data")
-    header = f"Content-Type: {ctype}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1")
-    msg = message_from_bytes(header + body, policy=EMAIL_HTTP_POLICY)
-    if not msg.is_multipart():
-        raise ValueError("無效的 multipart 內容")
+    msg = _parse_multipart_message(body, content_type)
     for part in msg.iter_parts():
         name = part.get_param("name", header="Content-Disposition")
         if name != field_name:
@@ -84,6 +100,37 @@ def extract_multipart_file(
             data = payload
         return filename, data
     raise ValueError(f"缺少 {field_name} 欄位")
+
+
+def extract_multipart_import(
+    body: bytes,
+    content_type: str,
+) -> tuple[str, bytes, str | None]:
+    """Parse import upload: file field plus optional stem text field."""
+    msg = _parse_multipart_message(body, content_type)
+    filename: str | None = None
+    data: bytes | None = None
+    stem: str | None = None
+    for part in msg.iter_parts():
+        name = part.get_param("name", header="Content-Disposition")
+        payload = part.get_payload(decode=True)
+        if payload is None:
+            chunk = b""
+        elif isinstance(payload, str):
+            chunk = payload.encode("latin-1")
+        else:
+            chunk = payload
+        if name == "file":
+            filename = Path(part.get_filename() or "upload.bin").name
+            if not filename or filename in {".", ".."}:
+                raise ValueError("無效檔名")
+            data = chunk
+        elif name == "stem":
+            text = chunk.decode("utf-8", errors="replace").strip()
+            stem = text or None
+    if filename is None or data is None:
+        raise ValueError("缺少 file 欄位")
+    return filename, data, stem
 
 
 def normalize_dict_query(q: str) -> str | None:
@@ -362,14 +409,6 @@ def compact_dictionary_entry(lemma: str, payload: list) -> dict:
     }
 
 
-def media_stem(path: Path) -> str:
-    """meeting.work.wav → meeting"""
-    name = path.name
-    if name.endswith(".work.wav"):
-        return name[: -len(".work.wav")]
-    return path.stem
-
-
 def find_transcript_for_stem(outdir: Path, stem: str) -> Path | None:
     candidates = [
         outdir / f"{stem}.json",
@@ -386,17 +425,17 @@ def find_transcript_for_stem(outdir: Path, stem: str) -> Path | None:
             continue
         if isinstance(data, dict) and data.get("turns"):
             return path
-    # Fuzzy: any json whose stem matches after stripping suffixes
     for path in sorted(outdir.glob("*.json")):
         if path.name.endswith(".whisper.json") or path.name.endswith(".turns.json"):
             continue
-        if media_stem(path) == stem or path.stem == stem:
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
-                continue
-            if isinstance(data, dict) and data.get("turns"):
-                return path
+        if recording_stem_from_filename(path.name) != stem:
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict) and data.get("turns"):
+            return path
     return None
 
 
@@ -785,7 +824,7 @@ class AppState:
         }
 
     def _same_stem(self, path: Path, stem: str) -> bool:
-        return media_stem(path) == stem or path.stem == stem or path.name.startswith(stem + ".")
+        return path_matches_stem(path, stem)
 
     def delete_workdir_file(self, name: str) -> dict:
         if self.busy():
@@ -854,6 +893,85 @@ class AppState:
             "stem": stem,
             "deleted": deleted,
             "message": f"已刪除「{stem}」相關檔案（{len(deleted)} 個）",
+        }
+
+    def _update_notes_stem(self, notes_path: Path, new_stem: str) -> None:
+        if not notes_path.is_file():
+            return
+        try:
+            data = json.loads(notes_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return
+        if not isinstance(data, dict):
+            return
+        data["stem"] = new_stem
+        notes_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    def rename_workdir_file(self, name: str, new_stem_raw: str) -> dict:
+        if self.busy():
+            return {"ok": False, "error": "處理中，請稍候再試。"}
+        target = (self.workdir / name).resolve()
+        if not target.exists() or not target.is_file():
+            return {"ok": False, "error": f"找不到檔案：{name}"}
+        try:
+            target.relative_to(self.workdir.resolve())
+        except ValueError:
+            return {"ok": False, "error": "非法路徑"}
+
+        old_stem = media_stem(target)
+        try:
+            new_stem = sanitize_stem(new_stem_raw)
+        except StemError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        files = iter_files_for_stem(
+            workdir=self.workdir,
+            outdir=self.outdir,
+            uploads=self.uploads,
+            notesdir=self.notesdir,
+            stem=old_stem,
+        )
+        try:
+            plan = build_stem_rename_plan(files, old_stem, new_stem)
+            done = execute_stem_rename(plan)
+        except StemCollisionError as exc:
+            return {"ok": False, "error": str(exc), "status": "collision"}
+        except StemError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        relocated = {str(src.resolve()): dst for src, dst in done}
+        primary_name = name
+        for src, dst in done:
+            if src.resolve() == target.resolve():
+                primary_name = dst.name
+            if dst.parent.resolve() == self.notesdir.resolve():
+                self._update_notes_stem(dst, new_stem)
+
+        reloaded = False
+        with self.lock:
+            if self.audio:
+                audio_key = str(Path(self.audio).resolve())
+                if audio_key in relocated:
+                    self.audio = relocated[audio_key]
+                    reloaded = True
+            if self.transcript:
+                transcript_key = str(Path(self.transcript).resolve())
+                if transcript_key in relocated:
+                    self.transcript = relocated[transcript_key]
+                    reloaded = True
+
+        return {
+            "ok": True,
+            "old_stem": old_stem,
+            "new_stem": new_stem,
+            "name": primary_name,
+            "reloaded": reloaded,
+            "renamed": len(done),
+            "message": f"已重新命名為「{new_stem}」",
+            "meta": self.meta() if reloaded else None,
         }
 
     def current_stem(self) -> str | None:
@@ -1249,11 +1367,37 @@ class PlayerHandler(SimpleHTTPRequestHandler):
             status = 200 if result.get("ok") else 409 if "處理中" in (result.get("error") or "") else 400
             return self._send_json(result, status=status)
 
+        if path == "/api/rename":
+            body = self._read_json_body()
+            name = (body.get("name") or "").strip()
+            new_stem = (body.get("new_stem") or "").strip()
+            if not name:
+                return self._send_json({"ok": False, "error": "缺少檔名"}, status=400)
+            if not new_stem:
+                return self._send_json({"ok": False, "error": "缺少新名稱"}, status=400)
+            result = self.state.rename_workdir_file(name, new_stem)
+            if result.get("ok"):
+                status = 200
+            elif result.get("status") == "collision" or "處理中" in (result.get("error") or ""):
+                status = 409
+            else:
+                status = 400
+            return self._send_json(result, status=status)
+
         if path == "/api/import":
             if self.state.busy():
                 return self._send_json({"ok": False, "error": "處理中，請稍候再試。"}, status=409)
             try:
-                saved = self._save_upload()
+                length = int(self.headers.get("Content-Length") or 0)
+                if length <= 0:
+                    raise ValueError("空上傳")
+                body = self.rfile.read(length)
+                ctype = self.headers.get("Content-Type", "")
+                filename, data, stem_raw = extract_multipart_import(body, ctype)
+                preferred_stem = sanitize_stem(stem_raw) if stem_raw else None
+                saved = self._save_upload_bytes(filename, data, preferred_stem)
+            except StemError as exc:
+                return self._send_json({"ok": False, "error": str(exc)}, status=400)
             except Exception as exc:  # noqa: BLE001
                 return self._send_json({"ok": False, "error": f"上傳失敗：{exc}"}, status=400)
             msg = f"已匯入「{saved.name}」，開始執行轉寫…"
@@ -1307,16 +1451,18 @@ class PlayerHandler(SimpleHTTPRequestHandler):
 
         self.send_error(404, "Unknown endpoint")
 
-    def _save_upload(self) -> Path:
-        ctype = self.headers.get("Content-Type", "")
-        length = int(self.headers.get("Content-Length") or 0)
-        if length <= 0:
-            raise ValueError("空上傳")
-        body = self.rfile.read(length)
-        filename, data = extract_multipart_file(body, ctype, field_name="file")
+    def _save_upload_bytes(
+        self,
+        filename: str,
+        data: bytes,
+        preferred_stem: str | None = None,
+    ) -> Path:
         self.state.uploads.mkdir(parents=True, exist_ok=True)
-        dest = self.state.uploads / filename
-        # Avoid overwrite collisions
+        ext = Path(filename).suffix or ".bin"
+        if preferred_stem:
+            dest = self.state.uploads / f"{preferred_stem}{ext}"
+        else:
+            dest = self.state.uploads / Path(filename).name
         if dest.exists():
             dest = self.state.uploads / f"{dest.stem}-{int(time.time())}{dest.suffix}"
         dest.write_bytes(data)

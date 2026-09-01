@@ -2,7 +2,8 @@
 
 import pytest
 
-from serve_player import extract_multipart_file
+from serve_player import extract_multipart_file, extract_multipart_import
+from stem_utils import StemError, sanitize_stem
 
 
 def _multipart(field: str, filename: str, data: bytes, *, boundary: str = "----ytj") -> tuple[bytes, str]:
@@ -21,6 +22,34 @@ def _multipart(field: str, filename: str, data: bytes, *, boundary: str = "----y
     )
     ctype = f"multipart/form-data; boundary={boundary}"
     return body, ctype
+
+
+def _multipart_with_stem(
+    filename: str,
+    data: bytes,
+    stem: str,
+    *,
+    boundary: str = "----ytj",
+) -> tuple[bytes, str]:
+    file_part = (
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        "Content-Type: application/octet-stream\r\n\r\n"
+    ).encode("ascii")
+    stem_part = (
+        f'Content-Disposition: form-data; name="stem"\r\n\r\n{stem}\r\n'
+    ).encode("utf-8")
+    body = b"".join(
+        [
+            f"--{boundary}\r\n".encode("ascii"),
+            file_part,
+            data,
+            b"\r\n",
+            f"--{boundary}\r\n".encode("ascii"),
+            stem_part,
+            f"--{boundary}--\r\n".encode("ascii"),
+        ]
+    )
+    return body, f"multipart/form-data; boundary={boundary}"
 
 
 def test_extract_multipart_file_ok():
@@ -46,3 +75,25 @@ def test_extract_multipart_file_missing_field():
 def test_extract_multipart_file_rejects_non_multipart():
     with pytest.raises(ValueError, match="multipart"):
         extract_multipart_file(b"x", "application/json")
+
+
+def test_extract_multipart_import_with_stem():
+    body, ctype = _multipart_with_stem("20250826.m4a", b"AUDIO", "超市結帳")
+    name, payload, stem = extract_multipart_import(body, ctype)
+    assert name == "20250826.m4a"
+    assert payload == b"AUDIO"
+    assert stem == "超市結帳"
+
+
+def test_extract_multipart_import_without_stem():
+    body, ctype = _multipart("file", "meeting.m4a", b"AUDIO")
+    name, payload, stem = extract_multipart_import(body, ctype)
+    assert name == "meeting.m4a"
+    assert payload == b"AUDIO"
+    assert stem is None
+
+
+def test_sanitize_stem_for_import():
+    assert sanitize_stem("面試練習") == "面試練習"
+    with pytest.raises(StemError):
+        sanitize_stem("///")

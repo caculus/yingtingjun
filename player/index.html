@@ -901,6 +901,7 @@
         <option value="">（載入匯入的音檔中…）</option>
       </select>
       <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
+      <button class="secondary" id="renameBtn" type="button" disabled>重新命名</button>
       <button class="danger" id="deleteBtn" type="button" disabled>刪除</button>
     </div>
     <div class="controls">
@@ -1026,6 +1027,34 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="importModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="importModalTitle">
+      <h3 id="importModalTitle">匯入音檔</h3>
+      <p class="time-hint" id="importModalFile"></p>
+      <label for="importStem">教材名稱</label>
+      <input id="importStem" type="text" autocomplete="off" />
+      <p class="time-hint">用於檔案與文稿名稱；可含中文。留空則使用原檔名。</p>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="importModalCancel">取消</button>
+        <button type="button" id="importModalOk">開始轉寫</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="renameModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="renameModalTitle">
+      <h3 id="renameModalTitle">重新命名</h3>
+      <p class="time-hint" id="renameModalFile"></p>
+      <label for="renameStem">新名稱</label>
+      <input id="renameStem" type="text" autocomplete="off" />
+      <p class="time-hint">將一併更新音檔、文稿、筆記等相關檔案名稱。</p>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="renameModalCancel">取消</button>
+        <button type="button" id="renameModalOk">確定</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dict-popover" id="dictPopover" hidden role="dialog" aria-label="詞典">
     <div class="dict-head">
       <span class="dict-lemma" id="dictLemma">—</span>
@@ -1059,6 +1088,7 @@
     const importInput = document.getElementById("importInput");
     const audioSelect = document.getElementById("audioSelect");
     const loadBtn = document.getElementById("loadBtn");
+    const renameBtn = document.getElementById("renameBtn");
     const deleteBtn = document.getElementById("deleteBtn");
     const logPanel = document.getElementById("logPanel");
     const logBody = document.getElementById("logBody");
@@ -1087,6 +1117,16 @@
     const noteModalSave = document.getElementById("noteModalSave");
     const noteModalRetranslate = document.getElementById("noteModalRetranslate");
     const noteModalDict = document.getElementById("noteModalDict");
+    const importModal = document.getElementById("importModal");
+    const importModalFile = document.getElementById("importModalFile");
+    const importStem = document.getElementById("importStem");
+    const importModalCancel = document.getElementById("importModalCancel");
+    const importModalOk = document.getElementById("importModalOk");
+    const renameModal = document.getElementById("renameModal");
+    const renameModalFile = document.getElementById("renameModalFile");
+    const renameStem = document.getElementById("renameStem");
+    const renameModalCancel = document.getElementById("renameModalCancel");
+    const renameModalOk = document.getElementById("renameModalOk");
     const dictPopover = document.getElementById("dictPopover");
     const dictLemma = document.getElementById("dictLemma");
     const dictPhonetic = document.getElementById("dictPhonetic");
@@ -1141,6 +1181,8 @@
     let loopRange = null;
     let selectingInTranscript = false;
     let toastTimer = 0;
+    let pendingImportFile = null;
+    let loadedAudioName = "";
 
     function displayAudioName(name) {
       if (!name) return "";
@@ -1160,6 +1202,7 @@
     function updateFileActionButtons() {
       const has = Boolean(audioSelect.value);
       loadBtn.disabled = busy || !has;
+      renameBtn.disabled = busy || !has;
       deleteBtn.disabled = busy || !has;
       importBtn.disabled = busy;
       audioSelect.disabled = busy;
@@ -1353,6 +1396,7 @@
       curTime.textContent = "00:00";
       durTime.textContent = "00:00";
       currentStem = "";
+      loadedAudioName = "";
       notes = [];
       renderNotesList();
     }
@@ -2646,6 +2690,7 @@
       hasRangeBackup = Boolean(meta.has_range_backup);
       updateRangeUI();
       await refreshLibrary(meta.audio_name);
+      loadedAudioName = meta.audio_name || "";
       await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
       return meta;
     }
@@ -2695,18 +2740,39 @@
       importInput.click();
     });
 
-    importInput.addEventListener("change", async () => {
-      const file = importInput.files && importInput.files[0];
-      importInput.value = "";
+    function openImportModal(file) {
+      pendingImportFile = file;
+      importModalFile.textContent = `檔案：${file.name}`;
+      importStem.value = displayAudioName(file.name);
+      importModal.classList.add("visible");
+      importModal.setAttribute("aria-hidden", "false");
+      importStem.focus();
+      importStem.select();
+    }
+
+    function closeImportModal() {
+      importModal.classList.remove("visible");
+      importModal.setAttribute("aria-hidden", "true");
+      pendingImportFile = null;
+    }
+
+    async function uploadPendingImport() {
+      const file = pendingImportFile;
       if (!file) return;
       if (busy) return showToastBusy();
 
+      const stem = importStem.value.trim();
+      closeImportModal();
+
       const fd = new FormData();
       fd.append("file", file, file.name);
-      setBusy(true, `上傳並轉寫：${file.name}`);
+      if (stem) fd.append("stem", stem);
+
+      const label = stem || file.name;
+      setBusy(true, `上傳並轉寫：${label}`);
       logPanel.classList.add("visible");
       logBadge.textContent = "uploading";
-      logTitle.textContent = `上傳 ${file.name}`;
+      logTitle.textContent = `上傳 ${label}`;
       logBody.textContent = "上傳中…";
 
       try {
@@ -2723,11 +2789,100 @@
         setBusy(false);
         alert("匯入失敗：" + (err.message || err));
       }
+    }
+
+    importInput.addEventListener("change", () => {
+      const file = importInput.files && importInput.files[0];
+      importInput.value = "";
+      if (!file) return;
+      if (busy) return showToastBusy();
+      openImportModal(file);
+    });
+
+    importModalOk.addEventListener("click", () => {
+      uploadPendingImport();
+    });
+    importModalCancel.addEventListener("click", () => {
+      closeImportModal();
+    });
+    importModal.addEventListener("click", (e) => {
+      if (e.target === importModal) closeImportModal();
+    });
+
+    function openRenameModal(name) {
+      renameModalFile.textContent = `目前：${displayAudioName(name)}`;
+      renameStem.value = displayAudioName(name);
+      renameModal.classList.add("visible");
+      renameModal.setAttribute("aria-hidden", "false");
+      renameStem.focus();
+      renameStem.select();
+    }
+
+    function closeRenameModal() {
+      renameModal.classList.remove("visible");
+      renameModal.setAttribute("aria-hidden", "true");
+    }
+
+    async function submitRename() {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇要重新命名的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      const newStem = renameStem.value.trim();
+      if (!newStem) {
+        alert("請輸入新名稱。");
+        return;
+      }
+      closeRenameModal();
+      try {
+        const res = await fetch("/api/rename", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, new_stem: newStem }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "重新命名失敗");
+          return;
+        }
+        await refreshLibrary(data.name || name);
+        if (data.reloaded) {
+          await loadCurrentSession();
+        }
+        metaEl.textContent = data.message || "已重新命名";
+      } catch (err) {
+        alert("重新命名失敗：" + (err.message || err));
+      }
+    }
+
+    renameBtn.addEventListener("click", () => {
+      const name = audioSelect.value;
+      if (!name) {
+        alert("請先選擇要重新命名的音檔。");
+        return;
+      }
+      if (busy) return showToastBusy();
+      openRenameModal(name);
+    });
+    renameModalOk.addEventListener("click", () => {
+      submitRename();
+    });
+    renameModalCancel.addEventListener("click", () => {
+      closeRenameModal();
+    });
+    renameModal.addEventListener("click", (e) => {
+      if (e.target === renameModal) closeRenameModal();
     });
 
     audioSelect.addEventListener("change", () => {
       if (suppressSelectChange) return;
       updateFileActionButtons();
+      const name = audioSelect.value;
+      if (name && loadedAudioName && name !== loadedAudioName) {
+        clearPlayerUI(`已選擇「${displayAudioName(name)}」，請按「載入」。`);
+      }
     });
 
     async function loadSelectedAudio() {
@@ -2838,6 +2993,14 @@
       }
       if (noteModal.classList.contains("visible")) {
         closeNoteModal();
+        return;
+      }
+      if (importModal.classList.contains("visible")) {
+        closeImportModal();
+        return;
+      }
+      if (renameModal.classList.contains("visible")) {
+        closeRenameModal();
       }
     });
 
