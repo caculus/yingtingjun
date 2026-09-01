@@ -30,6 +30,7 @@ Write-Step "Copy application (no Python / ffmpeg / models)"
 $appFiles = @(
     "transcribe.py",
     "serve_player.py",
+    "stem_utils.py",
     "asr_backend.py",
     "audio_convert.py",
     "audio_resample.py",
@@ -41,6 +42,8 @@ foreach ($name in $appFiles) {
     Copy-Item (Join-Path $Repo $name) (Join-Path $AppDir $name)
 }
 Copy-Item -Recurse (Join-Path $Repo "player") (Join-Path $AppDir "player")
+Copy-Item -Recurse (Join-Path $Repo "yt_decoder") (Join-Path $AppDir "yt_decoder")
+Copy-Item (Join-Path $Repo "requirements-youtube.txt") (Join-Path $Dist "requirements-youtube.txt")
 Copy-Item (Join-Path $PSScriptRoot "Yingtingjun.bat") (Join-Path $Dist "Yingtingjun.bat")
 # PowerShell 5.1 needs a UTF-8 BOM to parse Chinese strings; Copy-Item may drop it.
 $ps1Src = Join-Path $PSScriptRoot "Install-PythonDeps.ps1"

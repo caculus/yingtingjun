@@ -72,6 +72,20 @@ Hard-refresh the browser after changing code or transcript files.
 
 The app is expected to reopen the existing page instead of starting a second server.
 
+## YouTube import
+
+### yt-dlp not found
+
+Install with `pip install -r requirements-youtube.txt` or `brew install yt-dlp`.
+
+### Import fails or video unavailable
+
+Common causes: geo block, login required, live stream, or playlist URL (use a single-video link). Check the import progress log for the error code.
+
+### Poor auto-caption quality
+
+Use **whisper** mode to force ASR, or fix individual sentences with partial re-transcription in the player.
+
 ## Still Stuck
 
 When reporting an issue, include:

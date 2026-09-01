@@ -64,6 +64,7 @@ python serve_player.py
 Optional extras:
 
 - `python -m pip install -r requirements-dev.txt`
+- `python -m pip install -r requirements-youtube.txt` (YouTube import in the player)
 - `bash scripts/setup_ecdict.sh`
 - `bash scripts/build_speakrs.sh` on Apple Silicon only
 
@@ -100,6 +101,17 @@ Notes:
 
 - Install `ffmpeg` from your package manager when possible
 - `--pick` may require `tkinter`
+
+## YouTube import (optional)
+
+**Import ▾ → YouTube…** in the player requires [yt-dlp](https://github.com/yt-dlp/yt-dlp):
+
+```bash
+python -m pip install -r requirements-youtube.txt
+# or: brew install yt-dlp
+```
+
+`ffmpeg` is still required for audio extraction. **Slim installers** install `yt-dlp` automatically on first launch via `install_runtime`. Videos without English captions fall back to Whisper and take about as long as a local recording transcription.
 
 ## Packaging
 

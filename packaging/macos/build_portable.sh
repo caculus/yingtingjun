@@ -54,6 +54,7 @@ step "Copy application (no Python / models)"
 APP_FILES=(
   transcribe.py
   serve_player.py
+  stem_utils.py
   asr_backend.py
   audio_convert.py
   audio_resample.py
@@ -65,7 +66,9 @@ for name in "${APP_FILES[@]}"; do
   cp "$ROOT/$name" "$APP_DIR/$name"
 done
 ditto "$ROOT/player" "$APP_DIR/player"
+ditto "$ROOT/yt_decoder" "$APP_DIR/yt_decoder"
 cp "$ROOT/requirements.txt" "$RES/requirements.txt"
+cp "$ROOT/requirements-youtube.txt" "$RES/requirements-youtube.txt"
 cp "$ROOT/LICENSE" "$RES/LICENSE"
 cp "$PACK/install_runtime.sh" "$RES/install_runtime.sh"
 cp "$PACK/Yingtingjun" "$MACOS/Yingtingjun"

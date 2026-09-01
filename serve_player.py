@@ -533,6 +533,113 @@ class AppState:
         thread.start()
         return {"ok": True, "job": self.job_snapshot()}
 
+    def probe_youtube(self, url: str) -> dict:
+        try:
+            from yt_decoder.errors import ProbeError
+            from yt_decoder.probe import probe_url
+            from yt_decoder.util import UrlError, normalize_youtube_url
+            from yt_decoder.util import sanitize_stem as yt_stem
+        except ImportError as exc:
+            return {"ok": False, "error": f"YouTube 模組未就緒：{exc}"}
+
+        try:
+            normalized = normalize_youtube_url(url)
+            probe = probe_url(normalized)
+        except UrlError as exc:
+            return {"ok": False, "error": str(exc), "code": exc.code}
+        except ProbeError as exc:
+            return {"ok": False, "error": str(exc), "code": exc.code}
+
+        suggested = yt_stem(probe.title, probe.video_id)
+        has_manual = any(track.kind == "manual" for track in probe.caption_tracks)
+        has_auto = any(track.kind == "auto" for track in probe.caption_tracks)
+        return {
+            "ok": True,
+            "url": normalized,
+            "title": probe.title,
+            "video_id": probe.video_id,
+            "duration_sec": probe.duration_sec,
+            "suggested_stem": suggested,
+            "recommended": probe.recommended,
+            "has_manual_caption": has_manual,
+            "has_auto_caption": has_auto,
+        }
+
+    def start_youtube_job(
+        self,
+        url: str,
+        *,
+        stem_raw: str | None,
+        mode: str,
+        skip_translate: bool,
+    ) -> dict:
+        if self.busy():
+            return {"ok": False, "error": "處理中，請稍候再試。"}
+
+        try:
+            from yt_decoder.errors import ProbeError
+            from yt_decoder.probe import probe_url
+            from yt_decoder.util import UrlError, normalize_youtube_url
+            from yt_decoder.util import sanitize_stem as yt_stem
+        except ImportError as exc:
+            return {"ok": False, "error": f"YouTube 模組未就緒：{exc}"}
+
+        if mode not in {"auto", "caption", "whisper"}:
+            return {"ok": False, "error": "mode 無效"}
+
+        try:
+            normalized = normalize_youtube_url(url)
+            probe = probe_url(normalized)
+        except UrlError as exc:
+            return {"ok": False, "error": str(exc)}
+        except ProbeError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        preferred_stem = None
+        if stem_raw and stem_raw.strip():
+            try:
+                preferred_stem = sanitize_stem(stem_raw.strip())
+            except StemError as exc:
+                return {"ok": False, "error": str(exc)}
+
+        check_stem = preferred_stem or yt_stem(probe.title, probe.video_id)
+        if iter_files_for_stem(
+            workdir=self.workdir,
+            outdir=self.outdir,
+            uploads=self.uploads,
+            notesdir=self.notesdir,
+            stem=check_stem,
+        ):
+            return {
+                "ok": False,
+                "error": f"「{check_stem}」已存在，請換一個教材名稱",
+            }
+
+        label = probe.title or normalized
+        msg = f"正在匯入 YouTube：{label} …"
+        with self.lock:
+            if self.job and self.job.get("status") == "running":
+                return {"ok": False, "error": "處理中，請稍候再試。"}
+            self.job = {
+                "status": "running",
+                "kind": "youtube-import",
+                "source": normalized,
+                "message": msg,
+                "logs": [msg],
+                "returncode": None,
+                "started_at": time.time(),
+                "finished_at": None,
+                "result_audio": None,
+                "result_transcript": None,
+            }
+        thread = threading.Thread(
+            target=self._run_youtube_import,
+            args=(normalized, preferred_stem, mode, skip_translate),
+            daemon=True,
+        )
+        thread.start()
+        return {"ok": True, "job": self.job_snapshot()}
+
     def start_retranscribe_range_job(self, start: float, end: float) -> dict:
         if self.busy():
             return {"ok": False, "error": "處理中，請稍候再試。"}
@@ -764,6 +871,69 @@ class AppState:
                 self.job["message"] = final_message
         if final_message:
             self.append_log(final_message)
+
+    def _run_youtube_import(
+        self,
+        url: str,
+        preferred_stem: str | None,
+        mode: str,
+        skip_translate: bool,
+    ) -> None:
+        from yt_decoder.errors import ProbeError
+        from yt_decoder.import_video import run_import
+        from yt_decoder.io_util import set_log_hook
+        from yt_decoder.types import ImportOptions
+
+        def hook(stage: str, message: str) -> None:
+            self.append_log(f"[{stage}] {message}")
+
+        set_log_hook(hook)
+        final_message = None
+        try:
+            options = ImportOptions.from_yingtingjun(
+                output_dir=self.outdir,
+                workdir=self.workdir,
+                uploads_dir=self.uploads,
+                mode=mode,
+                skip_translate=skip_translate,
+                yingtingjun_root=ROOT,
+                preferred_stem=preferred_stem,
+            )
+            result = run_import(url, options)
+            with self.lock:
+                if not self.job:
+                    return
+                self.audio = result.audio_path
+                self.transcript = result.json_path
+                self.job["status"] = "done"
+                self.job["returncode"] = 0
+                self.job["finished_at"] = time.time()
+                self.job["result_audio"] = str(result.audio_path)
+                self.job["result_transcript"] = str(result.json_path)
+                final_message = "YouTube 匯入完成，已自動載入。"
+                self.job["message"] = final_message
+        except ProbeError as exc:
+            self.append_log(f"ERROR [{exc.code}]: {exc}")
+            with self.lock:
+                if self.job:
+                    self.job["status"] = "error"
+                    self.job["returncode"] = 1
+                    self.job["finished_at"] = time.time()
+                    final_message = f"匯入失敗 [{exc.code}]：{exc}"
+                    self.job["message"] = final_message
+        except Exception as exc:  # noqa: BLE001
+            self.append_log(f"ERROR: {exc}")
+            with self.lock:
+                if self.job:
+                    self.job["status"] = "error"
+                    self.job["returncode"] = 1
+                    self.job["finished_at"] = time.time()
+                    final_message = f"匯入失敗：{exc}"
+                    self.job["message"] = final_message
+        finally:
+            set_log_hook(None)
+            if final_message:
+                self.append_log(final_message)
 
     def list_workdir(self) -> list[dict]:
         self.workdir.mkdir(parents=True, exist_ok=True)
@@ -1403,6 +1573,34 @@ class PlayerHandler(SimpleHTTPRequestHandler):
             msg = f"已匯入「{saved.name}」，開始執行轉寫…"
             started = self.state.start_job("import", saved, msg)
             status = 200 if started.get("ok") else 409
+            return self._send_json(started, status=status)
+
+        if path == "/api/youtube/probe":
+            body = self._read_json_body()
+            url = (body.get("url") or "").strip()
+            if not url:
+                return self._send_json({"ok": False, "error": "請提供 YouTube URL"}, status=400)
+            result = self.state.probe_youtube(url)
+            status = 200 if result.get("ok") else 400
+            return self._send_json(result, status=status)
+
+        if path == "/api/youtube/import":
+            if self.state.busy():
+                return self._send_json({"ok": False, "error": "處理中，請稍候再試。"}, status=409)
+            body = self._read_json_body()
+            url = (body.get("url") or "").strip()
+            if not url:
+                return self._send_json({"ok": False, "error": "請提供 YouTube URL"}, status=400)
+            mode = (body.get("mode") or "auto").strip()
+            skip_translate = bool(body.get("skip_translate"))
+            stem_raw = (body.get("stem") or "").strip() or None
+            started = self.state.start_youtube_job(
+                url,
+                stem_raw=stem_raw,
+                mode=mode,
+                skip_translate=skip_translate,
+            )
+            status = 200 if started.get("ok") else 409 if "處理中" in (started.get("error") or "") else 400
             return self._send_json(started, status=status)
 
         if path == "/api/notes":

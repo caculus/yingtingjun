@@ -8,9 +8,9 @@ Yingtingjun is a local-first listening tool for macOS, Windows, and Linux. Bring
 
 ## How It Works
 
-1. Import any real English conversation recording.
-2. Detect whether it is English, then transcribe and translate it locally.
-3. Review it in the browser player while replaying, shadowing, taking notes, and fixing bad segments.
+1. Import any real English conversation recording, or paste a YouTube URL via **Import → YouTube** in the player.
+2. Detect English, transcribe, and translate locally (YouTube videos with English captions can use a faster caption path).
+3. Review in the browser player while replaying, shadowing, taking notes, and fixing bad segments.
 
 ## Why It Feels Different
 
@@ -39,6 +39,7 @@ Slim installers are available for all three platforms. They do not bundle Python
 ## Core Features
 
 - Local-first transcription and translation
+- **YouTube import** (built-in; dev installs need `pip install -r requirements-youtube.txt`; slim installers install `yt-dlp` on first launch)
 - Speaker labels, punctuation, timestamps, and word timing
 - Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
 - Click-to-lookup dictionary with local ECDICT first
@@ -53,6 +54,12 @@ Use the installer that matches your platform if you are a normal user. If you ar
 - [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md)
 - [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
 - [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md)
+
+### YouTube import (optional)
+
+In the player: **Import ▾ → YouTube…** — paste a URL, optionally rename the lesson, then load the bilingual transcript automatically.  
+For development, run `pip install -r requirements-youtube.txt` (or `brew install yt-dlp`).  
+YouTube is an input source, not the product focus; the core workflow remains real-life recordings you bring in.
 
 ## Roadmap
 

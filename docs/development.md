@@ -6,6 +6,7 @@
 
 - `transcribe.py`: main transcription pipeline
 - `serve_player.py`: local web app server
+- `yt_decoder/`: YouTube import (probe, caption fast path, Whisper fallback)
 - `player/index.html`: browser UI
 - `platform_runtime.py`: cross-platform runtime contract
 - `asr_backend.py`: MLX / faster-whisper selection
@@ -13,6 +14,7 @@
 - `requirements.txt`: macOS development dependencies
 - `requirements-windows.txt`: Windows dependencies
 - `requirements-linux.txt`: Linux dependencies
+- `requirements-youtube.txt`: YouTube import (`yt-dlp`, optional)
 - `packaging/`: platform installer packaging scripts
 - `tests/`: unit tests without real ASR or translation runs
 
@@ -26,7 +28,11 @@ python transcribe.py --pick
 python serve_player.py
 ```
 
-Open `http://127.0.0.1:8765/`.
+Open `http://127.0.0.1:8765/`. **Import ▾ → YouTube…** requires `yt-dlp`:
+
+```bash
+python -m pip install -r requirements-youtube.txt
+```
 
 ### Run tests
 
@@ -77,6 +83,7 @@ For packaged installs:
 - Partial re-transcription only reruns ASR and translation for a selected range
 - Speaker labels are preserved during partial re-transcription instead of re-running diarization
 - The player can lock actions while import or re-transcription is running
+- YouTube and local imports share one job lock; APIs are `/api/youtube/probe` and `/api/youtube/import`
 - Playback speed can be set to 0.5×, 0.75×, 1.0× (default), 1.25×, 1.5×, or 2.0×; the choice persists while switching recordings in the same session
 
 ## Release-Facing Priorities

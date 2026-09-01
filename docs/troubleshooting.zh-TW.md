@@ -72,6 +72,20 @@ xattr -cr /Applications/Yingtingjun.app
 
 程式預期會重新打開既有頁面，而不是再啟動第二個伺服器。
 
+## YouTube 匯入
+
+### 找不到 yt-dlp
+
+請安裝：`pip install -r requirements-youtube.txt` 或 `brew install yt-dlp`。
+
+### 匯入失敗或影片無法取得
+
+常見原因：地區限制、需登入、直播、播放清單連結（請貼單支影片 URL）。錯誤訊息會顯示在匯入進度 log。
+
+### 自動字幕品質差
+
+可改用 **whisper** 模式強制轉寫，或在英聽君內用局部重辨修正單句。
+
 ## 還是卡住？
 
 回報問題時請附上：

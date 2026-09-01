@@ -1,0 +1,2 @@
+# Optional: YouTube import (yt_decoder). Install when using 匯入 → YouTube.
+yt-dlp>=2025.10.14

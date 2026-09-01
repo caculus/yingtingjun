@@ -159,6 +159,49 @@
     }
     .file-btn { display: inline-flex; align-items: center; }
     #importInput { display: none; }
+    .import-group {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .import-menu {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      left: 0;
+      z-index: 30;
+      min-width: 11rem;
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid rgba(243, 239, 230, 0.18);
+      background: rgba(20, 28, 25, 0.98);
+      box-shadow: var(--shadow);
+      display: none;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .import-menu.visible { display: flex; }
+    .import-menu button {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+    }
+    .modal select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(28, 36, 31, 0.18);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.55rem 0.65rem;
+    }
+    .modal .check-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.65rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
 
     #speedSelect {
       min-width: 5.5rem;
@@ -894,7 +937,13 @@
       <h1 class="brand">英聽君</h1>
     </div>
     <div class="file-actions">
-      <button class="secondary file-btn" id="importBtn" type="button">匯入音檔</button>
+      <div class="import-group">
+        <button class="secondary file-btn" id="importBtn" type="button" aria-haspopup="menu" aria-expanded="false">匯入 ▾</button>
+        <div class="import-menu" id="importMenu" role="menu">
+          <button class="secondary" type="button" id="importFileBtn" role="menuitem">本機錄音…</button>
+          <button class="secondary" type="button" id="importYoutubeBtn" role="menuitem">YouTube…</button>
+        </div>
+      </div>
       <input id="importInput" type="file" accept="audio/*,.m4a,.wav,.mp3,.aac,.flac,.ogg,.caf,.aiff,.aif" />
       <label for="audioSelect">選擇音檔</label>
       <select id="audioSelect">
@@ -1041,6 +1090,31 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="youtubeModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="youtubeModalTitle">
+      <h3 id="youtubeModalTitle">從 YouTube 匯入</h3>
+      <label for="youtubeUrl">YouTube URL</label>
+      <input id="youtubeUrl" type="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=..." />
+      <p class="time-hint" id="youtubeProbeHint">貼上連結後可預覽影片資訊</p>
+      <label for="youtubeStem">教材名稱</label>
+      <input id="youtubeStem" type="text" autocomplete="off" />
+      <label for="youtubeMode">模式</label>
+      <select id="youtubeMode">
+        <option value="auto" selected>auto（字幕優先，否則 Whisper）</option>
+        <option value="caption">caption（僅字幕）</option>
+        <option value="whisper">whisper（強制 Whisper）</option>
+      </select>
+      <label class="check-row">
+        <input id="youtubeSkipTranslate" type="checkbox" />
+        略過中文翻譯（較快，除錯用）
+      </label>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="youtubeModalCancel">取消</button>
+        <button type="button" id="youtubeModalOk">開始匯入</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="renameModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-labelledby="renameModalTitle">
       <h3 id="renameModalTitle">重新命名</h3>
@@ -1085,6 +1159,9 @@
     const metaEl = document.getElementById("meta");
     const titleEl = document.getElementById("title");
     const importBtn = document.getElementById("importBtn");
+    const importMenu = document.getElementById("importMenu");
+    const importFileBtn = document.getElementById("importFileBtn");
+    const importYoutubeBtn = document.getElementById("importYoutubeBtn");
     const importInput = document.getElementById("importInput");
     const audioSelect = document.getElementById("audioSelect");
     const loadBtn = document.getElementById("loadBtn");
@@ -1122,6 +1199,14 @@
     const importStem = document.getElementById("importStem");
     const importModalCancel = document.getElementById("importModalCancel");
     const importModalOk = document.getElementById("importModalOk");
+    const youtubeModal = document.getElementById("youtubeModal");
+    const youtubeUrl = document.getElementById("youtubeUrl");
+    const youtubeStem = document.getElementById("youtubeStem");
+    const youtubeMode = document.getElementById("youtubeMode");
+    const youtubeSkipTranslate = document.getElementById("youtubeSkipTranslate");
+    const youtubeProbeHint = document.getElementById("youtubeProbeHint");
+    const youtubeModalCancel = document.getElementById("youtubeModalCancel");
+    const youtubeModalOk = document.getElementById("youtubeModalOk");
     const renameModal = document.getElementById("renameModal");
     const renameModalFile = document.getElementById("renameModalFile");
     const renameStem = document.getElementById("renameStem");
@@ -1205,6 +1290,8 @@
       renameBtn.disabled = busy || !has;
       deleteBtn.disabled = busy || !has;
       importBtn.disabled = busy;
+      if (importFileBtn) importFileBtn.disabled = busy;
+      if (importYoutubeBtn) importYoutubeBtn.disabled = busy;
       audioSelect.disabled = busy;
       speedSelect.disabled = busy;
       updateRangeUI();
@@ -1212,9 +1299,119 @@
 
     function setBusy(on, reason) {
       busy = on;
-      importBtn.textContent = on ? "處理中…" : "匯入音檔";
+      importBtn.textContent = on ? "處理中…" : "匯入 ▾";
+      if (!on) closeImportMenu();
       updateFileActionButtons();
       if (on && reason) metaEl.textContent = reason;
+    }
+
+    function closeImportMenu() {
+      if (!importMenu) return;
+      importMenu.classList.remove("visible");
+      importBtn.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleImportMenu() {
+      if (!importMenu || busy) return;
+      const open = !importMenu.classList.contains("visible");
+      importMenu.classList.toggle("visible", open);
+      importBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function formatDuration(sec) {
+      if (!Number.isFinite(sec) || sec <= 0) return "";
+      const m = Math.round(sec / 60);
+      return m > 0 ? `約 ${m} 分鐘` : `約 ${Math.round(sec)} 秒`;
+    }
+
+    async function probeYoutubeUrl() {
+      const url = youtubeUrl.value.trim();
+      if (!url) {
+        youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
+        return;
+      }
+      youtubeProbeHint.textContent = "探測影片中…";
+      try {
+        const res = await fetch("/api/youtube/probe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          youtubeProbeHint.textContent = data.error || "無法探測影片";
+          return;
+        }
+        if (!youtubeStem.value.trim()) {
+          youtubeStem.value = data.suggested_stem || "";
+        }
+        const parts = [data.title || "YouTube 影片"];
+        const dur = formatDuration(data.duration_sec);
+        if (dur) parts.push(dur);
+        if (data.has_manual_caption) parts.push("有人工英文字幕");
+        else if (data.has_auto_caption) parts.push("僅自動英文字幕");
+        else parts.push("可能需 Whisper");
+        youtubeProbeHint.textContent = parts.join(" · ");
+      } catch (err) {
+        youtubeProbeHint.textContent = "探測失敗：" + (err.message || err);
+      }
+    }
+
+    function openYoutubeModal() {
+      closeImportMenu();
+      youtubeUrl.value = "";
+      youtubeStem.value = "";
+      youtubeMode.value = "auto";
+      youtubeSkipTranslate.checked = false;
+      youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
+      youtubeModal.classList.add("visible");
+      youtubeModal.setAttribute("aria-hidden", "false");
+      youtubeUrl.focus();
+    }
+
+    function closeYoutubeModal() {
+      youtubeModal.classList.remove("visible");
+      youtubeModal.setAttribute("aria-hidden", "true");
+    }
+
+    async function submitYoutubeImport() {
+      const url = youtubeUrl.value.trim();
+      if (!url) {
+        alert("請提供 YouTube URL");
+        return;
+      }
+      if (busy) return showToastBusy();
+
+      const stem = youtubeStem.value.trim();
+      const mode = youtubeMode.value;
+      const skipTranslate = youtubeSkipTranslate.checked;
+      closeYoutubeModal();
+
+      const label = stem || url;
+      setBusy(true, `匯入 YouTube：${label}`);
+      logPanel.classList.add("visible");
+      logBadge.textContent = "youtube";
+      logTitle.textContent = `YouTube ${label}`;
+      logBody.textContent = "開始匯入…";
+
+      try {
+        const res = await fetch("/api/youtube/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, stem, mode, skip_translate: skipTranslate }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          setBusy(false);
+          alert(data.error || "匯入失敗");
+          return;
+        }
+        updateLogUI(data.job || { status: "running", logs: [data.job?.message || "開始匯入"], message: data.job?.message });
+        startJobPolling();
+      } catch (err) {
+        setBusy(false);
+        alert("匯入失敗：" + (err.message || err));
+      }
     }
 
     function showToastBusy() {
@@ -2737,7 +2934,24 @@
 
     importBtn.addEventListener("click", () => {
       if (busy) return showToastBusy();
+      toggleImportMenu();
+    });
+
+    importFileBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      closeImportMenu();
       importInput.click();
+    });
+
+    importYoutubeBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      openYoutubeModal();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!importMenu || !importMenu.classList.contains("visible")) return;
+      const group = importBtn.closest(".import-group");
+      if (group && !group.contains(e.target)) closeImportMenu();
     });
 
     function openImportModal(file) {
@@ -2807,6 +3021,19 @@
     });
     importModal.addEventListener("click", (e) => {
       if (e.target === importModal) closeImportModal();
+    });
+
+    youtubeUrl.addEventListener("blur", () => {
+      probeYoutubeUrl();
+    });
+    youtubeModalOk.addEventListener("click", () => {
+      submitYoutubeImport();
+    });
+    youtubeModalCancel.addEventListener("click", () => {
+      closeYoutubeModal();
+    });
+    youtubeModal.addEventListener("click", (e) => {
+      if (e.target === youtubeModal) closeYoutubeModal();
     });
 
     function openRenameModal(name) {

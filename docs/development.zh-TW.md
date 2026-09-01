@@ -6,6 +6,7 @@
 
 - `transcribe.py`：主要轉寫流程
 - `serve_player.py`：本機網頁播放器伺服器
+- `yt_decoder/`：YouTube 匯入（probe、字幕快徑、Whisper fallback）
 - `player/index.html`：瀏覽器 UI
 - `platform_runtime.py`：跨平台執行階段契約
 - `asr_backend.py`：MLX / faster-whisper 選擇
@@ -13,6 +14,7 @@
 - `requirements.txt`：macOS 開發依賴
 - `requirements-windows.txt`：Windows 依賴
 - `requirements-linux.txt`：Linux 依賴
+- `requirements-youtube.txt`：YouTube 匯入（`yt-dlp`，選用）
 - `packaging/`：各平台安裝包封裝腳本
 - `tests/`：不跑真實 ASR 或翻譯的單元測試
 
@@ -26,7 +28,11 @@ python transcribe.py --pick
 python serve_player.py
 ```
 
-打開 `http://127.0.0.1:8765/`。
+打開 `http://127.0.0.1:8765/`。播放器 **匯入 ▾ → YouTube…** 需先安裝 `yt-dlp`：
+
+```bash
+python -m pip install -r requirements-youtube.txt
+```
 
 ### 執行測試
 
@@ -77,6 +83,7 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 - 局部重辨只會對選定區段重跑 ASR 與翻譯
 - 局部重辨會保留原本的話者標記，不重新跑 diarization
 - 匯入或局部重辨進行中時，播放器可以鎖定操作
+- YouTube 匯入與本機錄音匯入共用同一個 job 鎖；API 為 `/api/youtube/probe` 與 `/api/youtube/import`
 - 播放速度可選 0.5×、0.75×、1.0×（預設）、1.25×、1.5× 或 2.0×；同一工作階段內切換錄音時會維持目前速度
 
 ## 發佈前優先事項
