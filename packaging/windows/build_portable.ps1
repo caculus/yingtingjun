@@ -22,7 +22,6 @@ if (Test-Path $Dist) {
     Remove-Item -Recurse -Force $Dist
 }
 New-Item -ItemType Directory -Force -Path $AppDir | Out-Null
-New-Item -ItemType Directory -Force -Path (Join-Path $Dist "data") | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $Dist "bin") | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $Dist "models") | Out-Null
 

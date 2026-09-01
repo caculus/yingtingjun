@@ -13,29 +13,35 @@ from typing import Any
 
 from yt_decoder.errors import ProbeError
 
-_YTDLP_BIN: str | None = None
+_YTDLP_ARGV: list[str] | None = None
 
 # YouTube web client often fails ("page needs to be reloaded"); android works reliably.
 _YOUTUBE_EXTRACTOR_ARGS = ("--extractor-args", "youtube:player_client=android")
 
 
+def _ytdlp_names() -> tuple[str, ...]:
+    if sys.platform.startswith("win"):
+        return ("yt-dlp.exe", "yt-dlp")
+    return ("yt-dlp",)
+
+
 def _ytdlp_candidates() -> list[Path]:
-    names = ("yt-dlp.exe", "yt-dlp") if sys.platform == "win32" else ("yt-dlp",)
+    names = _ytdlp_names()
     candidates: list[Path] = []
-    py_bin = Path(sys.executable).resolve().parent
-    for name in names:
-        candidates.append(py_bin / name)
+    py_dir = Path(sys.executable).resolve().parent
+    # Unix venv: python and yt-dlp share bin/. Windows pip: yt-dlp.exe is in Scripts/.
+    search_dirs = [py_dir, py_dir / "Scripts", py_dir / "bin"]
 
     support = os.environ.get("YTJ_SUPPORT", "").strip()
     if support:
-        support_bin = Path(support).expanduser() / "python" / "bin"
-        for name in names:
-            candidates.append(support_bin / name)
-        if sys.platform == "win32":
-            candidates.append(Path(support).expanduser() / "python" / "Scripts" / "yt-dlp.exe")
+        root = Path(support).expanduser()
+        search_dirs.extend((root / "python" / "Scripts", root / "python" / "bin"))
 
-    scripts = os.environ.get("PATH", "").split(os.pathsep)
-    for entry in scripts:
+    for directory in search_dirs:
+        for name in names:
+            candidates.append(directory / name)
+
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
         if not entry:
             continue
         base = Path(entry)
@@ -44,25 +50,42 @@ def _ytdlp_candidates() -> list[Path]:
     return candidates
 
 
-def find_ytdlp() -> str:
-    global _YTDLP_BIN
-    if _YTDLP_BIN is not None:
-        return _YTDLP_BIN
+def _missing_ytdlp_message() -> str:
+    if sys.platform.startswith("win"):
+        return "找不到 yt-dlp。請重新開啟英聽君以下載執行階段，或執行 pip install yt-dlp"
+    if sys.platform == "darwin":
+        return "找不到 yt-dlp；請執行 brew install yt-dlp 或 pip install yt-dlp"
+    return "找不到 yt-dlp；請執行 pip install yt-dlp"
+
+
+def ytdlp_argv() -> list[str]:
+    """Command prefix: bundled yt-dlp.exe, PATH, or `python -m yt_dlp`."""
+    global _YTDLP_ARGV
+    if _YTDLP_ARGV is not None:
+        return list(_YTDLP_ARGV)
 
     for candidate in _ytdlp_candidates():
         if candidate.is_file():
-            _YTDLP_BIN = str(candidate)
-            return _YTDLP_BIN
+            _YTDLP_ARGV = [str(candidate)]
+            return list(_YTDLP_ARGV)
 
-    path = shutil.which("yt-dlp")
-    if path:
-        _YTDLP_BIN = path
-        return path
+    for name in _ytdlp_names():
+        path = shutil.which(name)
+        if path:
+            _YTDLP_ARGV = [path]
+            return list(_YTDLP_ARGV)
 
-    raise ProbeError(
-        "找不到 yt-dlp；請執行 brew install yt-dlp 或 pip install yt-dlp",
-        code="ytdlp_missing",
-    )
+    try:
+        import yt_dlp  # noqa: F401
+    except ImportError:
+        raise ProbeError(_missing_ytdlp_message(), code="ytdlp_missing") from None
+    _YTDLP_ARGV = [sys.executable, "-m", "yt_dlp"]
+    return list(_YTDLP_ARGV)
+
+
+def find_ytdlp() -> str:
+    argv = ytdlp_argv()
+    return argv[0]
 
 
 def _map_ytdlp_error(output: str) -> ProbeError:
@@ -93,7 +116,7 @@ def _ffmpeg_args() -> tuple[str, ...]:
 
 def run_ytdlp(url: str, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     cmd = [
-        find_ytdlp(),
+        *ytdlp_argv(),
         "--no-playlist",
         "--no-warnings",
         *_YOUTUBE_EXTRACTOR_ARGS,

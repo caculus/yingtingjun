@@ -30,33 +30,39 @@ xattr -cr /Applications/Yingtingjun.app
 - 執行後再回 Finder 用右鍵 -> 打開一次
 - 第一次成功啟動會打開 Terminal，並下載 Python、套件、ECDICT 與 ECAPA
 - 接著瀏覽器會開啟 `http://127.0.0.1:8765/`
-- 資料會保留在 `~/Documents/Yingtingjun/data/`
-- 執行階段檔案位於 `~/Library/Application Support/Yingtingjun/`
-
-
 
 ### Windows 10/11 x64
 
 - 使用 `Yingtingjun-Setup-x64.exe`
-- 安裝程式會下載 embedded Python、ffmpeg、套件、ECDICT 與 ECAPA
-- 資料會留在安裝目錄下的 `data\`
+- 安裝後桌面與開始功能表會有「英聽君」捷徑
+- 安裝程式會下載 embedded Python、ffmpeg、套件、ECDICT 與 ECAPA（若這步失敗，之後開啟英聽君會再試一次）
+- 接著瀏覽器會開啟 `http://127.0.0.1:8765/`
 - Windows on ARM 仍應使用 AMD64 版本
-
-
 
 ### Linux x86_64 / ARM64
 
 - 使用 `Yingtingjun-linux.tar.gz`
 - 解壓後執行 `bash install.sh`
 - 第一次啟動會下載 standalone Python、需要時的 ffmpeg、套件、ECDICT 與 ECAPA
-- 資料會保存在 `~/Documents/Yingtingjun/data/`
-- 執行階段檔案位於 `~/.local/share/yingtingjun/`
+- 接著瀏覽器會開啟 `http://127.0.0.1:8765/`
 
+## 資料位置與卸載
 
+三平台精簡安裝包都把**學習資料**放在「文件／文稿」，把 **Python、模型、ffmpeg** 等執行階段放在別處。
+
+| 平台 | 學習資料 | 執行階段 |
+| --- | --- | --- |
+| macOS | `~/Documents/Yingtingjun/data/` | `~/Library/Application Support/Yingtingjun/` |
+| Windows | `%USERPROFILE%\Documents\Yingtingjun\data\` | `%LOCALAPPDATA%\Yingtingjun\`（預設安裝目錄） |
+| Linux | `~/Documents/Yingtingjun/data/` | `~/.local/share/yingtingjun/` |
+
+卸載只刪執行階段。「文件」裡的文稿、筆記與上傳檔會保留。
+
+- **macOS：** 雙擊 dmg 裡的 `Uninstall Yingtingjun.command`
+- **Windows：** 設定 → 應用程式 → 英聽君。舊版若把資料放在 `%LOCALAPPDATA%\Yingtingjun\data\`，第一次啟動或卸載時會先複製到「文件」，再刪除安裝目錄
+- **Linux：** `bash ~/.local/share/yingtingjun/uninstall.sh`
 
 ## 開發安裝
-
-
 
 ### macOS
 
@@ -76,8 +82,6 @@ python serve_player.py
 - `bash scripts/setup_ecdict.sh`
 - `bash scripts/build_speakrs.sh`，僅限 Apple Silicon
 
-
-
 ### Windows
 
 請使用 `requirements-windows.txt`，不要使用 `requirements.txt`。
@@ -94,8 +98,6 @@ python serve_player.py
 
 - 在 Windows on ARM 上不要安裝 ARM64 Python
 - 不要為這個專案強制安裝 `torchaudio`
-
-
 
 ### Linux
 

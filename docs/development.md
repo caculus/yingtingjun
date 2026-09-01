@@ -64,6 +64,8 @@ For Windows, follow the existing venv flow and keep the dependency split with `r
 
 ## Runtime Data Layout
 
+Source checkouts keep these folders next to the repo (or wherever `--workdir` / `--outdir` / `--uploads` / `--notesdir` point):
+
 - `workdir/`: normalized audio
 - `uploads/`: imported original files
 - `output/`: transcripts and caches
@@ -71,11 +73,13 @@ For Windows, follow the existing venv flow and keep the dependency split with `r
 - `models/`: local speaker and dictionary assets
 - `bin/`: local helper binaries such as `speakrs_diarize`
 
-For packaged installs:
+Packaged installers split that layout. Study data (`workdir`, `uploads`, `output`, `notes`) always lives under `~/Documents/Yingtingjun/data/` (Windows: `%USERPROFILE%\Documents\Yingtingjun\data\`). Runtime (`python`, `models`, `bin`) is separate:
 
-- macOS runtime data: `~/Library/Application Support/Yingtingjun/`
-- Linux runtime data: `~/.local/share/yingtingjun/`
-- User study data: `~/Documents/Yingtingjun/data/`
+- macOS: `~/Library/Application Support/Yingtingjun/`
+- Windows: `%LOCALAPPDATA%\Yingtingjun\` (the Inno install directory)
+- Linux: `~/.local/share/yingtingjun/`
+
+Launchers honor `YTJ_DATA` and `YTJ_DOCUMENTS`. Uninstall deletes runtime only. On Windows, leftover `{app}\data` from older slim installs is copied into Documents on first launch or uninstall.
 
 ## Product-Specific Behaviors
 

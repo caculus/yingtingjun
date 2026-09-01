@@ -30,9 +30,21 @@ xattr -cr /Applications/Yingtingjun.app
 
 這個專案在 Windows 上不應強制安裝 `torchaudio`。請改用 `requirements-windows.txt` 與提供的安裝腳本。
 
+### 安裝視窗出現 `ERROR: pip's dependency resolver` / `requires torchaudio`
+
+這不是失敗。`speechbrain` 宣告依賴 `torchaudio`，但 Windows 安裝包刻意不安裝它（改用內建 stub）。後面若出現 `Python packages ready.`、`yt-dlp ready.` 或 `All runtime extras ready.` 就代表成功。`Scripts which is not on PATH` 同樣可忽略。
+
 ### Windows on ARM 表現異常
 
 請使用模擬執行下的 AMD64 Python，不要使用 ARM64 Python。
+
+### 錄音不在安裝目錄裡
+
+Windows 安裝包把文稿與筆記放在 `%USERPROFILE%\Documents\Yingtingjun\data\`，不在 `%LOCALAPPDATA%\Yingtingjun\`。Python、ffmpeg、模型才在安裝目錄。
+
+### 卸載後 `%LOCALAPPDATA%\Yingtingjun` 還在
+
+舊版安裝程式只刪 Setup 複製進去的檔案，事後下載的 Python、ffmpeg、模型會留下。現在的卸載會先把殘留的 `{app}\data` 複製到「文件」，再刪除安裝目錄。若舊版已經卸載完，請自行刪除 `%LOCALAPPDATA%\Yingtingjun`。請保留 `%USERPROFILE%\Documents\Yingtingjun\data\`。
 
 ## Linux
 

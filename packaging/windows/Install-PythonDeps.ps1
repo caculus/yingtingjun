@@ -51,6 +51,31 @@ function Show-YtjProgress([int]$Percent, [string]$Status) {
     Write-Progress -Activity "英聽君 安裝" -Status $Status -PercentComplete $Percent
 }
 
+function Invoke-PipInstall([string[]]$PipArgs) {
+    # Embedded Python keeps scripts in python\Scripts; PATH warnings are expected.
+    # speechbrain metadata wants torchaudio; Windows uses a stub instead.
+    $all = @(
+        "-m", "pip", "install",
+        "--disable-pip-version-check",
+        "--no-warn-script-location"
+    ) + $PipArgs
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    $lines = & $Py @all 2>&1
+    $code = $LASTEXITCODE
+    $ErrorActionPreference = $prev
+    foreach ($line in $lines) {
+        $text = "$line"
+        if ($text -match "which is not on PATH|Consider adding this directory to PATH") { continue }
+        if ($text -match "dependency resolver does not currently|requires torchaudio") { continue }
+        if ($text -match "Skipping torchaudio as it is not installed") { continue }
+        Write-Host $text
+    }
+    if ($code -ne 0) {
+        throw "pip install failed"
+    }
+}
+
 function Test-PythonDepsOk {
     if (-not (Test-Path $Py)) { return $false }
     $prev = $ErrorActionPreference
@@ -120,11 +145,10 @@ import site
     if (-not $pipOk) {
         $getPip = Join-Path $env:TEMP "get-pip.py"
         Invoke-Download "https://bootstrap.pypa.io/get-pip.py" $getPip
-        & $Py $getPip
+        & $Py $getPip --no-warn-script-location
         if ($LASTEXITCODE -ne 0) { throw "get-pip failed" }
     }
-    & $Py -m pip install --upgrade pip setuptools wheel
-    if ($LASTEXITCODE -ne 0) { throw "pip bootstrap failed" }
+    Invoke-PipInstall @("--upgrade", "pip", "setuptools", "wheel")
     Write-Host "Python ready: $Py"
 }
 
@@ -203,8 +227,7 @@ function Install-PythonPackages {
     }
 
     Show-YtjProgress 62 "安裝 torch（PyTorch CPU）"
-    & $Py -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
-    if ($LASTEXITCODE -ne 0) { throw "torch install failed" }
+    Invoke-PipInstall @("torch==2.9.1", "--index-url", "https://download.pytorch.org/whl/cpu")
 
     $prevEap = $ErrorActionPreference
     $ErrorActionPreference = "SilentlyContinue"
@@ -212,14 +235,12 @@ function Install-PythonPackages {
     $ErrorActionPreference = $prevEap
 
     Show-YtjProgress 75 "安裝 speechbrain"
-    & $Py -m pip install hyperpyyaml joblib scipy tqdm huggingface_hub packaging pyyaml
-    if ($LASTEXITCODE -ne 0) { throw "speechbrain deps failed" }
-    & $Py -m pip install speechbrain==1.1.0 --no-deps
-    if ($LASTEXITCODE -ne 0) { throw "speechbrain install failed" }
+    Invoke-PipInstall @("hyperpyyaml", "joblib", "scipy", "tqdm", "huggingface_hub", "packaging", "pyyaml")
+    Invoke-PipInstall @("speechbrain==1.1.0", "--no-deps")
 
     Show-YtjProgress 82 "安裝 faster-whisper / transformers"
-    & $Py -m pip install faster-whisper==1.1.1 soundfile==0.13.1 numpy==2.2.6 scikit-learn==1.6.1 transformers==4.57.6 sentencepiece==0.2.2 sacremoses==0.1.1
-    if ($LASTEXITCODE -ne 0) { throw "remaining requirements failed" }
+    Write-Host "pip 若提示缺少 torchaudio，可忽略（Windows 刻意不安裝）。" -ForegroundColor DarkGray
+    Invoke-PipInstall @("faster-whisper==1.1.1", "soundfile==0.13.1", "numpy==2.2.6", "scikit-learn==1.6.1", "transformers==4.57.6", "sentencepiece==0.2.2", "sacremoses==0.1.1")
 
     if (-not (Test-PythonDepsOk)) {
         throw "Packages installed but import check failed."
@@ -250,8 +271,7 @@ function Install-YoutubeTools {
         return
     }
     Show-YtjProgress 85 "安裝 YouTube 匯入（yt-dlp）"
-    & $Py -m pip install -r $YtReq
-    if ($LASTEXITCODE -ne 0) { throw "yt-dlp install failed" }
+    Invoke-PipInstall @("-r", $YtReq)
     if (-not (Test-YtdlpOk)) { throw "yt-dlp installed but not runnable" }
     "ok $hash $(Get-Date -Format o)" | Set-Content -Path $YtMarker -Encoding ascii
     Write-Host "yt-dlp ready." -ForegroundColor Green

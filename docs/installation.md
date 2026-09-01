@@ -30,14 +30,13 @@ xattr -cr /Applications/Yingtingjun.app
 - Then go back to Finder and use right click -> Open again
 - The first successful launch opens Terminal and downloads Python, packages, ECDICT, and ECAPA
 - The browser then opens `http://127.0.0.1:8765/`
-- Data is kept in `~/Documents/Yingtingjun/data/`
-- Runtime files live in `~/Library/Application Support/Yingtingjun/`
 
 ### Windows 10/11 x64
 
 - Use `Yingtingjun-Setup-x64.exe`
-- The installer downloads embedded Python, ffmpeg, packages, ECDICT, and ECAPA
-- Data stays under the install directory `data\`
+- Setup copies a desktop and Start Menu shortcut named 英聽君
+- The installer downloads embedded Python, ffmpeg, packages, ECDICT, and ECAPA (if that step fails, opening 英聽君 retries it)
+- The browser then opens `http://127.0.0.1:8765/`
 - Windows on ARM should still use the AMD64 build
 
 ### Linux x86_64 / ARM64
@@ -45,8 +44,23 @@ xattr -cr /Applications/Yingtingjun.app
 - Use `Yingtingjun-linux.tar.gz`
 - Run `bash install.sh` after extracting
 - First launch downloads standalone Python, ffmpeg when needed, packages, ECDICT, and ECAPA
-- Data is stored in `~/Documents/Yingtingjun/data/`
-- Runtime files live in `~/.local/share/yingtingjun/`
+- The browser then opens `http://127.0.0.1:8765/`
+
+## Data location and uninstall
+
+All three slim installers keep **study files** in Documents and **runtime files** (Python, models, ffmpeg) elsewhere.
+
+| Platform | Study data | Runtime |
+| --- | --- | --- |
+| macOS | `~/Documents/Yingtingjun/data/` | `~/Library/Application Support/Yingtingjun/` |
+| Windows | `%USERPROFILE%\Documents\Yingtingjun\data\` | `%LOCALAPPDATA%\Yingtingjun\` (default install dir) |
+| Linux | `~/Documents/Yingtingjun/data/` | `~/.local/share/yingtingjun/` |
+
+Uninstall removes the runtime. Transcripts, notes, and uploads in Documents are kept.
+
+- **macOS:** double-click `Uninstall Yingtingjun.command` on the dmg
+- **Windows:** Settings → Apps → 英聽君. Older installs that stored data under `%LOCALAPPDATA%\Yingtingjun\data\` are copied into Documents on first launch or uninstall, then the install directory is deleted
+- **Linux:** `bash ~/.local/share/yingtingjun/uninstall.sh`
 
 ## Development Install
 

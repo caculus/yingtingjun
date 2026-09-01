@@ -1,16 +1,26 @@
 @echo off
 setlocal EnableExtensions
-rem Launch contract: data dirs via CLI; models/ffmpeg/dict via env.
+rem Launch contract (same as macOS / Linux):
+rem   CLI: --workdir --outdir --uploads --notesdir
+rem   Env: YTJ_MODELS_DIR, YTJ_FFMPEG, ECDICT_DB, PYTHONUTF8=1
+rem   Study data: %USERPROFILE%\Documents\Yingtingjun\data  (override: YTJ_DATA / YTJ_DOCUMENTS)
 set "ROOT=%~dp0"
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 set "PYTHONUNBUFFERED=1"
+set "YTJ_SUPPORT=%ROOT%"
 set "YTJ_MODELS_DIR=%ROOT%\models"
 set "HF_HOME=%ROOT%\models"
 set "YTJ_FFMPEG=%ROOT%\bin\ffmpeg.exe"
 if exist "%ROOT%\models\ecdict.db" set "ECDICT_DB=%ROOT%\models\ecdict.db"
+
+if not defined YTJ_DOCUMENTS set "YTJ_DOCUMENTS=%USERPROFILE%\Documents"
+if "%YTJ_DOCUMENTS:~-1%"=="\" set "YTJ_DOCUMENTS=%YTJ_DOCUMENTS:~0,-1%"
+if not defined YTJ_DATA set "YTJ_DATA=%YTJ_DOCUMENTS%\Yingtingjun\data"
+if "%YTJ_DATA:~-1%"=="\" set "YTJ_DATA=%YTJ_DATA:~0,-1%"
+set "DATA_ROOT=%YTJ_DATA%"
 
 if not exist "%ROOT%\app\serve_player.py" (
   echo Missing app\serve_player.py
@@ -48,5 +58,21 @@ if not exist "%PY%" (
   exit /b 1
 )
 
-"%PY%" -u "%ROOT%\app\serve_player.py" --workdir "%ROOT%\data\workdir" --outdir "%ROOT%\data\output" --uploads "%ROOT%\data\uploads" --notesdir "%ROOT%\data\notes"
+rem One-time: old slim installs kept study data under {app}\data.
+if exist "%ROOT%\data\" if not exist "%DATA_ROOT%\" (
+  echo Migrating study data to "%DATA_ROOT%"
+  mkdir "%DATA_ROOT%" 2>nul
+  xcopy /E /I /Y "%ROOT%\data" "%DATA_ROOT%" >nul
+)
+
+mkdir "%DATA_ROOT%\workdir" 2>nul
+mkdir "%DATA_ROOT%\output" 2>nul
+mkdir "%DATA_ROOT%\uploads" 2>nul
+mkdir "%DATA_ROOT%\notes" 2>nul
+
+echo Data directory: %DATA_ROOT%
+echo Models directory: %YTJ_MODELS_DIR%
+echo.
+
+"%PY%" -u "%ROOT%\app\serve_player.py" --workdir "%DATA_ROOT%\workdir" --outdir "%DATA_ROOT%\output" --uploads "%DATA_ROOT%\uploads" --notesdir "%DATA_ROOT%\notes"
 exit /b %ERRORLEVEL%

@@ -16,7 +16,7 @@ Yingtingjun is a local-first listening tool for macOS, Windows, and Linux. Bring
 
 Most listening tools are built around generic content. Yingtingjun is for the English you actually run into in daily life: work calls, casual conversations, interviews, meetings, and voice notes.
 
-- Your files stay on your computer.
+- Your files stay on your computer. Packaged installs keep transcripts and notes in `Documents/Yingtingjun/data/`.
 - The output is designed for repeated listening, not just transcription.
 - The browser player supports notes, dictionary lookup, and partial re-transcription.
 
