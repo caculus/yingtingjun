@@ -11,8 +11,7 @@ This project supports both normal users and developers.
 
 - Python `3.9+` for source-based development
 - Stable internet on first launch for model and runtime downloads
-- Several GB of free disk space for Whisper, translation, and speaker models
-- Optional local dictionary: `models/ecdict.db`
+- About **6–8 GB** of free disk space on first launch for Python, packages, Whisper, translation, speaker models, and ECDICT (slim installers download these automatically)
 
 ## Normal User Install
 

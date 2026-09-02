@@ -136,7 +136,7 @@ cat >"$STAGE/第一次開啟.txt" <<'EOF'
 （Finder 可能顯示為「文稿／Yingtingjun／data」）
 
 卸載：雙擊「Uninstall Yingtingjun.command」
-  → 會刪 App、python/、models/；文稿保留在「文件／Yingtingjun／data」
+  → 會刪 App 與 ~/Library/Application Support/Yingtingjun/；文稿保留在「文件／Yingtingjun／data」
   （只把 App 丟垃圾桶不會清掉下載的 Python／模型）
 EOF
 rm -f "$DMG"

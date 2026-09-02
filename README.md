@@ -28,7 +28,7 @@ Browser player with bilingual transcript, speaker turns, notes, and click-to-loo
 
 ## Platforms
 
-Slim installers are available for all three platforms. They do not bundle Python or models; the runtime is downloaded on first launch or install.
+Slim installers are available for all three platforms. They do not bundle Python or models; the runtime is downloaded on first launch or install. Expect about **6–8 GB** of additional disk space for Python, libraries, Whisper, translation, speaker models, and the dictionary.
 
 | Platform | Package | ASR / diarization |
 | --- | --- | --- |
