@@ -1,5 +1,5 @@
 #!/bin/bash
-# Remove Yingtingjun.app and downloaded runtime (python / models).
+# Remove Yingtingjun.app and the entire Application Support directory.
 # User transcripts and notes under Documents/Yingtingjun/data/ are always kept.
 set -euo pipefail
 
@@ -21,11 +21,8 @@ documents_dir() {
 
 SUPPORT="$HOME/Library/Application Support/Yingtingjun"
 APP="/Applications/Yingtingjun.app"
-PY="$SUPPORT/python"
-MODELS="$SUPPORT/models"
 DATA="${YTJ_DATA:-$(documents_dir)/Yingtingjun/data}"
 LEGACY_DATA="$SUPPORT/data"
-LOG="$SUPPORT/install-runtime.log"
 
 printf '\033]0;卸載英聽君\007'
 echo "======================================"
@@ -34,14 +31,13 @@ echo "======================================"
 echo
 echo "將移除："
 echo "  • $APP"
-echo "  • $PY"
-echo "  • $MODELS"
-echo "  • $LOG"
+echo "  • $SUPPORT"
 echo
 echo "將保留文稿與筆記："
 echo "  • $DATA"
 if [[ -d "$LEGACY_DATA" && "$LEGACY_DATA" != "$DATA" ]]; then
-  echo "  • $LEGACY_DATA（舊版位置）"
+  echo
+  echo "注意：舊版曾將部分資料放在 Application Support 內，將隨 $SUPPORT 一併刪除。"
 fi
 echo
 echo "若英聽君正在執行，請先在終端機視窗按 Ctrl+C 結束。"
@@ -64,33 +60,15 @@ else
   echo "（未找到）$APP"
 fi
 
-if [[ -d "$PY" ]]; then
-  rm -rf "$PY"
-  echo "已刪除：$PY"
+if [[ -d "$SUPPORT" ]]; then
+  rm -rf "$SUPPORT"
+  echo "已刪除：$SUPPORT"
   removed=1
-fi
-
-if [[ -d "$MODELS" ]]; then
-  rm -rf "$MODELS"
-  echo "已刪除：$MODELS"
-  removed=1
-fi
-
-if [[ -f "$LOG" ]]; then
-  rm -f "$LOG"
-  echo "已刪除：$LOG"
+else
+  echo "（未找到）$SUPPORT"
 fi
 
 echo "已保留：$DATA"
-if [[ -d "$LEGACY_DATA" && "$LEGACY_DATA" != "$DATA" ]]; then
-  echo "已保留（舊版）：$LEGACY_DATA"
-fi
-
-if [[ -d "$SUPPORT" ]]; then
-  if [[ -z "$(ls -A "$SUPPORT" 2>/dev/null || true)" ]]; then
-    rmdir "$SUPPORT" 2>/dev/null && echo "已刪除空目錄：$SUPPORT" || true
-  fi
-fi
 
 echo
 if [[ "$removed" -eq 1 ]]; then
