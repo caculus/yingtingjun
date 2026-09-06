@@ -735,6 +735,44 @@ class AppState:
             return False
         return Path(str(self.transcript) + ".bak-range").exists()
 
+    def build_transcript_export(
+        self,
+        *,
+        filename: str,
+        formats: list[str] | None,
+        include_speakers: bool = True,
+        include_timestamps: bool = False,
+    ) -> tuple[str, bytes, str] | dict:
+        """Build downloadable export bytes, or an error dict with ok=False."""
+        if not self.transcript or not Path(self.transcript).exists():
+            return {"ok": False, "error": "尚未載入文稿"}
+        try:
+            basename = sanitize_stem(filename)
+        except StemError as exc:
+            return {"ok": False, "error": str(exc)}
+
+        try:
+            data = json.loads(Path(self.transcript).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            return {"ok": False, "error": f"無法讀取文稿：{exc}"}
+        turns = data.get("turns") or []
+        if not isinstance(turns, list) or not turns:
+            return {"ok": False, "error": "文稿沒有可匯出的段落"}
+
+        from export_transcript import build_export_download
+
+        try:
+            return build_export_download(
+                turns,
+                basename=basename,
+                formats=formats or [],
+                include_speakers=bool(include_speakers),
+                include_timestamps=bool(include_timestamps),
+                title=basename,
+            )
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
+
     def _run_retranscribe_range(
         self, transcript: Path, audio: Path, start: float, end: float
     ) -> None:
@@ -1502,6 +1540,34 @@ class PlayerHandler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "text/csv; charset=utf-8")
             self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self._safe_write(body)
+            return
+        if path == "/api/export":
+            qs = parse_qs(parsed.query)
+            filename = (qs.get("filename") or [""])[0]
+            formats_raw = (qs.get("formats") or [""])[0]
+            formats = [p.strip() for p in formats_raw.split(",") if p.strip()]
+            spk_raw = (qs.get("include_speakers") or ["1"])[0].strip().lower()
+            include_speakers = spk_raw in {"1", "true", "yes", "on"}
+            ts_raw = (qs.get("include_timestamps") or ["0"])[0].strip().lower()
+            include_timestamps = ts_raw in {"1", "true", "yes", "on"}
+            result = self.state.build_transcript_export(
+                filename=filename,
+                formats=formats,
+                include_speakers=include_speakers,
+                include_timestamps=include_timestamps,
+            )
+            if isinstance(result, dict):
+                return self._send_json(result, status=400)
+            out_name, body, content_type = result
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header(
+                "Content-Disposition", f'attachment; filename="{out_name}"'
+            )
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.end_headers()

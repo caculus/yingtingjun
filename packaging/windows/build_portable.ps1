@@ -30,6 +30,7 @@ $appFiles = @(
     "transcribe.py",
     "serve_player.py",
     "stem_utils.py",
+    "export_transcript.py",
     "asr_backend.py",
     "audio_convert.py",
     "audio_resample.py",

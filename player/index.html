@@ -185,6 +185,33 @@
       justify-content: flex-start;
       text-align: left;
     }
+    .split-btn {
+      display: inline-flex;
+      align-items: stretch;
+      border-radius: 999px;
+      border: 1px solid rgba(243, 239, 230, 0.24);
+      overflow: hidden;
+    }
+    .split-btn > button {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--panel);
+    }
+    .split-btn > button + button {
+      border-left: 1px solid rgba(243, 239, 230, 0.24);
+    }
+    .split-btn > .split-caret {
+      padding-left: 0.55rem;
+      padding-right: 0.65rem;
+      min-width: 2.1rem;
+    }
+    .split-btn:has(> button:disabled) {
+      opacity: 0.45;
+    }
+    .split-btn:has(> button:disabled) > button:disabled {
+      opacity: 1;
+    }
     .modal select {
       width: 100%;
       border-radius: 10px;
@@ -949,9 +976,17 @@
       <select id="audioSelect">
         <option value="">（載入匯入的音檔中…）</option>
       </select>
-      <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
-      <button class="secondary" id="renameBtn" type="button" disabled>重新命名</button>
-      <button class="danger" id="deleteBtn" type="button" disabled>刪除</button>
+      <div class="import-group" id="loadGroup">
+        <div class="split-btn">
+          <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
+          <button class="secondary split-caret" id="loadMenuBtn" type="button" disabled aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">▾</button>
+        </div>
+        <div class="import-menu" id="loadMenu" role="menu">
+          <button class="secondary" type="button" id="renameBtn" role="menuitem" disabled>重新命名</button>
+          <button class="secondary" type="button" id="exportBtn" role="menuitem" disabled>匯出</button>
+          <button class="danger" type="button" id="deleteBtn" role="menuitem" disabled>刪除</button>
+        </div>
+      </div>
     </div>
     <div class="controls">
       <button id="playBtn" type="button">播放</button>
@@ -1129,6 +1164,31 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="exportModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="exportModalTitle">
+      <h3 id="exportModalTitle">匯出文稿</h3>
+      <p class="time-hint">匯出目前載入的英文轉寫與中文翻譯（由瀏覽器下載；多格式會打成 zip）。</p>
+      <label for="exportFilename">檔名</label>
+      <input id="exportFilename" type="text" autocomplete="off" placeholder="教材名稱" />
+      <label>格式（可多選）</label>
+      <label class="check-row"><input id="exportFmtTxt" type="checkbox" checked /> .txt</label>
+      <label class="check-row"><input id="exportFmtMd" type="checkbox" /> .md</label>
+      <label class="check-row"><input id="exportFmtHtml" type="checkbox" /> .html</label>
+      <label class="check-row">
+        <input id="exportSpeakers" type="checkbox" checked />
+        含說話者（預設含）
+      </label>
+      <label class="check-row">
+        <input id="exportTimestamps" type="checkbox" />
+        含時間戳（預設不含）
+      </label>
+      <div class="row-btns">
+        <button class="secondary" type="button" id="exportModalCancel">取消</button>
+        <button type="button" id="exportModalOk">匯出</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dict-popover" id="dictPopover" hidden role="dialog" aria-label="詞典">
     <div class="dict-head">
       <span class="dict-lemma" id="dictLemma">—</span>
@@ -1165,7 +1225,11 @@
     const importInput = document.getElementById("importInput");
     const audioSelect = document.getElementById("audioSelect");
     const loadBtn = document.getElementById("loadBtn");
+    const loadMenuBtn = document.getElementById("loadMenuBtn");
+    const loadMenu = document.getElementById("loadMenu");
+    const loadGroup = document.getElementById("loadGroup");
     const renameBtn = document.getElementById("renameBtn");
+    const exportBtn = document.getElementById("exportBtn");
     const deleteBtn = document.getElementById("deleteBtn");
     const logPanel = document.getElementById("logPanel");
     const logBody = document.getElementById("logBody");
@@ -1212,6 +1276,15 @@
     const renameStem = document.getElementById("renameStem");
     const renameModalCancel = document.getElementById("renameModalCancel");
     const renameModalOk = document.getElementById("renameModalOk");
+    const exportModal = document.getElementById("exportModal");
+    const exportFilename = document.getElementById("exportFilename");
+    const exportFmtTxt = document.getElementById("exportFmtTxt");
+    const exportFmtMd = document.getElementById("exportFmtMd");
+    const exportFmtHtml = document.getElementById("exportFmtHtml");
+    const exportSpeakers = document.getElementById("exportSpeakers");
+    const exportTimestamps = document.getElementById("exportTimestamps");
+    const exportModalCancel = document.getElementById("exportModalCancel");
+    const exportModalOk = document.getElementById("exportModalOk");
     const dictPopover = document.getElementById("dictPopover");
     const dictLemma = document.getElementById("dictLemma");
     const dictPhonetic = document.getElementById("dictPhonetic");
@@ -1287,13 +1360,16 @@
     function updateFileActionButtons() {
       const has = Boolean(audioSelect.value);
       loadBtn.disabled = busy || !has;
+      if (loadMenuBtn) loadMenuBtn.disabled = busy || !has;
       renameBtn.disabled = busy || !has;
+      exportBtn.disabled = busy || !currentStem;
       deleteBtn.disabled = busy || !has;
       importBtn.disabled = busy;
       if (importFileBtn) importFileBtn.disabled = busy;
       if (importYoutubeBtn) importYoutubeBtn.disabled = busy;
       audioSelect.disabled = busy;
       speedSelect.disabled = busy;
+      if ((busy || !has) && typeof closeLoadMenu === "function") closeLoadMenu();
       updateRangeUI();
     }
 
@@ -1301,6 +1377,7 @@
       busy = on;
       importBtn.textContent = on ? "處理中…" : "匯入 ▾";
       if (!on) closeImportMenu();
+      if (on && typeof closeLoadMenu === "function") closeLoadMenu();
       updateFileActionButtons();
       if (on && reason) metaEl.textContent = reason;
     }
@@ -1313,9 +1390,24 @@
 
     function toggleImportMenu() {
       if (!importMenu || busy) return;
+      closeLoadMenu();
       const open = !importMenu.classList.contains("visible");
       importMenu.classList.toggle("visible", open);
       importBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function closeLoadMenu() {
+      if (!loadMenu) return;
+      loadMenu.classList.remove("visible");
+      if (loadMenuBtn) loadMenuBtn.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleLoadMenu() {
+      if (!loadMenu || busy || loadMenuBtn.disabled) return;
+      closeImportMenu();
+      const open = !loadMenu.classList.contains("visible");
+      loadMenu.classList.toggle("visible", open);
+      loadMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
     }
 
     function formatDuration(sec) {
@@ -1596,6 +1688,7 @@
       loadedAudioName = "";
       notes = [];
       renderNotesList();
+      updateFileActionButtons();
     }
 
     function normalizeWord(w) {
@@ -2889,6 +2982,7 @@
       await refreshLibrary(meta.audio_name);
       loadedAudioName = meta.audio_name || "";
       await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
+      updateFileActionButtons();
       return meta;
     }
 
@@ -2949,9 +3043,13 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (!importMenu || !importMenu.classList.contains("visible")) return;
-      const group = importBtn.closest(".import-group");
-      if (group && !group.contains(e.target)) closeImportMenu();
+      if (importMenu && importMenu.classList.contains("visible")) {
+        const group = importBtn.closest(".import-group");
+        if (group && !group.contains(e.target)) closeImportMenu();
+      }
+      if (loadMenu && loadMenu.classList.contains("visible")) {
+        if (loadGroup && !loadGroup.contains(e.target)) closeLoadMenu();
+      }
     });
 
     function openImportModal(file) {
@@ -3091,6 +3189,7 @@
         return;
       }
       if (busy) return showToastBusy();
+      closeLoadMenu();
       openRenameModal(name);
     });
     renameModalOk.addEventListener("click", () => {
@@ -3103,13 +3202,76 @@
       if (e.target === renameModal) closeRenameModal();
     });
 
+    function openExportModal() {
+      if (!currentStem) {
+        alert("請先載入有文稿的錄音。");
+        return;
+      }
+      exportFilename.value = currentStem;
+      exportFmtTxt.checked = true;
+      exportFmtMd.checked = false;
+      exportFmtHtml.checked = false;
+      exportSpeakers.checked = true;
+      exportTimestamps.checked = false;
+      exportModal.classList.add("visible");
+      exportModal.setAttribute("aria-hidden", "false");
+      exportFilename.focus();
+      exportFilename.select();
+    }
+
+    function closeExportModal() {
+      exportModal.classList.remove("visible");
+      exportModal.setAttribute("aria-hidden", "true");
+    }
+
+    function submitExport() {
+      const filename = (exportFilename.value || "").trim();
+      const formats = [];
+      if (exportFmtTxt.checked) formats.push("txt");
+      if (exportFmtMd.checked) formats.push("md");
+      if (exportFmtHtml.checked) formats.push("html");
+      if (!filename) {
+        alert("請輸入檔名。");
+        return;
+      }
+      if (!formats.length) {
+        alert("請至少選擇一種格式。");
+        return;
+      }
+      const params = new URLSearchParams({
+        filename,
+        formats: formats.join(","),
+        include_speakers: exportSpeakers.checked ? "1" : "0",
+        include_timestamps: exportTimestamps.checked ? "1" : "0",
+        t: String(Date.now()),
+      });
+      closeExportModal();
+      showNotesToast(formats.length > 1 ? "開始下載 zip…" : "開始下載…");
+      window.location.href = "/api/export?" + params.toString();
+    }
+
+    exportBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      closeLoadMenu();
+      openExportModal();
+    });
+    exportModalOk.addEventListener("click", () => {
+      submitExport();
+    });
+    exportModalCancel.addEventListener("click", () => {
+      closeExportModal();
+    });
+    exportModal.addEventListener("click", (e) => {
+      if (e.target === exportModal) closeExportModal();
+    });
+
     audioSelect.addEventListener("change", () => {
       if (suppressSelectChange) return;
       updateFileActionButtons();
       const name = audioSelect.value;
-      if (name && loadedAudioName && name !== loadedAudioName) {
-        clearPlayerUI(`已選擇「${displayAudioName(name)}」，請按「載入」。`);
-      }
+      if (!name) return;
+      if (name === loadedAudioName) return;
+      loadSelectedAudio();
     });
 
     async function loadSelectedAudio() {
@@ -3143,7 +3305,14 @@
     }
 
     loadBtn.addEventListener("click", () => {
+      closeLoadMenu();
       loadSelectedAudio();
+    });
+
+    loadMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (busy) return showToastBusy();
+      toggleLoadMenu();
     });
 
     deleteBtn.addEventListener("click", async () => {
@@ -3153,6 +3322,7 @@
         return;
       }
       if (busy) return showToastBusy();
+      closeLoadMenu();
       const ok = await showConfirm({
         title: "刪除音檔",
         message:
