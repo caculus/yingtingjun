@@ -1,88 +1,88 @@
-# Yingtingjun
+# 英聽君（yingtingjun）
 
-**Turn real-life English you could not catch into private bilingual listening lessons.**
+**把真實生活裡沒聽懂的英文，變成你的私人雙語聽力教材。**
 
-Yingtingjun is a local-first listening tool for macOS, Windows, and Linux. Bring your own real recordings, and it turns them into replayable bilingual study material with speaker labels, timestamps, notes, dictionary lookup, and partial re-transcription.
+英聽君是給 macOS、Windows、Linux 使用的本機工具。只要匯入你每天真正遇到的英文錄音，它就會把內容整理成可反覆跟讀的雙語教材，並在瀏覽器裡提供同步播放、查詞、記筆記與局部重辨。
 
-[繁體中文說明](README.zh-TW.md) · [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md) · [Installation](docs/installation.md) / [安裝說明](docs/installation.zh-TW.md) · [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md) · [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
+[English](README.en.md) · [如何參與](CONTRIBUTING.zh-TW.md) · [安裝說明](docs/installation.zh-TW.md) · [開發說明](docs/development.zh-TW.md) · [疑難排解](docs/troubleshooting.zh-TW.md)
 
-## How It Works
+## 怎麼運作
 
-1. Import any real English conversation recording, or paste a YouTube URL via **Import → YouTube** in the player.
-2. Detect English, transcribe, and translate locally (YouTube videos with English captions can use a faster caption path).
-3. Review in the browser player while replaying, shadowing, taking notes, and fixing bad segments.
+1. 匯入任意英文對話錄音，或從播放器 **匯入 → YouTube** 貼上影片連結
+2. 偵測語言、轉寫英文、加上中文翻譯（YouTube 有英文字幕時可走字幕快徑）
+3. 在瀏覽器播放器裡邊聽邊跟讀、查詞、做筆記、修正問題片段
 
-## Why It Feels Different
+## 它和一般逐字稿工具不同的地方
 
-Most listening tools are built around generic content. Yingtingjun is for the English you actually run into in daily life: work calls, casual conversations, interviews, meetings, and voice notes.
+多數語言學習工具用的是通用教材；英聽君想處理的是你在生活中真的聽不懂的英文，例如日常對話、工作會議、面試、電話與語音訊息。
 
-- Your files stay on your computer. Packaged installs keep transcripts and notes in `Documents/Yingtingjun/data/`.
-- The output is designed for repeated listening, not just transcription.
-- The browser player supports notes, dictionary lookup, and partial re-transcription.
+- 檔案留在你的電腦，不上雲端。安裝包會把文稿與筆記放在「文件／文稿」的 `Yingtingjun/data/`
+- 輸出重點是反覆聽與跟讀，不只是逐字稿
+- 播放器支援筆記、詞典與局部重辨
 
-## Product View
+## 產品畫面
 
-![Yingtingjun browser player screenshot](docs/assets/player-screenshot.png)
+![英聽君瀏覽器播放器截圖](docs/assets/player-screenshot.png)
 
-Browser player with bilingual transcript, speaker turns, notes, and click-to-lookup dictionary.
+瀏覽器播放器可同步顯示雙語文稿、話者分段、學習筆記與點詞查詢。
 
-## Platforms
+## 支援平台
 
-Slim installers are available for all three platforms from the [latest GitHub Release](https://github.com/caculus/yingtingjun/releases/latest). They do not bundle Python or models; the runtime is downloaded on first launch or install. Expect about **6–8 GB** of additional disk space for Python, libraries, Whisper, translation, speaker models, and the dictionary.
+三平台都有精簡安裝包，請至 [最新 GitHub Release](https://github.com/caculus/yingtingjun/releases/latest) 下載。不內含 Python 或模型；首次啟動或安裝時會自動下載執行階段。請預留約 **6–8 GB** 磁碟空間（Python、套件、Whisper、翻譯與話者模型、詞典等）。
 
-| Platform | Package | ASR / diarization |
+| 平台 | 安裝包 | 話者 / ASR |
 | --- | --- | --- |
 | macOS Apple Silicon | `Yingtingjun-macos-arm64.dmg` | MLX Whisper + speakrs -> ECAPA |
 | Windows 10/11 x64 | `Yingtingjun-Setup-x64.exe` | faster-whisper + ECAPA |
 | Linux x86_64 / ARM64 | `Yingtingjun-linux.tar.gz` | faster-whisper + ECAPA |
 
-## Core Features
+## 核心功能
 
-- Local-first transcription and translation
-- **YouTube import** (built-in; dev installs need `pip install -r requirements-youtube.txt`; slim installers install `yt-dlp` on first launch)
-- Speaker labels, punctuation, timestamps, and word timing
-- Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
-- Click-to-lookup dictionary with local ECDICT first
-- Per-recording notes with CSV export
-- **Export bilingual transcript** as `.txt` / `.md` / `.html` from the player (**Load ▾ → Export**; optional speakers / timestamps)
-- Partial re-transcription for only the problematic range
+- 本機轉寫與翻譯
+- **YouTube 匯入**（內建；開發環境需 `pip install -r requirements-youtube.txt`；安裝包首次啟動會自動安裝 `yt-dlp`）
+- 話者標記、時間戳、詞級時間
+- 瀏覽器同步播放與跟讀，支援 0.5×–2.0× 播放速度
+- ECDICT 優先的點詞查詢
+- 每支錄音獨立的學習筆記與 CSV 匯出
+- **匯出雙語文稿**為 `.txt`／`.md`／`.html`（播放器 **載入 ▾ → 匯出**；可選說話者／時間戳）
+- 只重跑局部區段的局部重辨
 
-## Quick Start
+## 快速開始
 
-Use the installer that matches your platform if you are a normal user. If you are developing from source, start in the docs:
+一般使用者直接安裝對應平台的安裝包；如果你是開發者，請從分拆後的文件開始：
 
-- [Installation](docs/installation.md) / [安裝說明](docs/installation.zh-TW.md)
-- [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md)
-- [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
-- [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md)
+- [如何參與](CONTRIBUTING.zh-TW.md)
+- [安裝說明](docs/installation.zh-TW.md)
+- [開發說明](docs/development.zh-TW.md)
+- [疑難排解](docs/troubleshooting.zh-TW.md)
 
-### YouTube import (optional)
+### 從 YouTube 匯入（選用）
 
-In the player: **Import ▾ → YouTube…** — paste a URL, optionally rename the lesson, then load the bilingual transcript automatically.  
-For development, run `pip install -r requirements-youtube.txt` (or `brew install yt-dlp`).  
-YouTube is an input source, not the product focus; the core workflow remains real-life recordings you bring in.
+播放器內 **匯入 ▾ → YouTube…**：貼 URL、可改教材名稱，完成後自動載入雙語文稿。  
+開發環境請先執行 `pip install -r requirements-youtube.txt`（或 `brew install yt-dlp`）。  
+YouTube 只是輸入來源之一；產品主線仍是你在真實生活裡遇到的錄音。
 
-## Roadmap
+## 路線圖
 
-### Now
+### 現在
 
-- Keep the three-platform slim installers stable
-- Make it easy for newcomers to report bugs, improve docs, and join in
+- 維持三平台精簡安裝包穩定
+- 讓新人容易回報 bug、改文件、一起參與
 
-### Next
+### 下一步
 
-- Search and filter in the learning-notes sidebar ([#4](https://github.com/caculus/yingtingjun/issues/4))
-- Lightweight `windows-latest` CI for unit tests ([#3](https://github.com/caculus/yingtingjun/issues/3))
-- Phrase lookup in the dictionary overlay ([#5](https://github.com/caculus/yingtingjun/issues/5))
+- 學習筆記側欄搜尋與過濾（[#4](https://github.com/caculus/yingtingjun/issues/4)）
+- 輕量的 `windows-latest` 單元測試 CI（[#3](https://github.com/caculus/yingtingjun/issues/3)）
+- 詞典浮層支援片語查詢（[#5](https://github.com/caculus/yingtingjun/issues/5)）
 
-### Exploring
+### 探索中
 
-- Linux `.deb` / AppImage ([#6](https://github.com/caculus/yingtingjun/issues/6))
-- macOS signing and notarization
-- A short demo GIF or video
-- Cross-recording vocabulary notebook ([#8](https://github.com/caculus/yingtingjun/issues/8))
-- Highlight Whisper repetition loops ([#7](https://github.com/caculus/yingtingjun/issues/7))
+- Linux `.deb` / AppImage（[#6](https://github.com/caculus/yingtingjun/issues/6)）
+- macOS 簽名與公證
+- 短版 Demo GIF 或影片
+- 跨錄音生字本（[#8](https://github.com/caculus/yingtingjun/issues/8)）
+- 標示 Whisper 迴圈（[#7](https://github.com/caculus/yingtingjun/issues/7)）
 
-## License
+## 授權
 
-The source code is released under the [MIT License](LICENSE). Runtime-downloaded models and dictionaries keep their own upstream licenses.
+原始碼採用 [MIT License](LICENSE)。執行時下載的模型與詞典仍各自遵循其上游授權。

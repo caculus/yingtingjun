@@ -9,7 +9,7 @@ You do not need to be a programmer to contribute. Bug reports, installer feedbac
 ## Ways to help
 
 - Report a bug or a confusing installer step
-- Improve docs (`README.md`, `docs/`)
+- Improve docs (`README.md`, `README.en.md`, `docs/`)
 - Translate or polish player UI copy
 - Make the install flow clearer or more reliable
 - Add tests that do not require real ASR or translation models

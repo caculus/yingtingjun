@@ -1,6 +1,6 @@
 # Troubleshooting
 
-[English README](../README.md) · [繁中 README](../README.zh-TW.md) · [Installation](installation.md) / [安裝說明](installation.zh-TW.md) · [Development](development.md) / [開發說明](development.zh-TW.md)
+[繁中 README](../README.md) · [English README](../README.en.md) · [Installation](installation.md) / [安裝說明](installation.zh-TW.md) · [Development](development.md) / [開發說明](development.zh-TW.md)
 
 ## macOS
 

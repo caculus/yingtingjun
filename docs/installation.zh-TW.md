@@ -5,7 +5,7 @@
 - 如果你想用最少設定開始使用，請安裝對應平台的安裝包。
 - 如果你想從原始碼開發，請使用你平台對應的開發安裝流程。
 
-[English README](../README.md) · [繁中 README](../README.zh-TW.md) · [Development](development.md) / [開發說明](development.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
+[繁中 README](../README.md) · [English README](../README.en.md) · [Development](development.md) / [開發說明](development.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
 
 ## 系統需求
 

@@ -5,7 +5,7 @@ This project supports both normal users and developers.
 - If you want the app with the least setup, use the platform installer.
 - If you want to develop from source, use the development setup for your platform.
 
-[English README](../README.md) · [繁中 README](../README.zh-TW.md) · [Development](development.md) / [開發說明](development.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
+[繁中 README](../README.md) · [English README](../README.en.md) · [Development](development.md) / [開發說明](development.zh-TW.md) · [Troubleshooting](troubleshooting.md) / [疑難排解](troubleshooting.zh-TW.md)
 
 ## System Requirements
 
