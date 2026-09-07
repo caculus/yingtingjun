@@ -15,6 +15,8 @@ This project supports both normal users and developers.
 
 ## Normal User Install
 
+Download the matching installer from the [latest GitHub Release](https://github.com/caculus/yingtingjun/releases/latest).
+
 ### macOS Apple Silicon
 
 - Use `Yingtingjun-macos-arm64.dmg`

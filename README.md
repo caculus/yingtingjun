@@ -28,7 +28,7 @@ Browser player with bilingual transcript, speaker turns, notes, and click-to-loo
 
 ## Platforms
 
-Slim installers are available for all three platforms. They do not bundle Python or models; the runtime is downloaded on first launch or install. Expect about **6–8 GB** of additional disk space for Python, libraries, Whisper, translation, speaker models, and the dictionary.
+Slim installers are available for all three platforms from the [latest GitHub Release](https://github.com/caculus/yingtingjun/releases/latest). They do not bundle Python or models; the runtime is downloaded on first launch or install. Expect about **6–8 GB** of additional disk space for Python, libraries, Whisper, translation, speaker models, and the dictionary.
 
 | Platform | Package | ASR / diarization |
 | --- | --- | --- |
@@ -44,6 +44,7 @@ Slim installers are available for all three platforms. They do not bundle Python
 - Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
 - Click-to-lookup dictionary with local ECDICT first
 - Per-recording notes with CSV export
+- **Export bilingual transcript** as `.txt` / `.md` / `.html` from the player (**Load ▾ → Export**; optional speakers / timestamps)
 - Partial re-transcription for only the problematic range
 
 ## Quick Start

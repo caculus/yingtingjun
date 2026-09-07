@@ -88,6 +88,7 @@ Launchers honor `YTJ_DATA` and `YTJ_DOCUMENTS`. Uninstall deletes runtime only. 
 - Speaker labels are preserved during partial re-transcription instead of re-running diarization
 - The player can lock actions while import or re-transcription is running
 - YouTube and local imports share one job lock; APIs are `/api/youtube/probe` and `/api/youtube/import`
+- Transcript export is `GET /api/export` (txt / md / html; multi-format zip)
 - Playback speed can be set to 0.5×, 0.75×, 1.0× (default), 1.25×, 1.5×, or 2.0×; the choice persists while switching recordings in the same session
 
 ## Release-Facing Priorities
@@ -97,4 +98,4 @@ Before wider promotion, keep these checked:
 1. The public README stays product-first
 2. Installer instructions stay consistent across all platforms
 3. macOS, Linux, and Windows installers are smoke-tested on clean machines
-4. Linux slim packaging is finalized and committed
+4. GitHub Topics / demo GIF remain optional polish after the three installers ship

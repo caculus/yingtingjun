@@ -88,6 +88,7 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 - 局部重辨會保留原本的話者標記，不重新跑 diarization
 - 匯入或局部重辨進行中時，播放器可以鎖定操作
 - YouTube 匯入與本機錄音匯入共用同一個 job 鎖；API 為 `/api/youtube/probe` 與 `/api/youtube/import`
+- 文稿匯出為 `GET /api/export`（txt／md／html；多格式 zip）
 - 播放速度可選 0.5×、0.75×、1.0×（預設）、1.25×、1.5× 或 2.0×；同一工作階段內切換錄音時會維持目前速度
 
 ## 發佈前優先事項
@@ -97,4 +98,4 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 1. 公開 README 保持產品導向
 2. 各平台安裝說明彼此一致
 3. macOS、Linux、Windows 安裝包都已在乾淨機器 smoke test
-4. Linux slim packaging 已整理完成並 commit
+4. GitHub Topics／Demo GIF 屬發版後可選 polish（三平台安裝包已上架）

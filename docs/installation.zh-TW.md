@@ -15,6 +15,8 @@
 
 ## 一般使用者安裝
 
+請至 [最新 GitHub Release](https://github.com/caculus/yingtingjun/releases/latest) 下載對應平台的安裝包。
+
 ### macOS Apple Silicon
 
 - 使用 `Yingtingjun-macos-arm64.dmg`
