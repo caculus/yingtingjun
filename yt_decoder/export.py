@@ -49,6 +49,8 @@ def build_source_metadata(
     duration_sec: float,
     caption_kind: str | None = None,
     caption_format: str | None = None,
+    timing_alignment: dict[str, Any] | None = None,
+    translation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     meta: dict[str, Any] = {
         "type": source_type,
@@ -65,6 +67,10 @@ def build_source_metadata(
             "kind": caption_kind,
             "format": caption_format,
         }
+    if timing_alignment:
+        meta["timing_alignment"] = timing_alignment
+    if translation:
+        meta["translation"] = translation
     return meta
 
 

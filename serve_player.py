@@ -536,7 +536,7 @@ class AppState:
     def probe_youtube(self, url: str) -> dict:
         try:
             from yt_decoder.errors import ProbeError
-            from yt_decoder.probe import probe_url
+            from yt_decoder.probe import probe_url_cached
             from yt_decoder.util import UrlError, normalize_youtube_url
             from yt_decoder.util import sanitize_stem as yt_stem
         except ImportError as exc:
@@ -544,7 +544,7 @@ class AppState:
 
         try:
             normalized = normalize_youtube_url(url)
-            probe = probe_url(normalized)
+            probe = probe_url_cached(normalized)
         except UrlError as exc:
             return {"ok": False, "error": str(exc), "code": exc.code}
         except ProbeError as exc:
@@ -553,6 +553,7 @@ class AppState:
         suggested = yt_stem(probe.title, probe.video_id)
         has_manual = any(track.kind == "manual" for track in probe.caption_tracks)
         has_auto = any(track.kind == "auto" for track in probe.caption_tracks)
+        has_zh = bool(probe.zh_caption_tracks)
         return {
             "ok": True,
             "url": normalized,
@@ -563,6 +564,7 @@ class AppState:
             "recommended": probe.recommended,
             "has_manual_caption": has_manual,
             "has_auto_caption": has_auto,
+            "has_zh_caption": has_zh,
         }
 
     def start_youtube_job(
@@ -572,13 +574,14 @@ class AppState:
         stem_raw: str | None,
         mode: str,
         skip_translate: bool,
+        align_timings: bool = True,
     ) -> dict:
         if self.busy():
             return {"ok": False, "error": "處理中，請稍候再試。"}
 
         try:
             from yt_decoder.errors import ProbeError
-            from yt_decoder.probe import probe_url
+            from yt_decoder.probe import probe_url_cached
             from yt_decoder.util import UrlError, normalize_youtube_url
             from yt_decoder.util import sanitize_stem as yt_stem
         except ImportError as exc:
@@ -589,7 +592,7 @@ class AppState:
 
         try:
             normalized = normalize_youtube_url(url)
-            probe = probe_url(normalized)
+            probe = probe_url_cached(normalized)
         except UrlError as exc:
             return {"ok": False, "error": str(exc)}
         except ProbeError as exc:
@@ -634,7 +637,7 @@ class AppState:
             }
         thread = threading.Thread(
             target=self._run_youtube_import,
-            args=(normalized, preferred_stem, mode, skip_translate),
+            args=(normalized, preferred_stem, mode, skip_translate, align_timings, probe),
             daemon=True,
         )
         thread.start()
@@ -916,6 +919,8 @@ class AppState:
         preferred_stem: str | None,
         mode: str,
         skip_translate: bool,
+        align_timings: bool = True,
+        probe=None,
     ) -> None:
         from yt_decoder.errors import ProbeError
         from yt_decoder.import_video import run_import
@@ -924,6 +929,19 @@ class AppState:
 
         def hook(stage: str, message: str) -> None:
             self.append_log(f"[{stage}] {message}")
+            # Surface long-running stages on the busy banner (not only in the log body).
+            if stage in {
+                "translate",
+                "whisper",
+                "audio",
+                "caption",
+                "probe",
+                "align",
+                "zh_caption",
+            }:
+                with self.lock:
+                    if self.job and self.job.get("status") == "running":
+                        self.job["message"] = f"[{stage}] {message}"
 
         set_log_hook(hook)
         final_message = None
@@ -934,10 +952,11 @@ class AppState:
                 uploads_dir=self.uploads,
                 mode=mode,
                 skip_translate=skip_translate,
+                align_timings=align_timings,
                 yingtingjun_root=ROOT,
                 preferred_stem=preferred_stem,
             )
-            result = run_import(url, options)
+            result = run_import(url, options, probe=probe)
             with self.lock:
                 if not self.job:
                     return
@@ -1659,12 +1678,15 @@ class PlayerHandler(SimpleHTTPRequestHandler):
                 return self._send_json({"ok": False, "error": "請提供 YouTube URL"}, status=400)
             mode = (body.get("mode") or "auto").strip()
             skip_translate = bool(body.get("skip_translate"))
+            # Default on: caption text + Whisper timing alignment (方案 5B).
+            align_timings = True if "align_timings" not in body else bool(body.get("align_timings"))
             stem_raw = (body.get("stem") or "").strip() or None
             started = self.state.start_youtube_job(
                 url,
                 stem_raw=stem_raw,
                 mode=mode,
                 skip_translate=skip_translate,
+                align_timings=align_timings,
             )
             status = 200 if started.get("ok") else 409 if "處理中" in (started.get("error") or "") else 400
             return self._send_json(started, status=status)

@@ -39,7 +39,7 @@ Slim installers are available for all three platforms from the [latest GitHub Re
 ## Core Features
 
 - Local-first transcription and translation
-- **YouTube import** (built-in; dev installs need `pip install -r requirements-youtube.txt`; slim installers install `yt-dlp` on first launch)
+- **YouTube import** (built-in; dev installs need `pip install -r requirements-youtube.txt`; slim installers install `yt-dlp` on first launch; caption path **aligns highlight timings with Whisper by default** while keeping caption text)
 - Speaker labels, punctuation, timestamps, and word timing
 - Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
 - Click-to-lookup dictionary with local ECDICT first

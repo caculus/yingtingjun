@@ -173,7 +173,10 @@ def convert_to_work_wav(
     run: Callable = subprocess.run,
     soundfile_fallback: Callable[[Path, Path], None] | None = None,
 ) -> str:
-    """Write 16 kHz mono WAV to dest. Returns converter id: wav|afconvert|ffmpeg|soundfile."""
+    """Write 16 kHz mono WAV to dest. Returns converter id: wav|afconvert|ffmpeg|soundfile.
+
+    YouTube / some AAC m4a files fail under afconvert ('fmt?'); fall back to ffmpeg.
+    """
     src = Path(src)
     dest = Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -183,13 +186,23 @@ def convert_to_work_wav(
     if try_copy_16k_mono_wav(src, dest):
         return "wav"
 
+    errors: list[str] = []
+
     if afconvert is not None:
-        _run_converter(build_afconvert_cmd(afconvert, src, dest), dest, run)
-        return "afconvert"
+        try:
+            _run_converter(build_afconvert_cmd(afconvert, src, dest), dest, run)
+            return "afconvert"
+        except RuntimeError as exc:
+            errors.append(str(exc))
+            _unlink_quiet(dest)
 
     if ffmpeg is not None:
-        _run_converter(build_ffmpeg_cmd(ffmpeg, src, dest), dest, run)
-        return "ffmpeg"
+        try:
+            _run_converter(build_ffmpeg_cmd(ffmpeg, src, dest), dest, run)
+            return "ffmpeg"
+        except RuntimeError as exc:
+            errors.append(str(exc))
+            _unlink_quiet(dest)
 
     if soundfile_fallback is not None:
         try:
@@ -197,14 +210,17 @@ def convert_to_work_wav(
             return "soundfile"
         except Exception as exc:
             _unlink_quiet(dest)
+            errors.append(f"soundfile 後備也失敗：{exc}")
             raise RuntimeError(
                 "無法轉成 16 kHz WAV。請安裝 ffmpeg 並加入 PATH，"
                 "或設 YTJ_FFMPEG / FFMPEG_BIN，或把 ffmpeg 放到專案 bin/。"
-                f" soundfile 後備也失敗：{exc}"
+                + (" " + " | ".join(errors) if errors else "")
             ) from exc
 
+    detail = (" 先前錯誤：" + " | ".join(errors)) if errors else ""
     raise RuntimeError(
-        "無法轉成 16 kHz WAV：找不到 afconvert / ffmpeg，也沒有 soundfile 後備。"
+        "無法轉成 16 kHz WAV：找不到可用的 afconvert / ffmpeg，也沒有 soundfile 後備。"
         "請安裝 ffmpeg（Windows: winget install Gyan.FFmpeg）並加入 PATH，"
         "或設環境變數 YTJ_FFMPEG，或把 ffmpeg.exe 放到專案 bin/。"
+        + detail
     )

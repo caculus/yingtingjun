@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from yt_decoder.io_util import log_stage
 from yt_decoder.util import resolve_yingtingjun_root
 
 
@@ -45,12 +46,24 @@ def _require_yingtingjun_root(yingtingjun_root: Path | None) -> Path:
     return root
 
 
+def _report_translate_progress(done: int, total: int) -> None:
+    if total <= 0:
+        log_stage("translate", "0/0")
+        return
+    if done <= 0:
+        log_stage("translate", f"0/{total}（載入翻譯模型中…）")
+        return
+    pct = int(round(100.0 * done / total))
+    log_stage("translate", f"{done}/{total}（{pct}%）")
+
+
 def translate_turns(
     turns: list[dict[str, Any]],
     *,
     yingtingjun_root: Path | None = None,
 ) -> None:
     """Fill text_zh on each turn in-place using Yingtingjun NLLB."""
+    total = len(turns)
     try:
         from transcribe import translate_turns as _translate_turns
     except ImportError:
@@ -60,7 +73,7 @@ def translate_turns(
         real_stdout = sys.stdout
         sys.stdout = io.StringIO()
         try:
-            _translate_turns(turns)
+            _translate_turns(turns, on_progress=_report_translate_progress)
         finally:
             sys.stdout = real_stdout
         return
@@ -71,35 +84,52 @@ def translate_turns(
         raise RuntimeError(f"找不到 {transcribe_py}")
 
     python = _resolve_python(root)
+    # Subprocess fallback: stream progress lines from a thin runner script.
     script = (
-        "import io, json, sys\n"
+        "import json, sys\n"
         "sys.path.insert(0, sys.argv[1])\n"
         "from transcribe import translate_turns\n"
         "turns = json.loads(sys.stdin.read())\n"
-        "real_stdout = sys.stdout\n"
-        "sys.stdout = io.StringIO()\n"
-        "try:\n"
-        "    translate_turns(turns)\n"
-        "finally:\n"
-        "    sys.stdout = real_stdout\n"
-        "json.dump(turns, real_stdout, ensure_ascii=False)\n"
+        "def on_progress(done, total):\n"
+        "    print(f'PROGRESS {done}/{total}', flush=True)\n"
+        "translate_turns(turns, on_progress=on_progress)\n"
+        "print('RESULT ' + json.dumps(turns, ensure_ascii=False), flush=True)\n"
     )
     payload = json.dumps(turns, ensure_ascii=False)
-    result = subprocess.run(
+    proc = subprocess.Popen(
         [str(python), "-u", "-c", script, str(root)],
-        input=payload,
-        capture_output=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        check=False,
         env=_transcribe_env(),
     )
-    if result.returncode != 0:
-        err = (result.stderr or result.stdout or "translate failed").strip()
+    assert proc.stdin is not None
+    assert proc.stdout is not None
+    proc.stdin.write(payload)
+    proc.stdin.close()
+
+    result_json = None
+    for line in proc.stdout:
+        line = line.rstrip("\n")
+        if line.startswith("PROGRESS "):
+            parts = line[len("PROGRESS ") :].split("/", 1)
+            if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                _report_translate_progress(int(parts[0]), int(parts[1]))
+            continue
+        if line.startswith("RESULT "):
+            result_json = line[len("RESULT ") :]
+    stderr = proc.stderr.read() if proc.stderr is not None else ""
+    code = proc.wait()
+    if code != 0 or not result_json:
+        err = (stderr or "translate failed").strip()
         raise RuntimeError(f"翻譯失敗：{err}")
 
-    translated = json.loads(result.stdout)
+    translated = json.loads(result_json)
     turns.clear()
     turns.extend(translated)
+    if total:
+        _report_translate_progress(total, total)
 
 
 def run_yingtingjun_transcribe(

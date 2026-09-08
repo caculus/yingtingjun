@@ -14,7 +14,8 @@ def caption_quality_warnings(track: CaptionTrack, turns: list[Turn]) -> list[str
 
     if track.kind == "auto":
         warnings.append(
-            "使用 YouTube 自動字幕（非人工），錯字、斷句與時間軸可能不準"
+            "使用 YouTube 自動字幕（非人工），錯字與斷句可能不準；"
+            "若字幕含詞級時間會用於光棒，否則仍可能對不齊"
         )
 
     if not turns:

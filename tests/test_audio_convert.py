@@ -115,6 +115,36 @@ def test_convert_prefers_afconvert_over_ffmpeg(tmp_path: Path):
     assert dest.exists()
 
 
+def test_convert_falls_back_to_ffmpeg_when_afconvert_fails(tmp_path: Path):
+    src = tmp_path / "talk.m4a"
+    src.write_bytes(b"fake")
+    dest = tmp_path / "talk.work.wav"
+    ran: list[list[str]] = []
+
+    def fake_run(cmd, check=True, capture_output=True, text=True):
+        ran.append(list(cmd))
+        if "afconvert" in str(cmd[0]):
+            raise subprocess.CalledProcessError(
+                1, cmd, output="", stderr="Error: ExtAudioFileSetProperty ('cfmt') failed ('fmt?')"
+            )
+        dest.write_bytes(b"RIFF")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    import subprocess
+
+    used = convert_to_work_wav(
+        src,
+        dest,
+        ffmpeg=Path("/usr/bin/ffmpeg"),
+        afconvert=Path("/usr/bin/afconvert"),
+        run=fake_run,
+    )
+    assert used == "ffmpeg"
+    assert any("afconvert" in str(c[0]) for c in ran)
+    assert any("ffmpeg" in str(c[0]) for c in ran)
+    assert dest.exists()
+
+
 def test_convert_uses_ffmpeg_when_no_afconvert(tmp_path: Path):
     src = tmp_path / "talk.m4a"
     src.write_bytes(b"fake")

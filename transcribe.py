@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 import numpy as np
@@ -966,14 +967,23 @@ def rescrub_turn_zh(turn: dict, *, retranslate_if_needed: bool = True) -> bool:
     return (turn.get("text_zh") or "") != before
 
 
-def translate_turns(turns: list[dict]) -> None:
+def translate_turns(
+    turns: list[dict],
+    *,
+    on_progress: Callable[[int, int], None] | None = None,
+) -> None:
     print("[4/4] Translating turns to Chinese ...", flush=True)
+    total = len(turns)
+    if on_progress is not None and total:
+        on_progress(0, total)
     try:
         get_translator()
     except Exception as exc:  # noqa: BLE001
         print(f"       Translator unavailable ({exc}); writing English only.", flush=True)
         for turn in turns:
             turn["text_zh"] = turn.get("text_zh") or ""
+        if on_progress is not None and total:
+            on_progress(total, total)
         return
 
     for i, turn in enumerate(turns, start=1):
@@ -983,8 +993,10 @@ def translate_turns(turns: list[dict]) -> None:
         except Exception as exc:  # noqa: BLE001
             print(f"       turn {i} translate failed: {exc}", flush=True)
             turn["text_zh"] = ""
-        if i == 1 or i % 10 == 0 or i == len(turns):
-            print(f"       translated {i}/{len(turns)}", flush=True)
+        if i == 1 or i % 5 == 0 or i == total:
+            print(f"       translated {i}/{total}", flush=True)
+            if on_progress is not None:
+                on_progress(i, total)
 
 
 def range_backup_path(json_path: Path) -> Path:
@@ -996,17 +1008,31 @@ def range_meta_path(json_path: Path) -> Path:
 
 
 def resolve_work_audio_for_stem(stem: str, workdir: Path, audio: Path | None = None) -> Path:
-    if audio is not None:
-        path = Path(audio)
-        if path.exists():
-            return path
-        raise FileNotFoundError(f"Audio not found: {path}")
+    """Return a soundfile-readable work WAV for ASR / partial re-transcription.
+
+    YouTube caption imports often leave only ``{stem}.m4a`` in workdir. libsndfile
+    cannot open m4a/aac, so convert once to ``{stem}.work.wav`` when needed.
+    """
+    workdir = Path(workdir)
     candidate = workdir / f"{stem}.work.wav"
     if candidate.exists():
         return candidate
-    raise FileNotFoundError(
-        f"找不到音檔：請提供 --audio，或確認存在 {candidate}"
-    )
+
+    if audio is None:
+        raise FileNotFoundError(
+            f"找不到音檔：請提供 --audio，或確認存在 {candidate}"
+        )
+
+    path = Path(audio)
+    if not path.exists():
+        raise FileNotFoundError(f"Audio not found: {path}")
+
+    name = path.name.lower()
+    if name.endswith(".work.wav") or path.suffix.lower() == ".wav":
+        return path
+
+    # m4a / mp3 / aac / … → 16 kHz mono WAV for Whisper / soundfile
+    return ensure_work_wav(path, workdir)
 
 
 def _interval_overlap(a0: float, a1: float, b0: float, b1: float) -> float:

@@ -1143,6 +1143,10 @@
         <input id="youtubeSkipTranslate" type="checkbox" />
         略過中文翻譯（較快，除錯用）
       </label>
+      <label class="check-row">
+        <input id="youtubeAlignTimings" type="checkbox" checked />
+        對齊光棒時間（保留字幕文字，Whisper 打點；較慢但較準）
+      </label>
       <div class="row-btns">
         <button class="secondary" type="button" id="youtubeModalCancel">取消</button>
         <button type="button" id="youtubeModalOk">開始匯入</button>
@@ -1268,6 +1272,7 @@
     const youtubeStem = document.getElementById("youtubeStem");
     const youtubeMode = document.getElementById("youtubeMode");
     const youtubeSkipTranslate = document.getElementById("youtubeSkipTranslate");
+    const youtubeAlignTimings = document.getElementById("youtubeAlignTimings");
     const youtubeProbeHint = document.getElementById("youtubeProbeHint");
     const youtubeModalCancel = document.getElementById("youtubeModalCancel");
     const youtubeModalOk = document.getElementById("youtubeModalOk");
@@ -1455,6 +1460,7 @@
       youtubeStem.value = "";
       youtubeMode.value = "auto";
       youtubeSkipTranslate.checked = false;
+      youtubeAlignTimings.checked = true;
       youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
       youtubeModal.classList.add("visible");
       youtubeModal.setAttribute("aria-hidden", "false");
@@ -1477,6 +1483,7 @@
       const stem = youtubeStem.value.trim();
       const mode = youtubeMode.value;
       const skipTranslate = youtubeSkipTranslate.checked;
+      const alignTimings = youtubeAlignTimings.checked;
       closeYoutubeModal();
 
       const label = stem || url;
@@ -1490,7 +1497,13 @@
         const res = await fetch("/api/youtube/import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, stem, mode, skip_translate: skipTranslate }),
+          body: JSON.stringify({
+            url,
+            stem,
+            mode,
+            skip_translate: skipTranslate,
+            align_timings: alignTimings,
+          }),
         });
         const data = await res.json();
         if (!data.ok) {

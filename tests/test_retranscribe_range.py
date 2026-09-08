@@ -13,6 +13,7 @@ import numpy as np
 from serve_player import AppState
 from transcribe import (
     range_backup_path,
+    resolve_work_audio_for_stem,
     restore_range_backup,
     retranscribe_time_range,
 )
@@ -63,6 +64,35 @@ def _write_silent_wav(path: Path, *, duration_sec: float = 10.0, sr: int = 16000
 
     samples = np.zeros(int(duration_sec * sr), dtype=np.float32)
     sf.write(path, samples, sr)
+
+
+def test_resolve_work_audio_converts_m4a_when_work_wav_missing(tmp_path: Path):
+    workdir = tmp_path / "workdir"
+    workdir.mkdir()
+    m4a = workdir / "lesson.m4a"
+    m4a.write_bytes(b"not-real-m4a")
+    wav = workdir / "lesson.work.wav"
+
+    with patch("transcribe.ensure_work_wav", return_value=wav) as ensure:
+        resolved = resolve_work_audio_for_stem("lesson", workdir, m4a)
+
+    assert resolved == wav
+    ensure.assert_called_once_with(m4a, workdir)
+
+
+def test_resolve_work_audio_prefers_existing_work_wav(tmp_path: Path):
+    workdir = tmp_path / "workdir"
+    workdir.mkdir()
+    wav = workdir / "lesson.work.wav"
+    m4a = workdir / "lesson.m4a"
+    _write_silent_wav(wav)
+    m4a.write_bytes(b"x")
+
+    with patch("transcribe.ensure_work_wav") as ensure:
+        resolved = resolve_work_audio_for_stem("lesson", workdir, m4a)
+
+    assert resolved == wav
+    ensure.assert_not_called()
 
 
 def test_retranscribe_time_range_replaces_overlap_and_creates_backup(tmp_path: Path):

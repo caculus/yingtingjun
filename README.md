@@ -39,7 +39,7 @@
 ## 核心功能
 
 - 本機轉寫與翻譯
-- **YouTube 匯入**（內建；開發環境需 `pip install -r requirements-youtube.txt`；安裝包首次啟動會自動安裝 `yt-dlp`）
+- **YouTube 匯入**（內建；開發環境需 `pip install -r requirements-youtube.txt`；安裝包首次啟動會自動安裝 `yt-dlp`；字幕路徑預設會用 Whisper **對齊光棒時間**、保留字幕文字）
 - 話者標記、時間戳、詞級時間
 - 瀏覽器同步播放與跟讀，支援 0.5×–2.0× 播放速度
 - ECDICT 優先的點詞查詢

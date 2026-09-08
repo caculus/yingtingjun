@@ -38,6 +38,7 @@ def test_probe_youtube_returns_metadata(tmp_path: Path):
     assert result["ok"] is True
     assert result["suggested_stem"].endswith("-abc123")
     assert result["has_manual_caption"] is True
+    assert result["has_zh_caption"] is False
 
 
 def test_start_youtube_job_rejects_invalid_mode(tmp_path: Path):

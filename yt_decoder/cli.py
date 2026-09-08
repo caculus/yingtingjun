@@ -82,6 +82,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Skip Chinese translation",
     )
     imp.add_argument(
+        "--no-align",
+        action="store_true",
+        help="Skip Whisper timing alignment (faster; keep raw caption/karaoke times)",
+    )
+    imp.add_argument(
         "--download-video",
         action="store_true",
         help="Also download low-res mp4 (M3b+)",
@@ -154,6 +159,7 @@ def cmd_import(args: argparse.Namespace) -> int:
         mode=args.mode,
         caption_pref=args.caption,
         skip_translate=args.skip_translate,
+        align_timings=not args.no_align,
         max_duration_sec=args.max_duration,
         yingtingjun_root=_resolve_yingtingjun_arg(args.yingtingjun),
     )

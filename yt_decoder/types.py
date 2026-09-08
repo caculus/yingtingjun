@@ -14,6 +14,7 @@ class ImportOptions:
     mode: str = "auto"
     caption_pref: str = "manual_first"
     skip_translate: bool = False
+    align_timings: bool = True
     max_duration_sec: int = 2700
     yingtingjun_root: Path | None = None
     preferred_stem: str | None = None
