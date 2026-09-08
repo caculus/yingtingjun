@@ -96,7 +96,8 @@ Common causes: geo block, login required, live stream, or playlist URL (use a si
 
 ### Poor auto-caption quality / highlight still drifts
 
-Caption import now **aligns word timings with Whisper by default** (keeps caption text; slower import).  
+YouTube import **prefers Chinese captions** when they cover enough of the English turns.  
+Caption import **aligns word timings with Whisper by default** (keeps caption text; slower import).  
 Uncheck “align highlight timing” in the YouTube modal for the raw caption fast path.  
 If wording or timing is still wrong, use **whisper** mode to force full ASR, or fix individual sentences with partial re-transcription.
 

@@ -126,7 +126,7 @@ python -m pip install -r requirements-youtube.txt
 # or: brew install yt-dlp
 ```
 
-`ffmpeg` is still required for audio extraction. **Slim installers** install `yt-dlp` automatically on first launch via `install_runtime`. Videos without English captions fall back to Whisper and take about as long as a local recording transcription.
+`ffmpeg` is still required for audio extraction. **Slim installers** install `yt-dlp` automatically on first launch via `install_runtime`. When the video has Chinese captions, Yingtingjun prefers those instead of running local NLLB. Videos without English captions fall back to Whisper and take about as long as a local recording transcription. Caption import **aligns highlight timings with Whisper by default**.
 
 ## Packaging
 

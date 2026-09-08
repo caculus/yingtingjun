@@ -6,7 +6,7 @@
 
 - `transcribe.py`: main transcription pipeline
 - `serve_player.py`: local web app server
-- `yt_decoder/`: YouTube import (probe, caption fast path, Whisper fallback)
+- `yt_decoder/`: YouTube import (probe, caption fast path, Chinese captions, Whisper timing alignment)
 - `player/index.html`: browser UI
 - `platform_runtime.py`: cross-platform runtime contract
 - `asr_backend.py`: MLX / faster-whisper selection
@@ -88,6 +88,8 @@ Launchers honor `YTJ_DATA` and `YTJ_DOCUMENTS`. Uninstall deletes runtime only. 
 - Speaker labels are preserved during partial re-transcription instead of re-running diarization
 - The player can lock actions while import or re-transcription is running
 - YouTube and local imports share one job lock; APIs are `/api/youtube/probe` and `/api/youtube/import`
+- YouTube import prefers Chinese captions when coverage is high enough, otherwise falls back to local NLLB
+- Caption import aligns highlight timings with Whisper by default (`align_timings`)
 - Transcript export is `GET /api/export` (txt / md / html; multi-format zip)
 - Playback speed can be set to 0.5×, 0.75×, 1.0× (default), 1.25×, 1.5×, or 2.0×; the choice persists while switching recordings in the same session
 

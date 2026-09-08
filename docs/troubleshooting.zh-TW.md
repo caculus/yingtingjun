@@ -96,6 +96,7 @@ Windows 安裝包把文稿與筆記放在 `%USERPROFILE%\Documents\Yingtingjun\d
 
 ### 自動字幕品質差／光棒仍不準
 
+YouTube 匯入在覆蓋率足夠時會**優先採用中文字幕**。  
 字幕匯入預設會做 **Whisper 時間對齊**（保留字幕文字，重打詞級時間；匯入較慢）。  
 YouTube modal 可取消「對齊光棒時間」以回復純字幕快徑。  
 仍不準時，可改用 **whisper** 模式強制整段轉寫，或在英聽君內用局部重辨修正單句。

@@ -126,7 +126,7 @@ python -m pip install -r requirements-youtube.txt
 # 或：brew install yt-dlp
 ```
 
-仍需 `ffmpeg`（英聽君轉檔流程通常已具備）。**精簡安裝包**會在首次啟動時透過 `install_runtime` 自動安裝 `yt-dlp`。
+仍需 `ffmpeg`（英聽君轉檔流程通常已具備）。**精簡安裝包**會在首次啟動時透過 `install_runtime` 自動安裝 `yt-dlp`。影片有中文字幕時會優先採用，不必再跑本機翻譯。沒有英文字幕時會改走 Whisper，時間約等同本機錄音轉寫。字幕匯入預設會用 Whisper **對齊光棒時間**。
 
 ## 封裝
 

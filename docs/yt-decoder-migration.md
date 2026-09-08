@@ -11,6 +11,6 @@
 | Tag `v0.3.0-standalone` | ✅ |
 | README 改為遷移說明 | ✅ |
 | GitHub Archive | ✅ |
-| 英聽君 v1.2.0 含三平台安裝包 | ✅ |
+| 英聽君內建 YouTube 匯入（見 [最新 Release](https://github.com/caculus/yingtingjun/releases/latest)） | ✅ |
 
 獨立 CLI / `yt-decoder serve`（port 8766）最後一版見 [v0.3.0-standalone](https://github.com/caculus/yt-decoder/releases/tag/v0.3.0-standalone)。
