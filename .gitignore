@@ -24,6 +24,9 @@ output/*
 *.caf
 *.aiff
 *.aif
+# Bundled public-domain trial lesson (must ship with installers)
+!demo/
+!demo/**
 
 # Local SSH helper keys (never publish)
 .ssh_tmp/

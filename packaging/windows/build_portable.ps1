@@ -36,13 +36,15 @@ $appFiles = @(
     "audio_resample.py",
     "platform_runtime.py",
     "progress_log.py",
-    "torchaudio_compat.py"
+    "torchaudio_compat.py",
+    "demo_seed.py"
 )
 foreach ($name in $appFiles) {
     Copy-Item (Join-Path $Repo $name) (Join-Path $AppDir $name)
 }
 Copy-Item -Recurse (Join-Path $Repo "player") (Join-Path $AppDir "player")
 Copy-Item -Recurse (Join-Path $Repo "yt_decoder") (Join-Path $AppDir "yt_decoder")
+Copy-Item -Recurse (Join-Path $Repo "demo") (Join-Path $AppDir "demo")
 Copy-Item (Join-Path $Repo "requirements-youtube.txt") (Join-Path $Dist "requirements-youtube.txt")
 Copy-Item (Join-Path $PSScriptRoot "Yingtingjun.bat") (Join-Path $Dist "Yingtingjun.bat")
 # PowerShell 5.1 needs a UTF-8 BOM to parse Chinese strings; Copy-Item may drop it.

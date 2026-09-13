@@ -47,6 +47,7 @@ APP_FILES=(
   platform_runtime.py
   progress_log.py
   torchaudio_compat.py
+  demo_seed.py
 )
 for name in "${APP_FILES[@]}"; do
   cp "$ROOT/$name" "$APP_DIR/$name"
@@ -54,9 +55,12 @@ done
 if command -v ditto >/dev/null 2>&1; then
   ditto "$ROOT/player" "$APP_DIR/player"
   ditto "$ROOT/yt_decoder" "$APP_DIR/yt_decoder"
+  ditto "$ROOT/demo" "$APP_DIR/demo"
 else
   cp -a "$ROOT/player/." "$APP_DIR/player/"
   cp -a "$ROOT/yt_decoder/." "$APP_DIR/yt_decoder/"
+  mkdir -p "$APP_DIR/demo"
+  cp -a "$ROOT/demo/." "$APP_DIR/demo/"
 fi
 cp "$ROOT/requirements-linux.txt" "$STAGE/requirements-linux.txt"
 cp "$ROOT/requirements-youtube.txt" "$STAGE/requirements-youtube.txt"

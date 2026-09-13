@@ -62,12 +62,14 @@ APP_FILES=(
   platform_runtime.py
   progress_log.py
   torchaudio_compat.py
+  demo_seed.py
 )
 for name in "${APP_FILES[@]}"; do
   cp "$ROOT/$name" "$APP_DIR/$name"
 done
 ditto "$ROOT/player" "$APP_DIR/player"
 ditto "$ROOT/yt_decoder" "$APP_DIR/yt_decoder"
+ditto "$ROOT/demo" "$APP_DIR/demo"
 cp "$ROOT/requirements.txt" "$RES/requirements.txt"
 cp "$ROOT/requirements-youtube.txt" "$RES/requirements-youtube.txt"
 cp "$ROOT/LICENSE" "$RES/LICENSE"

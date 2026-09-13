@@ -1,0 +1,1108 @@
+{
+  "language": "en",
+  "bilingual": true,
+  "text": " This is a LibriVox recording. All LibriVox recordings are in the public domain. For more information or to volunteer, please visit LibriVox.org. Recorded by Werraps. Aesop Fails. The Charcoal Burner and the Fula. There was once a charcoal burner who lived and worked by himself. A Fula, however, happened to come and settle in the same neighborhood. And the charcoal burner, having made his acquaintance and finding he was an agreeable sort of fellow, asked him if he would come and share his house. We shall get to know one another better away, he said, and, besides, our household expenses will be diminished. The Fula thanked him, but replied, I couldn't think of it, sir. Why, everything I take such pains to whiten would be blackened in no time by your charcoal. End of the Charcoal Burner and the Fula End of the Chajun the Chajun",
+  "turns": [
+    {
+      "speaker": "SPEAKER_01",
+      "start": 0.0,
+      "end": 10.06,
+      "text": "This is a LibriVox recording. All LibriVox recordings are in the public domain. For more information or to volunteer, please visit LibriVox. org.",
+      "text_zh": "這是 LibriVox的錄音.所有的 LibriVox錄音都屬於公共領域.請前往 LibriVox 找更多資訊或志願者.其他國家",
+      "words": [
+        {
+          "word": "This",
+          "start": 0.0,
+          "end": 0.44,
+          "probability": 0.445556640625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "is",
+          "start": 0.44,
+          "end": 0.64,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "a",
+          "start": 0.64,
+          "end": 0.76,
+          "probability": 0.99462890625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "LibriVox",
+          "start": 0.76,
+          "end": 1.16,
+          "probability": 0.90380859375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "recording.",
+          "start": 1.16,
+          "end": 1.58,
+          "probability": 0.94775390625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "All",
+          "start": 2.02,
+          "end": 2.46,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "LibriVox",
+          "start": 2.46,
+          "end": 2.92,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "recordings",
+          "start": 2.92,
+          "end": 3.36,
+          "probability": 0.99853515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "are",
+          "start": 3.36,
+          "end": 3.66,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "in",
+          "start": 3.66,
+          "end": 3.82,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 3.82,
+          "end": 3.9,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "public",
+          "start": 3.9,
+          "end": 4.18,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "domain.",
+          "start": 4.18,
+          "end": 4.52,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "For",
+          "start": 4.9,
+          "end": 5.28,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "more",
+          "start": 5.28,
+          "end": 5.52,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "information",
+          "start": 5.52,
+          "end": 6.08,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "or",
+          "start": 6.08,
+          "end": 6.46,
+          "probability": 0.95263671875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "to",
+          "start": 6.46,
+          "end": 6.58,
+          "probability": 0.99658203125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "volunteer,",
+          "start": 6.58,
+          "end": 7.04,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "please",
+          "start": 7.38,
+          "end": 7.76,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "visit",
+          "start": 7.76,
+          "end": 8.26,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "LibriVox",
+          "start": 8.26,
+          "end": 9.28,
+          "probability": 0.98974609375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": ".org.",
+          "start": 9.28,
+          "end": 10.06,
+          "probability": 0.998046875,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 11.0,
+      "end": 12.34,
+      "text": "Recorded by Werraps.",
+      "text_zh": "這是 Werraps 錄製的.",
+      "words": [
+        {
+          "word": "Recorded",
+          "start": 11.0,
+          "end": 11.68,
+          "probability": 0.99658203125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "by",
+          "start": 11.68,
+          "end": 11.84,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Werraps.",
+          "start": 11.84,
+          "end": 12.34,
+          "probability": 0.45703125,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 14.36,
+      "end": 18.02,
+      "text": "Aesop Fails. The Charcoal Burner and the Fula.",
+      "text_zh": "艾索普失败了.燃燒煤炭和Fula.",
+      "words": [
+        {
+          "word": "Aesop",
+          "start": 14.36,
+          "end": 15.04,
+          "probability": 0.966796875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Fails.",
+          "start": 15.04,
+          "end": 15.38,
+          "probability": 0.595703125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "The",
+          "start": 15.84,
+          "end": 16.3,
+          "probability": 0.9970703125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Charcoal",
+          "start": 16.3,
+          "end": 16.76,
+          "probability": 0.8515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Burner",
+          "start": 16.76,
+          "end": 17.24,
+          "probability": 0.9697265625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 17.24,
+          "end": 17.62,
+          "probability": 0.99462890625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 17.62,
+          "end": 17.8,
+          "probability": 0.97802734375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Fula.",
+          "start": 17.8,
+          "end": 18.02,
+          "probability": 0.669921875,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 19.04,
+      "end": 27.8,
+      "text": "There was once a charcoal burner who lived and worked by himself. A Fula, however, happened to come and settle in the same neighborhood.",
+      "text_zh": "曾经有一位燃燒木炭的人獨自生活和工作.這裡有許多人,",
+      "words": [
+        {
+          "word": "There",
+          "start": 19.04,
+          "end": 19.72,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "was",
+          "start": 19.72,
+          "end": 19.92,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "once",
+          "start": 19.92,
+          "end": 20.24,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "a",
+          "start": 20.24,
+          "end": 20.44,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "charcoal",
+          "start": 20.44,
+          "end": 20.74,
+          "probability": 0.95751953125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "burner",
+          "start": 20.74,
+          "end": 21.1,
+          "probability": 0.97705078125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "who",
+          "start": 21.1,
+          "end": 21.34,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "lived",
+          "start": 21.34,
+          "end": 21.62,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 21.62,
+          "end": 21.86,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "worked",
+          "start": 21.86,
+          "end": 22.18,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "by",
+          "start": 22.18,
+          "end": 22.44,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "himself.",
+          "start": 22.44,
+          "end": 22.78,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "A",
+          "start": 23.26,
+          "end": 23.94,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Fula,",
+          "start": 23.94,
+          "end": 24.22,
+          "probability": 0.8486328125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "however,",
+          "start": 24.36,
+          "end": 24.7,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "happened",
+          "start": 25.04,
+          "end": 25.74,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "to",
+          "start": 25.74,
+          "end": 25.94,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "come",
+          "start": 25.94,
+          "end": 26.18,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 26.18,
+          "end": 26.4,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "settle",
+          "start": 26.4,
+          "end": 26.74,
+          "probability": 0.99609375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "in",
+          "start": 26.74,
+          "end": 26.98,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 26.98,
+          "end": 27.1,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "same",
+          "start": 27.1,
+          "end": 27.36,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "neighborhood.",
+          "start": 27.36,
+          "end": 27.8,
+          "probability": 0.83203125,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 28.659999999999997,
+      "end": 38.0,
+      "text": "And the charcoal burner, having made his acquaintance and finding he was an agreeable sort of fellow, asked him if he would come and share his house.",
+      "text_zh": "這位燃燒木炭的人, 認識他, 發現他是一個愉快的類型的人, 請他來分享他的房子.",
+      "words": [
+        {
+          "word": "And",
+          "start": 28.659999999999997,
+          "end": 29.32,
+          "probability": 0.68359375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 29.32,
+          "end": 29.42,
+          "probability": 0.99609375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "charcoal",
+          "start": 29.42,
+          "end": 29.74,
+          "probability": 0.97705078125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "burner,",
+          "start": 29.74,
+          "end": 30.12,
+          "probability": 0.36376953125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "having",
+          "start": 30.52,
+          "end": 30.96,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "made",
+          "start": 30.96,
+          "end": 31.28,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "his",
+          "start": 31.28,
+          "end": 31.52,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "acquaintance",
+          "start": 31.52,
+          "end": 32.28,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 32.28,
+          "end": 32.64,
+          "probability": 0.460693359375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "finding",
+          "start": 32.64,
+          "end": 32.98,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "he",
+          "start": 32.98,
+          "end": 33.22,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "was",
+          "start": 33.22,
+          "end": 33.42,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "an",
+          "start": 33.42,
+          "end": 33.56,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "agreeable",
+          "start": 33.56,
+          "end": 34.08,
+          "probability": 0.98974609375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "sort",
+          "start": 34.08,
+          "end": 34.4,
+          "probability": 0.99853515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "of",
+          "start": 34.4,
+          "end": 34.64,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "fellow,",
+          "start": 34.64,
+          "end": 34.94,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "asked",
+          "start": 35.46,
+          "end": 35.94,
+          "probability": 0.99853515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "him",
+          "start": 35.94,
+          "end": 36.16,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "if",
+          "start": 36.16,
+          "end": 36.54,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "he",
+          "start": 36.54,
+          "end": 36.68,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "would",
+          "start": 36.68,
+          "end": 36.84,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "come",
+          "start": 36.84,
+          "end": 37.16,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 37.16,
+          "end": 37.38,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "share",
+          "start": 37.38,
+          "end": 37.52,
+          "probability": 0.99853515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "his",
+          "start": 37.52,
+          "end": 37.72,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "house.",
+          "start": 37.72,
+          "end": 38.0,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 39.04,
+      "end": 48.16,
+      "text": "We shall get to know one another better away, he said, and, besides, our household expenses will be diminished.",
+      "text_zh": "他說,我們將彼此更好地認識,",
+      "words": [
+        {
+          "word": "We",
+          "start": 39.04,
+          "end": 39.7,
+          "probability": 0.87060546875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "shall",
+          "start": 39.7,
+          "end": 39.86,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "get",
+          "start": 39.86,
+          "end": 40.04,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "to",
+          "start": 40.04,
+          "end": 40.2,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "know",
+          "start": 40.2,
+          "end": 40.4,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "one",
+          "start": 40.4,
+          "end": 40.66,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "another",
+          "start": 40.66,
+          "end": 41.08,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "better",
+          "start": 41.08,
+          "end": 41.58,
+          "probability": 0.97314453125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "away,",
+          "start": 41.58,
+          "end": 41.98,
+          "probability": 0.88134765625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "he",
+          "start": 42.54,
+          "end": 43.26,
+          "probability": 0.998046875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "said,",
+          "start": 43.26,
+          "end": 43.58,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and,",
+          "start": 43.9,
+          "end": 44.54,
+          "probability": 0.96484375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "besides,",
+          "start": 44.64,
+          "end": 45.08,
+          "probability": 0.63232421875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "our",
+          "start": 45.48,
+          "end": 45.86,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "household",
+          "start": 45.86,
+          "end": 46.34,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "expenses",
+          "start": 46.34,
+          "end": 46.9,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "will",
+          "start": 46.9,
+          "end": 47.5,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "be",
+          "start": 47.5,
+          "end": 47.68,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "diminished.",
+          "start": 47.68,
+          "end": 48.16,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 49.36,
+      "end": 61.06,
+      "text": "The Fula thanked him, but replied, I couldn't think of it, sir. Why, everything I take such pains to whiten would be blackened in no time by your charcoal.",
+      "text_zh": "富拉謝謝他, 但回答說, 我沒有想到,任何我用這麼辛苦去白色的東西都不會被你的煤炭黑.",
+      "words": [
+        {
+          "word": "The",
+          "start": 49.36,
+          "end": 50.0,
+          "probability": 0.9228515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Fula",
+          "start": 50.0,
+          "end": 50.28,
+          "probability": 0.4775390625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "thanked",
+          "start": 50.28,
+          "end": 50.84,
+          "probability": 0.998046875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "him,",
+          "start": 50.84,
+          "end": 51.2,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "but",
+          "start": 51.4,
+          "end": 51.76,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "replied,",
+          "start": 51.76,
+          "end": 52.22,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "I",
+          "start": 52.56,
+          "end": 53.26,
+          "probability": 0.95068359375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "couldn't",
+          "start": 53.26,
+          "end": 53.68,
+          "probability": 0.99755859375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "think",
+          "start": 53.68,
+          "end": 53.88,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "of",
+          "start": 53.88,
+          "end": 54.04,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "it,",
+          "start": 54.04,
+          "end": 54.22,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "sir.",
+          "start": 54.36,
+          "end": 54.54,
+          "probability": 0.9921875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Why,",
+          "start": 54.9,
+          "end": 55.5,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "everything",
+          "start": 55.8,
+          "end": 56.4,
+          "probability": 0.99853515625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "I",
+          "start": 56.4,
+          "end": 56.56,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "take",
+          "start": 56.56,
+          "end": 56.8,
+          "probability": 0.98828125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "such",
+          "start": 56.8,
+          "end": 57.14,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "pains",
+          "start": 57.14,
+          "end": 57.64,
+          "probability": 0.9951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "to",
+          "start": 57.64,
+          "end": 57.88,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "whiten",
+          "start": 57.88,
+          "end": 58.28,
+          "probability": 0.9453125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "would",
+          "start": 58.28,
+          "end": 58.94,
+          "probability": 0.9541015625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "be",
+          "start": 58.94,
+          "end": 59.1,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "blackened",
+          "start": 59.1,
+          "end": 59.6,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "in",
+          "start": 59.6,
+          "end": 59.8,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "no",
+          "start": 59.8,
+          "end": 60.02,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "time",
+          "start": 60.02,
+          "end": 60.28,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "by",
+          "start": 60.28,
+          "end": 60.56,
+          "probability": 1.0,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "your",
+          "start": 60.56,
+          "end": 60.72,
+          "probability": 0.9990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "charcoal.",
+          "start": 60.72,
+          "end": 61.06,
+          "probability": 0.99462890625,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 63.26,
+      "end": 67.74,
+      "text": "End of the Charcoal Burner and the Fula End of the Chajun the Chajun.",
+      "text_zh": "這就是\"子子\"和\"子子子\"的終點.",
+      "words": [
+        {
+          "word": "End",
+          "start": 63.26,
+          "end": 63.9,
+          "probability": 0.97509765625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "of",
+          "start": 63.9,
+          "end": 64.16,
+          "probability": 0.99951171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 64.16,
+          "end": 64.26,
+          "probability": 0.9775390625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Charcoal",
+          "start": 64.26,
+          "end": 64.7,
+          "probability": 0.6484375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Burner",
+          "start": 64.7,
+          "end": 65.18,
+          "probability": 0.89404296875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "and",
+          "start": 65.18,
+          "end": 65.5,
+          "probability": 0.5625,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 65.5,
+          "end": 65.64,
+          "probability": 0.990234375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Fula",
+          "start": 65.64,
+          "end": 65.88,
+          "probability": 0.99755859375,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "End",
+          "start": 65.88,
+          "end": 66.86,
+          "probability": 0.0006031990051269531,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "of",
+          "start": 66.86,
+          "end": 67.72,
+          "probability": 0.37451171875,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 67.72,
+          "end": 67.72,
+          "probability": 0.021026611328125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Chajun",
+          "start": 67.72,
+          "end": 67.72,
+          "probability": 0.169189453125,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "the",
+          "start": 67.72,
+          "end": 67.72,
+          "probability": 2.0563602447509766e-05,
+          "speaker": "SPEAKER_01"
+        },
+        {
+          "word": "Chajun",
+          "start": 67.72,
+          "end": 67.74,
+          "probability": 0.994140625,
+          "speaker": "SPEAKER_01"
+        }
+      ]
+    }
+  ]
+}

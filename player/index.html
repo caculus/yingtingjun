@@ -68,6 +68,10 @@
     .brand-block {
       flex: 0 1 auto;
       min-width: min(100%, 160px);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.15rem 0;
     }
 
     .brand {
@@ -228,6 +232,75 @@
       margin: 0.65rem 0 0;
       color: var(--muted);
       font-size: 0.88rem;
+    }
+    .modal details.youtube-advanced {
+      margin-top: 0.85rem;
+      border-top: 1px solid rgba(243, 239, 230, 0.12);
+      padding-top: 0.65rem;
+    }
+    .modal details.youtube-advanced summary {
+      cursor: pointer;
+      color: rgba(243, 239, 230, 0.72);
+      font-size: 0.88rem;
+      font-weight: 600;
+      list-style: none;
+    }
+    .modal details.youtube-advanced summary::-webkit-details-marker { display: none; }
+    .modal details.youtube-advanced[open] summary { margin-bottom: 0.55rem; }
+
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-left: 0.65rem;
+      font-size: 0.82rem;
+      color: rgba(243, 239, 230, 0.72);
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+    }
+    .mode-toggle input {
+      accent-color: var(--accent);
+      width: 0.95rem;
+      height: 0.95rem;
+    }
+
+    /* 方案一：學習模式預設隱藏工程向控件 */
+    body.mode-learning .advanced-only { display: none !important; }
+    body.mode-advanced .learning-only { display: none !important; }
+    body.mode-learning .turn-time { display: none; }
+    body.mode-learning .split-btn > #loadBtn {
+      border-radius: 999px;
+    }
+    body.mode-learning .split-btn {
+      border-radius: 999px;
+    }
+
+    .learning-fix-bar {
+      display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 0.65rem 0 0.35rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid rgba(47, 111, 94, 0.28);
+      background: rgba(47, 111, 94, 0.1);
+      font-size: 0.88rem;
+      color: #1c241f;
+    }
+    body.mode-learning .learning-fix-bar.visible { display: flex; }
+    .learning-fix-bar button {
+      background: #2f6f5e;
+      color: #f3efe6;
+      border-radius: 8px;
+      padding: 0.42rem 0.85rem;
+      font-size: 0.84rem;
+    }
+    .learning-fix-bar button.learning-restore {
+      background: transparent;
+      color: #8b4d3b;
+      border: 1px solid rgba(139, 77, 59, 0.45);
     }
 
     #speedSelect {
@@ -611,19 +684,53 @@
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #f7f3ea, #efe9dc);
     }
+    .sheet-head-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
     .sheet-head h2 {
       margin: 0;
       font-family: Fraunces, Georgia, serif;
       font-size: 1.35rem;
     }
+    .sheet-help-btn {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      background: transparent;
+      color: #1c241f;
+      border: 1px solid rgba(28, 36, 31, 0.22);
+    }
+    .sheet-help-btn:hover {
+      background: rgba(28, 36, 31, 0.05);
+      filter: none;
+      transform: none;
+    }
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 1rem;
+      gap: 0.75rem 1rem;
       margin-top: 0.65rem;
       font-size: 0.85rem;
       color: var(--muted);
+      align-items: center;
     }
+    .sheet-tip {
+      width: 100%;
+      margin-top: 0.15rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 10px;
+      background: rgba(47, 111, 94, 0.1);
+      border: 1px solid rgba(47, 111, 94, 0.22);
+      color: #2a4038;
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+    .sheet-tip strong { color: #1c241f; font-weight: 600; }
+    body.mode-advanced .sheet-tip { display: none; }
     .dot {
       width: 0.65rem;
       height: 0.65rem;
@@ -940,6 +1047,114 @@
     }
     .error { color: #ffb4a8; }
 
+    .welcome-card {
+      max-width: 28rem;
+      margin: 2.5rem auto;
+      padding: 1.5rem 1.4rem 1.35rem;
+      border-radius: 18px;
+      border: 1px solid rgba(243, 239, 230, 0.14);
+      background: rgba(20, 28, 25, 0.72);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    .welcome-card[hidden] { display: none !important; }
+    .welcome-card h2 {
+      margin: 0 0 0.55rem;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.45rem;
+      color: var(--panel);
+    }
+    .welcome-card p {
+      margin: 0 0 1.1rem;
+      line-height: 1.55;
+      color: rgba(243, 239, 230, 0.78);
+      font-size: 0.95rem;
+    }
+    .welcome-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+    .welcome-actions button {
+      flex: 1 1 auto;
+    }
+
+    .help-btn {
+      margin-left: 0.35rem;
+      width: 1.85rem;
+      height: 1.85rem;
+      padding: 0;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .onboarding-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      pointer-events: none;
+    }
+    .onboarding-overlay.visible { pointer-events: auto; }
+    .onboarding-overlay[hidden] { display: none !important; }
+    .onboarding-hole {
+      position: absolute;
+      border-radius: 14px;
+      box-shadow: 0 0 0 9999px rgba(8, 12, 11, 0.62);
+      outline: 2px solid rgba(196, 163, 90, 0.9);
+      outline-offset: 2px;
+      transition: top 180ms ease, left 180ms ease, width 180ms ease, height 180ms ease;
+      pointer-events: none;
+      background: transparent;
+    }
+    .onboarding-card {
+      position: absolute;
+      z-index: 2;
+      width: min(22rem, calc(100vw - 1.5rem));
+      padding: 1rem 1.05rem 0.95rem;
+      border-radius: 16px;
+      background: #f3efe6;
+      color: #1c241f;
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+    }
+    .onboarding-card .ob-step {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #5e6b64;
+      margin-bottom: 0.35rem;
+    }
+    .onboarding-card h3 {
+      margin: 0 0 0.4rem;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.2rem;
+    }
+    .onboarding-card p {
+      margin: 0 0 0.95rem;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #3d4a43;
+    }
+    .onboarding-card .ob-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .onboarding-card .ob-actions button {
+      border-radius: 999px;
+      padding: 0.55rem 0.95rem;
+    }
+    .onboarding-card .ob-actions .secondary {
+      background: transparent;
+      color: #1c241f;
+      border: 1px solid rgba(28, 36, 31, 0.24);
+    }
+
     audio { display: none; }
 
     @media (max-width: 720px) {
@@ -957,14 +1172,19 @@
     }
   </style>
 </head>
-<body>
+<body class="mode-learning">
   <header class="topbar">
     <div class="topbar-main">
     <div class="brand-block">
       <h1 class="brand">英聽君</h1>
+      <label class="mode-toggle" title="開啟後顯示局部重辨、匯出 CSV、技術選項等">
+        <input type="checkbox" id="advancedModeToggle" />
+        進階
+      </label>
+      <button class="secondary help-btn" id="helpBtn" type="button" title="新手導引" aria-label="新手導引">？</button>
     </div>
-    <div class="file-actions">
-      <div class="import-group">
+    <div class="file-actions" id="lessonActions">
+      <div class="import-group" id="importGroup">
         <button class="secondary file-btn" id="importBtn" type="button" aria-haspopup="menu" aria-expanded="false">匯入 ▾</button>
         <div class="import-menu" id="importMenu" role="menu">
           <button class="secondary" type="button" id="importYoutubeBtn" role="menuitem">YouTube…</button>
@@ -972,14 +1192,14 @@
         </div>
       </div>
       <input id="importInput" type="file" accept="audio/*,.m4a,.wav,.mp3,.aac,.flac,.ogg,.caf,.aiff,.aif" />
-      <label for="audioSelect">選擇音檔</label>
-      <select id="audioSelect">
-        <option value="">（載入匯入的音檔中…）</option>
+      <label for="audioSelect">教材</label>
+      <select id="audioSelect" aria-label="教材">
+        <option value="">（載入教材中…）</option>
       </select>
       <div class="import-group" id="loadGroup">
-        <div class="split-btn">
-          <button class="secondary" id="loadBtn" type="button" disabled>載入</button>
-          <button class="secondary split-caret" id="loadMenuBtn" type="button" disabled aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">▾</button>
+        <div class="split-btn" id="openLessonBtn">
+          <button class="secondary" id="loadBtn" type="button" disabled>打開</button>
+          <button class="secondary split-caret advanced-only" id="loadMenuBtn" type="button" disabled aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">▾</button>
         </div>
         <div class="import-menu" id="loadMenu" role="menu">
           <button class="secondary" type="button" id="renameBtn" role="menuitem" disabled>重新命名</button>
@@ -988,7 +1208,7 @@
         </div>
       </div>
     </div>
-    <div class="controls">
+    <div class="controls" id="playbackControls">
       <button id="playBtn" type="button">播放</button>
       <button class="secondary" id="backBtn" type="button">-5s</button>
       <button class="secondary" id="fwdBtn" type="button">+5s</button>
@@ -1022,17 +1242,40 @@
 
   <main class="stage">
     <div class="stage-main">
-      <div class="status" id="status">正在載入錄音與文稿…</div>
-      <section class="sheet" id="sheet" hidden>
-        <div class="sheet-head">
-          <h2 id="title">Transcript</h2>
-          <div class="legend">
-            <span><i class="dot s1"></i>SPEAKER_01</span>
-            <span><i class="dot s2"></i>SPEAKER_02</span>
-            <span>點詞查字典 · 點段落選中 · 選字松手存筆記 · 側欄「存當前句」</span>
+      <div class="status" id="status">
+        <div class="welcome-card" id="welcomeCard" hidden>
+          <h2>開始第一本教材</h2>
+          <p>把真實生活裡沒聽懂的英文變成可跟讀的雙語教材。可先打開內建試用教材（Aesop 公版寓言），或匯入 YouTube／本機錄音。</p>
+          <div class="welcome-actions">
+            <button type="button" id="welcomeDemoBtn">打開試用教材</button>
+            <button class="secondary" type="button" id="welcomeYoutubeBtn">從 YouTube 開始</button>
+            <button class="secondary" type="button" id="welcomeFileBtn">匯入錄音</button>
+            <button class="secondary" type="button" id="welcomeTourBtn">看使用說明</button>
           </div>
         </div>
-        <div class="range-bar" id="rangeBar">
+        <div id="statusMessage">正在載入錄音與文稿…</div>
+      </div>
+      <section class="sheet" id="sheet" hidden>
+        <div class="sheet-head">
+          <div class="sheet-head-row">
+            <h2 id="title">文稿</h2>
+            <button class="sheet-help-btn" id="sheetHelpBtn" type="button" title="文稿使用說明">文稿說明</button>
+          </div>
+          <div class="legend">
+            <span><i class="dot s1"></i>說話人 A</span>
+            <span><i class="dot s2"></i>說話人 B</span>
+            <span class="legend-howto advanced-only">點詞查字典 · 點段落選中 · 選字松手存筆記 · 側欄「收藏這句」</span>
+          </div>
+          <p class="sheet-tip learning-only" id="sheetTip">
+            <strong>怎麼用這頁：</strong>點英文詞可查字典 · 點整句可跟讀 · 右側可「收藏這句」
+          </p>
+        </div>
+        <div class="learning-fix-bar" id="learningFixBar" aria-live="polite">
+          <span>覺得這段聽錯了？</span>
+          <button type="button" id="learningFixBtn">重聽辨識這段</button>
+          <button type="button" id="learningRestoreBtn" class="learning-restore" hidden>還原剛才的修正</button>
+        </div>
+        <div class="range-bar advanced-only" id="rangeBar">
           <span class="range-label">局部重辨</span>
           <span class="range-value" id="rangeValue">未標記</span>
           <button class="range-mark" id="rangeStartBtn" type="button" title="用目前播放時間或選中段起點">設起點</button>
@@ -1053,15 +1296,18 @@
             <input type="checkbox" id="loopNoteToggle" />
             單句循環
           </label>
-          <button class="secondary" id="exportNotesBtn" type="button">匯出 CSV</button>
+          <button class="secondary advanced-only" id="exportNotesBtn" type="button">匯出 CSV</button>
         </div>
       </div>
       <div class="notes-primary">
-        <button id="saveSentenceBtn" class="save-sentence-btn" type="button">存當前句</button>
-        <p class="notes-hint">文稿或筆記裡點單一英文詞可查詞典。同一則可寫入多個生字；chip 上 × 可移除該詞。點卡片空白處跳播。</p>
+        <div id="notesPrimaryActions">
+          <button id="saveSentenceBtn" class="save-sentence-btn" type="button">收藏這句</button>
+          <p class="notes-hint learning-only">點英文詞可查字典；按「收藏這句」或拖選英文即可記下。點筆記可跳播。</p>
+          <p class="notes-hint advanced-only">文稿或筆記裡點單一英文詞可查詞典。同一則可寫入多個生字；chip 上 × 可移除該詞。點卡片空白處跳播。</p>
+        </div>
       </div>
       <div class="notes-list" id="notesList">
-        <div class="notes-empty">尚未載入錄音的筆記</div>
+        <div class="notes-empty">打開教材後即可收藏句子</div>
       </div>
       <details class="notes-advanced">
         <summary>進階：手動新增</summary>
@@ -1104,7 +1350,7 @@
       <textarea id="modalZh"></textarea>
       <div class="row-btns">
         <button class="secondary" type="button" id="noteModalDict">查詞典</button>
-        <button class="secondary" type="button" id="noteModalRetranslate">NLLB 重翻</button>
+        <button class="secondary advanced-only" type="button" id="noteModalRetranslate">重新翻譯</button>
         <button class="secondary" type="button" id="noteModalCancel">取消</button>
         <button type="button" id="noteModalSave">儲存</button>
       </div>
@@ -1133,23 +1379,26 @@
       <p class="time-hint" id="youtubeProbeHint">貼上連結後可預覽影片資訊</p>
       <label for="youtubeStem">教材名稱</label>
       <input id="youtubeStem" type="text" autocomplete="off" />
-      <label for="youtubeMode">模式</label>
-      <select id="youtubeMode">
-        <option value="auto" selected>auto（字幕優先，否則 Whisper）</option>
-        <option value="caption">caption（僅字幕）</option>
-        <option value="whisper">whisper（強制 Whisper）</option>
-      </select>
-      <label class="check-row">
-        <input id="youtubeSkipTranslate" type="checkbox" />
-        略過中文翻譯（較快，除錯用）
-      </label>
-      <label class="check-row">
-        <input id="youtubeAlignTimings" type="checkbox" checked />
-        對齊光棒時間（保留字幕文字，Whisper 打點；較慢但較準）
-      </label>
+      <details class="youtube-advanced" id="youtubeAdvanced">
+        <summary>進階選項</summary>
+        <label for="youtubeMode">模式</label>
+        <select id="youtubeMode">
+          <option value="auto" selected>自動（有字幕先用字幕）</option>
+          <option value="caption">只用字幕</option>
+          <option value="whisper">強制語音辨識</option>
+        </select>
+        <label class="check-row">
+          <input id="youtubeSkipTranslate" type="checkbox" />
+          略過中文翻譯（較快）
+        </label>
+        <label class="check-row">
+          <input id="youtubeAlignTimings" type="checkbox" checked />
+          對齊跟讀光棒（保留字幕文字；較慢但較準）
+        </label>
+      </details>
       <div class="row-btns">
         <button class="secondary" type="button" id="youtubeModalCancel">取消</button>
-        <button type="button" id="youtubeModalOk">開始匯入</button>
+        <button type="button" id="youtubeModalOk">開始</button>
       </div>
     </div>
   </div>
@@ -1208,6 +1457,19 @@
     </div>
   </div>
 
+  <div class="onboarding-overlay" id="onboardingOverlay" hidden aria-hidden="true">
+    <div class="onboarding-hole" id="onboardingHole"></div>
+    <div class="onboarding-card" id="onboardingCard" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" aria-describedby="onboardingBody">
+      <div class="ob-step" id="onboardingStepLabel">1 / 4</div>
+      <h3 id="onboardingTitle">新手導引</h3>
+      <p id="onboardingBody"></p>
+      <div class="ob-actions">
+        <button class="secondary" type="button" id="onboardingSkip">跳過</button>
+        <button type="button" id="onboardingNext">下一步</button>
+      </div>
+    </div>
+  </div>
+
   <audio id="audio" preload="metadata"></audio>
 
   <script>
@@ -1219,6 +1481,22 @@
     const durTime = document.getElementById("durTime");
     const transcriptEl = document.getElementById("transcript");
     const statusEl = document.getElementById("status");
+    const statusMessage = document.getElementById("statusMessage");
+    const welcomeCard = document.getElementById("welcomeCard");
+    const welcomeDemoBtn = document.getElementById("welcomeDemoBtn");
+    const welcomeYoutubeBtn = document.getElementById("welcomeYoutubeBtn");
+    const welcomeFileBtn = document.getElementById("welcomeFileBtn");
+    const welcomeTourBtn = document.getElementById("welcomeTourBtn");
+    const helpBtn = document.getElementById("helpBtn");
+    const onboardingOverlay = document.getElementById("onboardingOverlay");
+    const onboardingHole = document.getElementById("onboardingHole");
+    const onboardingCard = document.getElementById("onboardingCard");
+    const onboardingStepLabel = document.getElementById("onboardingStepLabel");
+    const onboardingTitle = document.getElementById("onboardingTitle");
+    const onboardingBody = document.getElementById("onboardingBody");
+    const onboardingSkip = document.getElementById("onboardingSkip");
+    const onboardingNext = document.getElementById("onboardingNext");
+    const sheetHelpBtn = document.getElementById("sheetHelpBtn");
     const sheetEl = document.getElementById("sheet");
     const metaEl = document.getElementById("meta");
     const titleEl = document.getElementById("title");
@@ -1235,6 +1513,11 @@
     const renameBtn = document.getElementById("renameBtn");
     const exportBtn = document.getElementById("exportBtn");
     const deleteBtn = document.getElementById("deleteBtn");
+    const advancedModeToggle = document.getElementById("advancedModeToggle");
+    const learningFixBar = document.getElementById("learningFixBar");
+    const learningFixBtn = document.getElementById("learningFixBtn");
+    const learningRestoreBtn = document.getElementById("learningRestoreBtn");
+    const youtubeAdvanced = document.getElementById("youtubeAdvanced");
     const logPanel = document.getElementById("logPanel");
     const logBody = document.getElementById("logBody");
     const logBadge = document.getElementById("logBadge");
@@ -1346,6 +1629,288 @@
     let toastTimer = 0;
     let pendingImportFile = null;
     let loadedAudioName = "";
+    const MODE_STORAGE_KEY = "ytj_ui_mode";
+    const ONBOARDING_DONE_KEY = "ytj_onboarding_done";
+    const LESSON_TOUR_DONE_KEY = "ytj_lesson_tour_done";
+    let onboardingStep = -1;
+    let onboardingForced = false;
+    let activeTourSteps = [];
+    let activeTourDoneKey = ONBOARDING_DONE_KEY;
+    let activeTourFinishLabel = "開始練習";
+
+    function updateWelcomeCard(forceEmpty) {
+      if (!welcomeCard || !statusMessage) return;
+      const empty = forceEmpty || (sheetEl.hidden && !statusEl.classList.contains("error"));
+      const show = empty && !busy;
+      welcomeCard.hidden = !show;
+      if (show) {
+        statusMessage.hidden = true;
+      } else {
+        statusMessage.hidden = false;
+      }
+    }
+
+    function setStatusError(message) {
+      statusEl.hidden = false;
+      statusEl.classList.add("error");
+      if (welcomeCard) welcomeCard.hidden = true;
+      if (statusMessage) {
+        statusMessage.hidden = false;
+        statusMessage.textContent = message;
+      } else {
+        statusEl.textContent = message;
+      }
+    }
+
+    const ONBOARDING_STEPS = [
+      {
+        title: "先加入教材",
+        body: "用「匯入」從 YouTube 貼連結，或選本機錄音。整理成雙語文稿後，就能反覆跟讀。",
+        getTarget: () => document.getElementById("importGroup") || importBtn,
+      },
+      {
+        title: "打開要練習的教材",
+        body: "在「教材」清單選一本，再按「打開」。有教材時，選了通常也會自動打開。",
+        getTarget: () => document.getElementById("lessonActions"),
+      },
+      {
+        title: "跟著播放聽",
+        body: "按播放後，正在讀的詞會亮起來。可用 −5 秒／+5 秒微調，或改慢速跟讀。",
+        getTarget: () => document.getElementById("playbackControls"),
+      },
+      {
+        title: "查詞與收藏",
+        body: "點文稿裡的英文詞可查字典；按右側「收藏這句」把好句子放進筆記，之後複習更方便。",
+        getTarget: () => {
+          if (!sheetEl.hidden) {
+            return document.getElementById("notesPrimaryActions") || saveSentenceBtn;
+          }
+          return document.getElementById("notesPanel") || saveSentenceBtn;
+        },
+      },
+    ];
+
+    const LESSON_TOUR_STEPS = [
+      {
+        title: "這是雙語文稿",
+        body: "每一段是一句對話：上面英文、下面中文。左側顏色代表不同說話人（說話人 A／B）。",
+        getTarget: () => transcriptEl.querySelector(".turn") || transcriptEl,
+      },
+      {
+        title: "點英文詞查字典",
+        body: "點句子裡的「單一英文詞」，會跳出解釋。查完可存進右側筆記。",
+        getTarget: () =>
+          transcriptEl.querySelector(".word") ||
+          transcriptEl.querySelector(".en") ||
+          transcriptEl.querySelector(".turn") ||
+          transcriptEl,
+      },
+      {
+        title: "跟讀與收藏",
+        body: "點整句可選取並跟著播放；右側按「收藏這句」，之後就能在筆記裡複習。",
+        getTarget: () => document.getElementById("notesPrimaryActions") || saveSentenceBtn,
+      },
+    ];
+
+    function isTourDone(key) {
+      try {
+        return localStorage.getItem(key) === "1";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function markTourDone(key) {
+      try {
+        localStorage.setItem(key, "1");
+      } catch (_) { /* ignore */ }
+    }
+
+    function isOnboardingDone() {
+      return isTourDone(ONBOARDING_DONE_KEY);
+    }
+
+    function markOnboardingDone() {
+      markTourDone(ONBOARDING_DONE_KEY);
+    }
+
+    function placeOnboardingCard(targetRect) {
+      const pad = 12;
+      const cardW = onboardingCard.offsetWidth || 320;
+      const cardH = onboardingCard.offsetHeight || 180;
+      let left = targetRect.left;
+      let top = targetRect.bottom + pad;
+      if (left + cardW > window.innerWidth - 12) left = window.innerWidth - cardW - 12;
+      if (left < 12) left = 12;
+      if (top + cardH > window.innerHeight - 12) {
+        top = Math.max(12, targetRect.top - cardH - pad);
+      }
+      onboardingCard.style.left = `${left}px`;
+      onboardingCard.style.top = `${top}px`;
+    }
+
+    function renderOnboardingStep() {
+      if (onboardingStep < 0 || onboardingStep >= activeTourSteps.length) return;
+      const step = activeTourSteps[onboardingStep];
+      const target = step.getTarget && step.getTarget();
+      onboardingStepLabel.textContent = `${onboardingStep + 1} / ${activeTourSteps.length}`;
+      onboardingTitle.textContent = step.title;
+      onboardingBody.textContent = step.body;
+      onboardingNext.textContent =
+        onboardingStep === activeTourSteps.length - 1 ? activeTourFinishLabel : "下一步";
+
+      if (!target) {
+        onboardingHole.style.display = "none";
+        onboardingCard.style.left = "50%";
+        onboardingCard.style.top = "30%";
+        onboardingCard.style.transform = "translate(-50%, 0)";
+        return;
+      }
+      onboardingCard.style.transform = "";
+      // Ensure highlighted turn is in view for lesson tour.
+      if (target.scrollIntoView && transcriptEl.contains(target)) {
+        try {
+          target.scrollIntoView({ block: "nearest", inline: "nearest" });
+        } catch (_) { /* ignore */ }
+      }
+      const rect = target.getBoundingClientRect();
+      const margin = 8;
+      onboardingHole.style.display = "block";
+      onboardingHole.style.top = `${Math.max(0, rect.top - margin)}px`;
+      onboardingHole.style.left = `${Math.max(0, rect.left - margin)}px`;
+      onboardingHole.style.width = `${Math.min(window.innerWidth - 8, rect.width + margin * 2)}px`;
+      onboardingHole.style.height = `${Math.min(window.innerHeight - 8, rect.height + margin * 2)}px`;
+      placeOnboardingCard(rect);
+    }
+
+    function closeOnboarding(done) {
+      const doneKey = activeTourDoneKey;
+      onboardingStep = -1;
+      onboardingForced = false;
+      onboardingOverlay.hidden = true;
+      onboardingOverlay.classList.remove("visible");
+      onboardingOverlay.setAttribute("aria-hidden", "true");
+      window.removeEventListener("resize", renderOnboardingStep);
+      window.removeEventListener("scroll", renderOnboardingStep, true);
+      if (done && doneKey) markTourDone(doneKey);
+    }
+
+    function openTour(steps, {
+      force = false,
+      doneKey = ONBOARDING_DONE_KEY,
+      finishLabel = "開始練習",
+    } = {}) {
+      if (busy && !force) return;
+      if (
+        confirmModal.classList.contains("visible") ||
+        noteModal.classList.contains("visible") ||
+        importModal.classList.contains("visible") ||
+        youtubeModal.classList.contains("visible") ||
+        renameModal.classList.contains("visible") ||
+        exportModal.classList.contains("visible")
+      ) {
+        return;
+      }
+      activeTourSteps = steps;
+      activeTourDoneKey = doneKey;
+      activeTourFinishLabel = finishLabel;
+      onboardingForced = force;
+      onboardingStep = 0;
+      onboardingOverlay.hidden = false;
+      onboardingOverlay.classList.add("visible");
+      onboardingOverlay.setAttribute("aria-hidden", "false");
+      renderOnboardingStep();
+      window.addEventListener("resize", renderOnboardingStep);
+      window.addEventListener("scroll", renderOnboardingStep, true);
+      onboardingNext.focus();
+    }
+
+    function openOnboarding({ force = false } = {}) {
+      openTour(ONBOARDING_STEPS, {
+        force,
+        doneKey: ONBOARDING_DONE_KEY,
+        finishLabel: "開始練習",
+      });
+    }
+
+    function openLessonTour({ force = false } = {}) {
+      if (sheetEl.hidden && !force) return;
+      openTour(LESSON_TOUR_STEPS, {
+        force,
+        doneKey: LESSON_TOUR_DONE_KEY,
+        finishLabel: "開始跟讀",
+      });
+    }
+
+    function maybeStartOnboarding() {
+      if (onboardingForced) return;
+      if (onboardingStep >= 0) return;
+      if (busy) return;
+      // Prefer lesson tips once a transcript is open.
+      if (!sheetEl.hidden && turnsView.length && !isTourDone(LESSON_TOUR_DONE_KEY)) {
+        openLessonTour({ force: false });
+        return;
+      }
+      if (isOnboardingDone()) return;
+      openOnboarding({ force: false });
+    }
+
+    function maybeStartLessonTour() {
+      if (onboardingForced) return;
+      if (onboardingStep >= 0) return;
+      if (busy) return;
+      if (sheetEl.hidden || !turnsView.length) return;
+      if (isTourDone(LESSON_TOUR_DONE_KEY)) return;
+      // If the app tour is still pending, finish app tour first on empty boot;
+      // once sheet is open, lesson tour is more relevant.
+      openLessonTour({ force: false });
+    }
+
+    function isAdvancedMode() {
+      return document.body.classList.contains("mode-advanced");
+    }
+
+    function applyUiMode(advanced) {
+      document.body.classList.toggle("mode-advanced", advanced);
+      document.body.classList.toggle("mode-learning", !advanced);
+      if (advancedModeToggle) advancedModeToggle.checked = advanced;
+      try {
+        localStorage.setItem(MODE_STORAGE_KEY, advanced ? "advanced" : "learning");
+      } catch (_) { /* ignore */ }
+      if (youtubeAdvanced) youtubeAdvanced.open = advanced;
+      if (turnsView.length) {
+        const keep = selectedTurnIdx;
+        render(turnsView);
+        if (keep >= 0) selectTurn(keep, { armSeek: false });
+      } else {
+        updateLearningFixBar();
+      }
+    }
+
+    function initUiMode() {
+      let advanced = false;
+      try {
+        advanced = localStorage.getItem(MODE_STORAGE_KEY) === "advanced";
+      } catch (_) { /* ignore */ }
+      applyUiMode(advanced);
+    }
+
+    function displaySpeaker(speaker) {
+      const raw = String(speaker || "SPEAKER_01");
+      if (isAdvancedMode()) return raw;
+      if (/2\b|_02\b|SPEAKER_02/i.test(raw)) return "說話人 B";
+      if (/1\b|_01\b|SPEAKER_01/i.test(raw) || /^SPEAKER/i.test(raw)) return "說話人 A";
+      return raw;
+    }
+
+    function updateLearningFixBar() {
+      if (!learningFixBar) return;
+      const show = !isAdvancedMode() && selectedTurnIdx >= 0 && turnsView.length > 0 && !sheetEl.hidden;
+      learningFixBar.classList.toggle("visible", show);
+      if (learningRestoreBtn) {
+        learningRestoreBtn.hidden = !hasRangeBackup;
+      }
+    }
 
     function displayAudioName(name) {
       if (!name) return "";
@@ -1385,6 +1950,12 @@
       if (on && typeof closeLoadMenu === "function") closeLoadMenu();
       updateFileActionButtons();
       if (on && reason) metaEl.textContent = reason;
+      if (on) {
+        if (welcomeCard) welcomeCard.hidden = true;
+        if (onboardingStep >= 0) closeOnboarding(false);
+      } else if (sheetEl.hidden && !statusEl.classList.contains("error")) {
+        updateWelcomeCard(true);
+      }
     }
 
     function closeImportMenu() {
@@ -1447,7 +2018,7 @@
         if (dur) parts.push(dur);
         if (data.has_manual_caption) parts.push("有人工英文字幕");
         else if (data.has_auto_caption) parts.push("僅自動英文字幕");
-        else parts.push("可能需 Whisper");
+        else parts.push(isAdvancedMode() ? "可能需 Whisper" : "可能需要語音辨識");
         youtubeProbeHint.textContent = parts.join(" · ");
       } catch (err) {
         youtubeProbeHint.textContent = "探測失敗：" + (err.message || err);
@@ -1462,6 +2033,7 @@
       youtubeSkipTranslate.checked = false;
       youtubeAlignTimings.checked = true;
       youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
+      if (youtubeAdvanced) youtubeAdvanced.open = isAdvancedMode();
       youtubeModal.classList.add("visible");
       youtubeModal.setAttribute("aria-hidden", "false");
       youtubeUrl.focus();
@@ -1557,6 +2129,7 @@
         const turn = turnsView.find((t) => t.turnIdx === idx);
         el.classList.toggle("in-range", Boolean(turn && turnOverlapsRange(turn)));
       });
+      updateLearningFixBar();
     }
 
     function markRangeStart() {
@@ -1690,9 +2263,12 @@
       sheetEl.hidden = true;
       statusEl.hidden = false;
       statusEl.classList.remove("error");
-      statusEl.textContent = message || "尚未載入可播放的音檔／文稿。請使用「匯入音檔」或選擇後按「載入」。";
-      metaEl.textContent = "等待選擇錄音";
-      titleEl.textContent = "Transcript";
+      const msg = message || "尚未打開教材。請用「匯入」新增，或從上方選一本教材後按「打開」。";
+      if (statusMessage) statusMessage.textContent = msg;
+      else statusEl.textContent = msg;
+      updateWelcomeCard(true);
+      metaEl.textContent = "還沒有打開的教材";
+      titleEl.textContent = "文稿";
       seek.value = "0";
       seek.max = "0";
       curTime.textContent = "00:00";
@@ -1702,6 +2278,7 @@
       notes = [];
       renderNotesList();
       updateFileActionButtons();
+      updateLearningFixBar();
     }
 
     function normalizeWord(w) {
@@ -1903,6 +2480,7 @@
       if (turnEl) turnEl.classList.add("selected");
       if (armSeek) seekOnNextPlay = true;
       updateRangeUI();
+      updateLearningFixBar();
     }
 
     function render(view) {
@@ -1914,8 +2492,8 @@
         turnEl.dataset.turnIdx = String(turn.turnIdx);
         turnEl.innerHTML = `
           <div class="turn-meta">
-            <span class="speaker-label">${turn.speaker}</span>
-            <span>${fmt(turn.start)} → ${fmt(turn.end)}</span>
+            <span class="speaker-label">${displaySpeaker(turn.speaker)}</span>
+            <span class="turn-time">${fmt(turn.start)} → ${fmt(turn.end)}</span>
           </div>
         `;
         const enEl = document.createElement("div");
@@ -1954,6 +2532,7 @@
         });
         transcriptEl.appendChild(turnEl);
       });
+      updateLearningFixBar();
     }
 
     function findTokenIndex(t) {
@@ -2168,12 +2747,12 @@
       if (!files.length) {
         const opt = document.createElement("option");
         opt.value = "";
-        opt.textContent = "（目前沒有匯入的音檔）";
+        opt.textContent = "（目前沒有教材）";
         audioSelect.appendChild(opt);
       } else {
         const placeholder = document.createElement("option");
         placeholder.value = "";
-        placeholder.textContent = "選擇匯入的音檔…";
+        placeholder.textContent = "選擇教材…";
         audioSelect.appendChild(placeholder);
         files.forEach((f) => {
           const opt = document.createElement("option");
@@ -2199,11 +2778,11 @@
     function renderNotesList() {
       notesList.innerHTML = "";
       if (!currentStem) {
-        notesList.innerHTML = `<div class="notes-empty">尚未載入錄音的筆記</div>`;
+        notesList.innerHTML = `<div class="notes-empty">打開教材後即可收藏句子</div>`;
         return;
       }
       if (!notes.length) {
-        notesList.innerHTML = `<div class="notes-empty">尚無筆記。按「存當前句」，或拖選英文松手即存。</div>`;
+        notesList.innerHTML = `<div class="notes-empty">尚無筆記。按「收藏這句」，或拖選英文松手即可。</div>`;
         return;
       }
       notes.forEach((n) => {
@@ -2987,15 +3566,39 @@
       render(turnsView);
       audio.src = meta.audio_url + "?t=" + Date.now();
       titleEl.textContent = meta.title;
-      metaEl.textContent = `${meta.transcript_name}  ·  ${meta.audio_name}  ·  ${tokens.length} 詞同步`;
+      if (isAdvancedMode()) {
+        metaEl.textContent = `${meta.transcript_name}  ·  ${meta.audio_name}  ·  ${tokens.length} 詞同步`;
+      } else {
+        const mins = audio.duration && isFinite(audio.duration)
+          ? Math.max(1, Math.round(audio.duration / 60))
+          : null;
+        metaEl.textContent = mins
+          ? `${meta.title}  ·  約 ${mins} 分鐘`
+          : `${meta.title}  ·  已打開`;
+      }
       statusEl.hidden = true;
+      if (welcomeCard) welcomeCard.hidden = true;
+      if (statusMessage) statusMessage.hidden = false;
       sheetEl.hidden = false;
       hasRangeBackup = Boolean(meta.has_range_backup);
       updateRangeUI();
+      updateLearningFixBar();
       await refreshLibrary(meta.audio_name);
       loadedAudioName = meta.audio_name || "";
       await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
       updateFileActionButtons();
+      if (!isAdvancedMode() && (!audio.duration || !isFinite(audio.duration))) {
+        audio.addEventListener(
+          "loadedmetadata",
+          () => {
+            if (isAdvancedMode()) return;
+            const mins = Math.max(1, Math.round((audio.duration || 0) / 60));
+            metaEl.textContent = `${meta.title}  ·  約 ${mins} 分鐘`;
+          },
+          { once: true }
+        );
+      }
+      setTimeout(() => maybeStartLessonTour(), 500);
       return meta;
     }
 
@@ -3022,10 +3625,9 @@
             hideLogPanel();
             await loadCurrentSession();
             metaEl.textContent = (metaEl.textContent || "") + "（已自動載入）";
+            setTimeout(() => maybeStartOnboarding(), 500);
           } else if (job.status === "error") {
-            statusEl.hidden = false;
-            statusEl.classList.add("error");
-            statusEl.textContent = job.message || "處理失敗";
+            setStatusError(job.message || "處理失敗");
             await refreshLibrary();
           }
         } catch (err) {
@@ -3290,7 +3892,7 @@
     async function loadSelectedAudio() {
       const name = audioSelect.value;
       if (!name) {
-        alert("請先選擇匯入的音檔。");
+        alert("請先選擇教材。");
         return;
       }
       if (busy) return showToastBusy();
@@ -3374,6 +3976,26 @@
     noteModalCancel.addEventListener("click", closeNoteModal);
     noteModalSave.addEventListener("click", saveDraftNote);
     noteModalRetranslate.addEventListener("click", retranslateDraftWithNllb);
+    advancedModeToggle.addEventListener("change", () => {
+      applyUiMode(advancedModeToggle.checked);
+      closeLoadMenu();
+      if (!advancedModeToggle.checked) loadMenu.classList.remove("visible");
+    });
+
+    learningFixBtn.addEventListener("click", async () => {
+      if (busy) return showToastBusy();
+      if (selectedTurnIdx < 0) {
+        alert("請先點選要修正的那一句。");
+        return;
+      }
+      markRangeFromSelectedTurn();
+      await runRetranscribeRange();
+    });
+    learningRestoreBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      restoreRetranscribeRange();
+    });
+
     saveSentenceBtn.addEventListener("click", () => {
       if (busy) return showToastBusy();
       saveCurrentSentence();
@@ -3396,6 +4018,11 @@
     });
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
+      if (!onboardingOverlay.hidden) {
+        e.preventDefault();
+        closeOnboarding(true);
+        return;
+      }
       if (confirmModal.classList.contains("visible")) {
         e.preventDefault();
         closeConfirmModal(false);
@@ -3412,6 +4039,60 @@
       if (renameModal.classList.contains("visible")) {
         closeRenameModal();
       }
+    });
+
+    helpBtn.addEventListener("click", () => {
+      // 已打開文稿時，？優先重播「文稿說明」；否則播整體新手導引。
+      if (!sheetEl.hidden && turnsView.length) {
+        openLessonTour({ force: true });
+      } else {
+        openOnboarding({ force: true });
+      }
+    });
+    if (sheetHelpBtn) {
+      sheetHelpBtn.addEventListener("click", () => {
+        openLessonTour({ force: true });
+      });
+    }
+    onboardingSkip.addEventListener("click", () => {
+      closeOnboarding(true);
+    });
+    onboardingNext.addEventListener("click", () => {
+      if (onboardingStep >= activeTourSteps.length - 1) {
+        closeOnboarding(true);
+        return;
+      }
+      onboardingStep += 1;
+      renderOnboardingStep();
+    });
+    welcomeDemoBtn.addEventListener("click", async () => {
+      if (busy) return showToastBusy();
+      try {
+        const res = await fetch("/api/demo/open", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "無法打開試用教材");
+          return;
+        }
+        if (data.started_job) {
+          updateLogUI(data.job || { status: "running", logs: [], message: data.message });
+          startJobPolling();
+          return;
+        }
+        await loadCurrentSession();
+        setTimeout(() => maybeStartLessonTour(), 400);
+      } catch (err) {
+        alert("無法打開試用教材：" + (err.message || err));
+      }
+    });
+    welcomeYoutubeBtn.addEventListener("click", () => {
+      openYoutubeModal();
+    });
+    welcomeFileBtn.addEventListener("click", () => {
+      importInput.click();
+    });
+    welcomeTourBtn.addEventListener("click", () => {
+      openOnboarding({ force: true });
     });
 
     manualUseTimeBtn.addEventListener("click", () => {
@@ -3526,12 +4207,15 @@
           startJobPolling();
         }
         await loadCurrentSession();
+        if (!busy && job.status !== "running") {
+          setTimeout(() => maybeStartOnboarding(), 450);
+        }
       } catch (err) {
-        statusEl.classList.add("error");
-        statusEl.textContent = `載入失敗：${err.message || err}`;
+        setStatusError(`載入失敗：${err.message || err}`);
       }
     }
 
+    initUiMode();
     boot();
   </script>
 </body>

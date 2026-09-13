@@ -38,6 +38,7 @@ from platform_runtime import (
     transcribe_cmd,
     transcribe_import_args,
 )
+from demo_seed import DEMO_AUDIO_NAME, DEMO_STEM, seed_demo_lesson
 from stem_utils import (
     StemCollisionError,
     StemError,
@@ -1613,6 +1614,35 @@ class PlayerHandler(SimpleHTTPRequestHandler):
             status = 200 if result.get("ok") else 409 if "處理中" in (result.get("error") or "") else 400
             return self._send_json(result, status=status)
 
+        if path == "/api/demo/open":
+            if self.state.busy():
+                return self._send_json({"ok": False, "error": "處理中，請稍候再試。"}, status=409)
+            seeded = seed_demo_lesson(
+                self.state.uploads,
+                self.state.workdir,
+                self.state.outdir,
+                app_root=ROOT,
+                force=False,
+            )
+            if not seeded.get("ok"):
+                return self._send_json(seeded, status=500)
+            if seeded.get("skipped") and not Path(seeded.get("audio") or "").is_file():
+                # Previously seeded then deleted — allow one restore via welcome button.
+                seeded = seed_demo_lesson(
+                    self.state.uploads,
+                    self.state.workdir,
+                    self.state.outdir,
+                    app_root=ROOT,
+                    force=True,
+                )
+                if not seeded.get("ok"):
+                    return self._send_json(seeded, status=500)
+            result = self.state.select_workdir_file(DEMO_AUDIO_NAME)
+            result["demo"] = seeded
+            result["stem"] = DEMO_STEM
+            status = 200 if result.get("ok") else 400
+            return self._send_json(result, status=status)
+
         if path == "/api/delete":
             body = self._read_json_body()
             name = (body.get("name") or "").strip()
@@ -1874,6 +1904,19 @@ def main() -> int:
     args.uploads.mkdir(parents=True, exist_ok=True)
     args.notesdir.mkdir(parents=True, exist_ok=True)
 
+    seeded = seed_demo_lesson(
+        args.uploads,
+        args.workdir,
+        args.outdir,
+        app_root=ROOT,
+    )
+    if seeded.get("seeded"):
+        print(f"Demo lesson: seeded {DEMO_STEM}", flush=True)
+    elif seeded.get("already_present"):
+        print(f"Demo lesson: {DEMO_STEM} ready", flush=True)
+    elif seeded.get("error"):
+        print(f"Demo lesson: {seeded['error']}", flush=True)
+
     url = f"http://127.0.0.1:{args.port}/"
     if port_is_listening("127.0.0.1", args.port):
         print(f"Already running at {url}", flush=True)
@@ -1883,6 +1926,14 @@ def main() -> int:
 
     transcript = args.transcript or find_transcript(args.outdir)
     audio = args.audio or find_audio(ROOT, args.workdir)
+    # Prefer demo on first empty session so newcomers land on something playable.
+    if (not transcript or not audio) and seeded.get("ok") and not seeded.get("skipped"):
+        demo_audio = args.workdir / DEMO_AUDIO_NAME
+        demo_json = args.outdir / f"{DEMO_STEM}.json"
+        if demo_audio.is_file() and demo_json.is_file():
+            audio = demo_audio
+            transcript = demo_json
+
     if not PLAYER_DIR.joinpath("index.html").exists():
         print(f"Missing player UI: {PLAYER_DIR / 'index.html'}", file=sys.stderr)
         return 1

@@ -1,0 +1,29 @@
+試用教材（demo）授權說明
+========================
+
+檔案
+----
+- demo-aesop-charcoal-burner.mp3
+- demo-aesop-charcoal-burner.json（由英聽君本機轉寫／翻譯產生）
+
+音檔來源
+--------
+Aesop's Fables, Volume 1 (Fables 1-25) — LibriVox recording
+Internet Archive item: aesop_fables_volume_one_librivox
+Track: fables_01_05_aesop_64kb.mp3
+（故事：The Charcoal-Burner and the Fuller）
+
+下載頁：
+https://archive.org/details/aesop_fables_volume_one_librivox
+
+直鏈（歸檔用）：
+https://archive.org/download/aesop_fables_volume_one_librivox/fables_01_05_aesop_64kb.mp3
+
+授權
+----
+- 文本：Aesop 寓言，公版（Public Domain）
+- 錄音：LibriVox 志工朗讀，以公版發布（Public Domain）
+- Internet Archive 本項 Usage 標示為 Public Domain
+
+可隨英聽君安裝包再散布；建議在說明中保留本 NOTICE 與上述來源連結。
+LibriVox：https://librivox.org/
