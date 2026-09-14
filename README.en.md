@@ -42,6 +42,8 @@ Slim installers are available for all three platforms from the [latest GitHub Re
 - **YouTube import** (built-in; dev installs need `pip install -r requirements-youtube.txt`; slim installers install `yt-dlp` on first launch; **prefers Chinese captions** when available; English caption path **aligns highlight timings with Whisper by default** while keeping caption text)
 - Speaker labels, punctuation, timestamps, and word timing
 - Browser player for shadowing and review with adjustable speed (0.5×–2.0×)
+- **Learning mode** (default; hides engineering controls; toggle **Advanced**) and an **onboarding tour**
+- Bundled public-domain **demo lesson** (Aesop) that opens on first launch
 - Click-to-lookup dictionary with local ECDICT first
 - Per-recording notes with CSV export
 - **Export bilingual transcript** as `.txt` / `.md` / `.html` from the player (**Load ▾ → Export**; optional speakers / timestamps)
