@@ -4,257 +4,165 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>英聽君</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #1a2320;
-      --panel: #f3efe6;
-      --ink: #1c241f;
-      --muted: #5e6b64;
-      --line: rgba(28, 36, 31, 0.12);
-      --accent: #c4a35a;
-      --accent-soft: rgba(196, 163, 90, 0.28);
+      --accent: #326c53;
+      --accent-2: #38856f;
+      --soft: #e8f0e7;
+      --bg: #fbfaf6;
+      --paper: #ffffff;
+      --ink: #283c31;
+      --muted: #6e796e;
+      --line: #e5e8df;
       --speaker-1: #2f6f5e;
       --speaker-2: #8b4d3b;
-      --glow: rgba(196, 163, 90, 0.55);
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
-      --danger: #e8a090;
+      --glow: rgba(50, 108, 83, 0.22);
+      --shadow: 0 16px 40px rgba(40, 60, 49, 0.12);
+      --danger: #ae573b;
+      --word-mark: #d1e0b9;
     }
 
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #2c3b35 0%, transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, #3a2f24 0%, transparent 45%),
-        var(--bg);
-      color: var(--panel);
-      font-family: "IBM Plex Sans", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
-
     body {
-      display: grid;
-      grid-template-rows: auto auto 1fr;
       min-height: 100vh;
-      height: 100vh;
-      overflow: hidden;
     }
-
-    .topbar {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.35rem;
-      padding: 1rem 1.5rem 0.75rem;
-      border-bottom: 1px solid rgba(243, 239, 230, 0.08);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: rgba(26, 35, 32, 0.92);
-    }
-
-    .topbar-main {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.85rem 1.1rem;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
-    .brand-block {
-      flex: 0 1 auto;
-      min-width: min(100%, 160px);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 0.15rem 0;
-    }
-
-    .brand {
-      font-family: Fraunces, Georgia, serif;
-      font-size: clamp(1.25rem, 2.2vw, 1.85rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin: 0;
-      white-space: nowrap;
-    }
-
-    .meta {
-      color: rgba(243, 239, 230, 0.68);
-      font-size: 0.85rem;
-      line-height: 1.4;
-      margin: 0;
-      max-width: none;
-      overflow: visible;
-      white-space: normal;
-      word-break: break-word;
-    }
-
-    .file-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-      align-items: center;
-      flex: 1 1 280px;
-    }
-
-    .file-actions label {
-      font-size: 0.85rem;
-      color: rgba(243, 239, 230, 0.7);
-      white-space: nowrap;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-      align-items: center;
-      flex: 1 1 320px;
-      justify-content: flex-end;
-    }
-
-    select {
-      min-width: min(100%, 180px);
-      max-width: 280px;
-      border-radius: 999px;
-      border: 1px solid rgba(243, 239, 230, 0.24);
-      background: #24302c;
-      color: var(--panel);
-      padding: 0.55rem 0.9rem;
-      font: 500 0.92rem/1.2 "IBM Plex Sans", sans-serif;
-    }
-
-    button, .file-btn {
-      appearance: none;
-      border: 0;
-      border-radius: 999px;
-      padding: 0.65rem 1rem;
-      background: var(--accent);
-      color: #1a1710;
-      font: 600 0.9rem/1 "IBM Plex Sans", sans-serif;
+    button, input, select, textarea { font: inherit; }
+    button {
       cursor: pointer;
-      transition: transform 160ms ease, filter 160ms ease, opacity 160ms ease;
-      white-space: nowrap;
+      appearance: none;
+      background: none;
+      border: 0;
+      color: inherit;
     }
-    button:hover, .file-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-    button:disabled, .file-btn:disabled, select:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, textarea:focus-visible {
+      outline: 3px solid #dc8241;
+      outline-offset: 3px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    small, .muted { color: var(--muted); }
+
+    button.primary, .primary {
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 23px;
+      font-weight: 650;
     }
     button.secondary, .file-btn.secondary {
-      background: transparent;
-      color: var(--panel);
-      border: 1px solid rgba(243, 239, 230, 0.24);
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 600;
+    }
+    button.textbtn, .textbtn {
+      background: none;
+      border: 0;
+      color: var(--accent);
+      padding: 8px 2px;
+      font-weight: 650;
+      min-height: 44px;
     }
     button.danger {
       background: transparent;
       color: var(--danger);
-      border: 1px solid rgba(232, 160, 144, 0.45);
+      border: 1px solid rgba(174, 87, 59, 0.45);
+      border-radius: 10px;
+      padding: 10px 18px;
     }
     button.danger-fill {
-      background: #c46a58;
-      color: #1a1710;
+      background: var(--danger);
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
     }
+    button:disabled, .file-btn:disabled, select:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled), .file-btn:hover:not(:disabled) { filter: brightness(1.03); }
     .file-btn { display: inline-flex; align-items: center; }
     #importInput { display: none; }
-    .import-group {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-    }
-    .import-menu {
-      position: absolute;
-      top: calc(100% + 0.35rem);
-      left: 0;
-      z-index: 30;
-      min-width: 11rem;
-      padding: 0.35rem;
-      border-radius: 12px;
-      border: 1px solid rgba(243, 239, 230, 0.18);
-      background: rgba(20, 28, 25, 0.98);
-      box-shadow: var(--shadow);
-      display: none;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .import-menu.visible { display: flex; }
-    .import-menu button {
-      width: 100%;
-      justify-content: flex-start;
-      text-align: left;
-    }
-    .split-btn {
-      display: inline-flex;
-      align-items: stretch;
-      border-radius: 999px;
-      border: 1px solid rgba(243, 239, 230, 0.24);
-      overflow: hidden;
-    }
-    .split-btn > button {
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      color: var(--panel);
-    }
-    .split-btn > button + button {
-      border-left: 1px solid rgba(243, 239, 230, 0.24);
-    }
-    .split-btn > .split-caret {
-      padding-left: 0.55rem;
-      padding-right: 0.65rem;
-      min-width: 2.1rem;
-    }
-    .split-btn:has(> button:disabled) {
-      opacity: 0.45;
-    }
-    .split-btn:has(> button:disabled) > button:disabled {
-      opacity: 1;
-    }
-    .modal select {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid rgba(28, 36, 31, 0.18);
-      background: #fff;
-      color: var(--ink);
-      font: inherit;
-      padding: 0.55rem 0.65rem;
-    }
-    .modal .check-row {
+
+    .top {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      margin: 0.65rem 0 0;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 36px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .brand, .brand-btn {
+      font-weight: 800;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      background: none;
+      border: 0;
+      color: inherit;
+      padding: 0;
+      min-height: 0;
+    }
+    .logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: white;
+    }
+    .logo svg { width: 21px; height: 21px; }
+    .top nav {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      justify-content: center;
+    }
+    .nav-link {
+      background: none;
+      border: 0;
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      min-height: 44px;
     }
-    .modal details.youtube-advanced {
-      margin-top: 0.85rem;
-      border-top: 1px solid rgba(243, 239, 230, 0.12);
-      padding-top: 0.65rem;
+    .nav-link.selected {
+      color: var(--accent);
+      font-weight: 700;
+      background: var(--soft);
     }
-    .modal details.youtube-advanced summary {
-      cursor: pointer;
-      color: rgba(243, 239, 230, 0.72);
-      font-size: 0.88rem;
-      font-weight: 600;
-      list-style: none;
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
-    .modal details.youtube-advanced summary::-webkit-details-marker { display: none; }
-    .modal details.youtube-advanced[open] summary { margin-bottom: 0.55rem; }
 
     .mode-toggle {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      margin-left: 0.65rem;
       font-size: 0.82rem;
-      color: rgba(243, 239, 230, 0.72);
+      color: var(--muted);
       white-space: nowrap;
       user-select: none;
       cursor: pointer;
@@ -264,823 +172,17 @@
       width: 0.95rem;
       height: 0.95rem;
     }
-
-    /* 方案一：學習模式預設隱藏工程向控件 */
     body.mode-learning .advanced-only { display: none !important; }
     body.mode-advanced .learning-only { display: none !important; }
     body.mode-learning .turn-time { display: none; }
-    body.mode-learning .split-btn > #loadBtn {
-      border-radius: 999px;
-    }
-    body.mode-learning .split-btn {
-      border-radius: 999px;
-    }
+    body.hide-zh .zh { display: none; }
 
-    .learning-fix-bar {
-      display: none;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.55rem;
-      margin: 0.65rem 0 0.35rem;
-      padding: 0.65rem 0.85rem;
-      border-radius: 12px;
-      border: 1px solid rgba(47, 111, 94, 0.28);
-      background: rgba(47, 111, 94, 0.1);
-      font-size: 0.88rem;
-      color: #1c241f;
-    }
-    body.mode-learning .learning-fix-bar.visible { display: flex; }
-    .learning-fix-bar button {
-      background: #2f6f5e;
-      color: #f3efe6;
-      border-radius: 8px;
-      padding: 0.42rem 0.85rem;
-      font-size: 0.84rem;
-    }
-    .learning-fix-bar button.learning-restore {
-      background: transparent;
-      color: #8b4d3b;
-      border: 1px solid rgba(139, 77, 59, 0.45);
-    }
-
-    #speedSelect {
-      min-width: 5.5rem;
-      max-width: 6.5rem;
-      flex: 0 0 auto;
-    }
-
-    .transport {
-      display: grid;
-      gap: 0.35rem;
-      width: min(100%, 260px);
-      flex: 1 1 180px;
-    }
-    .time-row {
-      display: flex;
-      justify-content: space-between;
-      font-variant-numeric: tabular-nums;
-      font-size: 0.8rem;
-      color: rgba(243, 239, 230, 0.65);
-    }
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
-
-    .log-panel {
-      margin: 0.85rem 1.5rem 0;
-      border: 1px solid rgba(243, 239, 230, 0.12);
-      border-radius: 14px;
-      background: rgba(12, 18, 16, 0.55);
-      overflow: hidden;
-      display: none;
-    }
-    .log-panel.visible { display: block; }
-    .log-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      align-items: center;
-      padding: 0.65rem 0.9rem;
-      border-bottom: 1px solid rgba(243, 239, 230, 0.08);
-      font-size: 0.88rem;
-    }
-    .log-head .badge {
-      color: var(--accent);
-      font-weight: 600;
-    }
-    .log-head .badge.error { color: var(--danger); }
-    .log-body {
-      margin: 0;
-      max-height: 180px;
-      overflow: auto;
-      padding: 0.75rem 0.9rem 1rem;
-      font: 400 0.78rem/1.45 "IBM Plex Mono", ui-monospace, monospace;
-      white-space: pre-wrap;
-      color: rgba(243, 239, 230, 0.78);
-    }
-
-    .stage {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
-      gap: 0;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .stage-main {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .sheet {
-      margin: 1rem auto 1.25rem;
-      width: min(860px, calc(100% - 2rem));
-      background: var(--panel);
-      color: var(--ink);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      min-height: 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .notes-panel {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      border-left: 1px solid rgba(243, 239, 230, 0.1);
-      background: rgba(18, 24, 22, 0.88);
-      padding: 0.85rem 0.9rem 1rem;
-      gap: 0.7rem;
-    }
-    .notes-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-    }
-    .notes-head h2 {
-      margin: 0;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-    .notes-actions {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .notes-hint {
-      margin: 0;
-      font-size: 0.78rem;
-      color: rgba(243, 239, 230, 0.55);
-      line-height: 1.4;
-    }
-    .notes-primary {
-      display: grid;
-      gap: 0.45rem;
-    }
-    .notes-primary .save-sentence-btn {
-      width: 100%;
-      font-weight: 600;
-    }
-    .loop-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.78rem;
-      color: rgba(243, 239, 230, 0.8);
-      user-select: none;
-      cursor: pointer;
-    }
-    .loop-toggle input { accent-color: var(--accent); }
-    .notes-toast {
-      position: fixed;
-      left: 50%;
-      bottom: 1.4rem;
-      transform: translateX(-50%) translateY(120%);
-      background: #1c2823;
-      color: var(--panel);
-      border: 1px solid rgba(196, 163, 90, 0.45);
-      border-radius: 999px;
-      padding: 0.55rem 1rem;
-      font-size: 0.88rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      opacity: 0;
-      pointer-events: none;
-      transition: transform 220ms ease, opacity 220ms ease;
-      z-index: 40;
-    }
-    .notes-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    .notes-advanced {
-      border: 1px solid rgba(243, 239, 230, 0.12);
-      border-radius: 12px;
-      padding: 0.35rem 0.55rem 0.55rem;
-      background: rgba(12, 16, 14, 0.35);
-    }
-    .notes-advanced summary {
-      cursor: pointer;
-      color: rgba(243, 239, 230, 0.7);
-      font-size: 0.8rem;
-      padding: 0.35rem 0.1rem;
-    }
-    .notes-form {
-      display: grid;
-      gap: 0.45rem;
-      padding: 0.35rem 0.15rem 0.15rem;
-    }
-    .notes-form label {
-      font-size: 0.75rem;
-      color: rgba(243, 239, 230, 0.65);
-    }
-    .notes-form textarea,
-    .notes-form input[type="text"] {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid rgba(243, 239, 230, 0.18);
-      background: #24302c;
-      color: var(--panel);
-      padding: 0.45rem 0.55rem;
-      font: 400 0.88rem/1.4 "IBM Plex Sans", sans-serif;
-      resize: vertical;
-    }
-    .notes-form textarea { min-height: 2.6rem; }
-    .notes-form .row-btns {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
-    .notes-list {
-      flex: 1;
-      min-height: 0;
-      overflow: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.55rem;
-    }
-    .note-card {
-      border: 1px solid rgba(243, 239, 230, 0.12);
-      border-radius: 12px;
-      padding: 0.65rem 0.7rem;
-      background: rgba(243, 239, 230, 0.04);
-      cursor: pointer;
-      transition: background 160ms ease, border-color 160ms ease;
-    }
-    .note-card:hover {
-      background: rgba(196, 163, 90, 0.1);
-      border-color: rgba(196, 163, 90, 0.35);
-    }
-    .note-card .note-meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.72rem;
-      color: rgba(243, 239, 230, 0.55);
-      margin-bottom: 0.3rem;
-      font-variant-numeric: tabular-nums;
-    }
-    .note-card .note-word {
-      color: var(--accent);
-      font-weight: 600;
-      font-size: 0.82rem;
-      margin-bottom: 0.2rem;
-      cursor: pointer;
-    }
-    .note-lemmas {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin: 0 0 0.35rem;
-    }
-    .note-lemma-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.15rem;
-      max-width: 100%;
-      background: rgba(196, 163, 90, 0.18);
-      color: var(--accent);
-      border-radius: 999px;
-      padding: 0.12rem 0.28rem 0.12rem 0.55rem;
-      font-size: 0.76rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .note-lemma-chip:hover { background: rgba(196, 163, 90, 0.3); }
-    .note-lemma-chip .note-lemma-x {
-      appearance: none;
-      border: 0;
-      background: transparent;
-      color: rgba(243, 239, 230, 0.7);
-      font: 700 0.85rem/1 "IBM Plex Sans", sans-serif;
-      padding: 0.05rem 0.35rem;
-      cursor: pointer;
-      border-radius: 999px;
-    }
-    .note-lemma-chip .note-lemma-x:hover {
-      color: var(--danger);
-      background: rgba(232, 160, 144, 0.15);
-      filter: none;
-      transform: none;
-    }
-    .note-en-word.in-lemmas {
-      text-decoration: underline;
-      text-decoration-color: rgba(196, 163, 90, 0.7);
-      text-underline-offset: 2px;
-    }
-    .note-card .note-en {
-      font-size: 0.9rem;
-      line-height: 1.45;
-      margin: 0 0 0.25rem;
-    }
-    .note-card .note-en-word {
-      cursor: pointer;
-      border-radius: 3px;
-    }
-    .note-card .note-en-word:hover {
-      background: rgba(196, 163, 90, 0.32);
-    }
-    .note-card .note-zh {
-      font-size: 0.84rem;
-      color: rgba(243, 239, 230, 0.7);
-      line-height: 1.4;
-      margin: 0;
-    }
-    .note-card .note-actions {
-      display: flex;
-      gap: 0.35rem;
-      align-items: center;
-    }
-    .note-card .note-edit,
-    .note-card .note-del {
-      appearance: none;
-      border: 0;
-      background: transparent;
-      font: 600 0.72rem/1 "IBM Plex Sans", sans-serif;
-      cursor: pointer;
-      padding: 0.1rem 0.2rem;
-    }
-    .note-card .note-edit { color: rgba(243, 239, 230, 0.75); }
-    .note-card .note-del {
-      color: var(--danger);
-    }
-    .notes-empty {
-      color: rgba(243, 239, 230, 0.45);
-      font-size: 0.85rem;
-      padding: 0.5rem 0.2rem;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(8, 12, 10, 0.62);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 40;
-      padding: 1rem;
-    }
-    .modal-backdrop.visible { display: flex; }
-    .modal {
-      width: min(440px, 100%);
-      background: #1e2925;
-      border: 1px solid rgba(243, 239, 230, 0.14);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 1rem 1.1rem 1.1rem;
-      display: grid;
-      gap: 0.55rem;
-    }
-    .modal h3 {
-      margin: 0;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.2rem;
-    }
-    .modal label {
-      font-size: 0.78rem;
-      color: rgba(243, 239, 230, 0.65);
-    }
-    .modal textarea, .modal input[type="text"] {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid rgba(243, 239, 230, 0.18);
-      background: #24302c;
-      color: var(--panel);
-      padding: 0.5rem 0.6rem;
-      font: 400 0.9rem/1.4 "IBM Plex Sans", sans-serif;
-      resize: vertical;
-    }
-    .modal textarea { min-height: 3.2rem; }
-    .modal .row-btns {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-      margin-top: 0.25rem;
-    }
-    .modal .time-hint {
-      font-size: 0.78rem;
-      color: rgba(243, 239, 230, 0.55);
-      font-variant-numeric: tabular-nums;
-    }
-    .modal-backdrop.confirm-backdrop { z-index: 55; }
-    .modal .confirm-message {
-      margin: 0;
-      font-size: 0.92rem;
-      line-height: 1.55;
-      color: rgba(243, 239, 230, 0.82);
-      white-space: pre-wrap;
-    }
-
-    .sheet-head {
-      padding: 1.25rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, #f7f3ea, #efe9dc);
-    }
-    .sheet-head-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
-    .sheet-head h2 {
-      margin: 0;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.35rem;
-    }
-    .sheet-help-btn {
-      flex: 0 0 auto;
-      border-radius: 999px;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-      background: transparent;
-      color: #1c241f;
-      border: 1px solid rgba(28, 36, 31, 0.22);
-    }
-    .sheet-help-btn:hover {
-      background: rgba(28, 36, 31, 0.05);
-      filter: none;
-      transform: none;
-    }
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem 1rem;
-      margin-top: 0.65rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-      align-items: center;
-    }
-    .sheet-tip {
-      width: 100%;
-      margin-top: 0.15rem;
-      padding: 0.55rem 0.75rem;
-      border-radius: 10px;
-      background: rgba(47, 111, 94, 0.1);
-      border: 1px solid rgba(47, 111, 94, 0.22);
-      color: #2a4038;
-      font-size: 0.86rem;
-      line-height: 1.45;
-    }
-    .sheet-tip strong { color: #1c241f; font-weight: 600; }
-    body.mode-advanced .sheet-tip { display: none; }
-    .dot {
-      width: 0.65rem;
-      height: 0.65rem;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 0.35rem;
-    }
-    .dot.s1 { background: var(--speaker-1); }
-    .dot.s2 { background: var(--speaker-2); }
-
-    .transcript {
-      padding: 0.75rem 0.75rem 2rem;
-      overflow: auto;
-      flex: 1;
-      min-height: 0;
-      scroll-behavior: smooth;
-    }
-
-    .turn {
+    .help-group, .import-group, .manage-group {
       position: relative;
-      padding: 0.85rem 1rem 0.85rem 1.15rem;
-      border-radius: 12px;
-      margin: 0.35rem 0;
-      border-left: 3px solid transparent;
-      transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
-      cursor: pointer;
-    }
-    .turn:hover { background: rgba(28, 36, 31, 0.04); }
-    .turn.speaker-1 { border-left-color: var(--speaker-1); }
-    .turn.speaker-2 { border-left-color: var(--speaker-2); }
-    .turn.active {
-      background: linear-gradient(90deg, var(--accent-soft), rgba(196, 163, 90, 0.08));
-      box-shadow: inset 0 0 0 1px rgba(196, 163, 90, 0.35), 0 0 24px var(--glow);
-      transform: translateX(2px);
-    }
-    .turn.selected {
-      background: rgba(47, 111, 94, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(47, 111, 94, 0.45);
-    }
-    .turn.selected.active {
-      background: linear-gradient(90deg, rgba(47, 111, 94, 0.16), rgba(196, 163, 90, 0.1));
-      box-shadow:
-        inset 0 0 0 1px rgba(196, 163, 90, 0.45),
-        0 0 20px var(--glow);
-    }
-    .turn.in-range {
-      background: rgba(139, 77, 59, 0.1);
-      box-shadow: inset 3px 0 0 rgba(139, 77, 59, 0.55);
-    }
-    .turn.in-range.selected {
-      background: rgba(139, 77, 59, 0.16);
-    }
-    .range-bar {
-      display: flex;
-      flex-wrap: wrap;
+      display: inline-flex;
       align-items: center;
-      gap: 0.45rem 0.55rem;
-      margin: 0.65rem 0 0.35rem;
-      padding: 0.65rem 0.8rem;
-      border: 1px solid rgba(28, 36, 31, 0.16);
-      border-radius: 12px;
-      background: linear-gradient(180deg, #ebe6db 0%, #e2ddd1 100%);
-      font-size: 0.82rem;
     }
-    .range-bar .range-label {
-      font-weight: 700;
-      color: #1c241f;
-      margin-right: 0.15rem;
-      letter-spacing: 0.02em;
-    }
-    .range-bar .range-value {
-      font-family: "IBM Plex Mono", ui-monospace, monospace;
-      font-variant-numeric: tabular-nums;
-      font-weight: 500;
-      color: #1c241f;
-      background: #f7f4ec;
-      border: 1px solid rgba(28, 36, 31, 0.14);
-      border-radius: 8px;
-      padding: 0.35rem 0.6rem;
-      min-width: 9.5rem;
-    }
-    /* Light-panel buttons: never reuse topbar .secondary (cream-on-cream). */
-    .range-bar button {
-      font-size: 0.8rem;
-      padding: 0.42rem 0.78rem;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      font-weight: 600;
-      transform: none;
-      filter: none;
-    }
-    .range-bar button:hover:not(:disabled) {
-      filter: none;
-      transform: translateY(-1px);
-    }
-    .range-bar button.range-mark {
-      background: #f7f4ec;
-      color: #1c241f;
-      border-color: rgba(28, 36, 31, 0.28);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
-    }
-    .range-bar button.range-mark:hover:not(:disabled) {
-      background: #fffdf8;
-      border-color: rgba(28, 36, 31, 0.42);
-    }
-    .range-bar button.range-run {
-      background: #2f6f5e;
-      color: #f3efe6;
-      border-color: #245a4c;
-      box-shadow: 0 1px 2px rgba(28, 36, 31, 0.18);
-    }
-    .range-bar button.range-run:hover:not(:disabled) {
-      background: #38856f;
-    }
-    .range-bar button.range-restore {
-      background: transparent;
-      color: #8b4d3b;
-      border-color: rgba(139, 77, 59, 0.45);
-    }
-    .range-bar button.range-restore:hover:not(:disabled) {
-      background: rgba(139, 77, 59, 0.1);
-      border-color: rgba(139, 77, 59, 0.7);
-    }
-    .range-bar button:disabled {
-      opacity: 0.42;
-      box-shadow: none;
-    }
-
-    .dict-popover {
-      position: fixed;
-      z-index: 40;
-      width: min(360px, calc(100vw - 1.5rem));
-      max-height: min(70vh, 420px);
-      display: flex;
-      flex-direction: column;
-      padding: 0.85rem 0.95rem 0.9rem;
-      border-radius: 12px;
-      border: 1px solid rgba(28, 36, 31, 0.18);
-      background: #f7f4ec;
-      color: #1c241f;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
-    }
-    .dict-popover[hidden] { display: none !important; }
-    .dict-popover .dict-head {
-      display: flex;
-      align-items: baseline;
-      gap: 0.55rem;
-      margin-bottom: 0.45rem;
-    }
-    .dict-popover .dict-lemma {
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #1c241f;
-    }
-    .dict-popover .dict-phonetic {
-      font-family: "IBM Plex Mono", ui-monospace, monospace;
-      font-size: 0.85rem;
-      color: #5e6b64;
-    }
-    .dict-popover .dict-close-x {
-      margin-left: auto;
-      appearance: none;
-      border: 0;
-      background: transparent;
-      color: #5e6b64;
-      font-size: 1.25rem;
-      line-height: 1;
-      padding: 0.1rem 0.35rem;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-    .dict-popover .dict-close-x:hover {
-      background: rgba(28, 36, 31, 0.08);
-      color: #1c241f;
-      filter: none;
-      transform: none;
-    }
-    .dict-popover .dict-status {
-      font-size: 0.88rem;
-      color: #5e6b64;
-      margin: 0.25rem 0 0.5rem;
-    }
-    .dict-popover .dict-status.error { color: #8b4d3b; }
-    .dict-popover .dict-senses {
-      overflow: auto;
-      flex: 1 1 auto;
-      margin: 0.15rem 0 0.55rem;
-      padding-right: 0.2rem;
-    }
-    .dict-popover .dict-sense {
-      margin: 0 0 0.55rem;
-      padding-bottom: 0.45rem;
-      border-bottom: 1px solid rgba(28, 36, 31, 0.1);
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-    .dict-popover .dict-sense:last-child {
-      border-bottom: 0;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    .dict-popover .dict-pos {
-      display: inline-block;
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: lowercase;
-      color: #2f6f5e;
-      background: rgba(47, 111, 94, 0.12);
-      border-radius: 999px;
-      padding: 0.12rem 0.45rem;
-      margin-bottom: 0.25rem;
-    }
-    .dict-popover .dict-en { color: #1c241f; }
-    .dict-popover .dict-zh {
-      color: #1c241f;
-      font-weight: 500;
-      margin-top: 0.15rem;
-    }
-    .dict-popover .dict-example {
-      margin: 0.25rem 0 0;
-      color: #5e6b64;
-      font-size: 0.82rem;
-      font-style: italic;
-    }
-    .dict-popover .dict-context {
-      font-size: 0.8rem;
-      color: #5e6b64;
-      background: rgba(28, 36, 31, 0.05);
-      border-radius: 8px;
-      padding: 0.45rem 0.55rem;
-      margin-bottom: 0.65rem;
-      line-height: 1.4;
-      max-height: 4.2em;
-      overflow: hidden;
-    }
-    .dict-popover .dict-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-    .dict-popover .dict-actions button {
-      border-radius: 8px;
-      font-size: 0.82rem;
-      padding: 0.45rem 0.8rem;
-      font-weight: 600;
-    }
-    .dict-popover button.dict-save {
-      background: #2f6f5e;
-      color: #f3efe6;
-      border: 1px solid #245a4c;
-    }
-    .dict-popover button.dict-save:hover:not(:disabled) {
-      background: #38856f;
-      filter: none;
-    }
-    .dict-popover button.dict-dismiss {
-      background: #f7f4ec;
-      color: #1c241f;
-      border: 1px solid rgba(28, 36, 31, 0.28);
-    }
-    .dict-popover button.dict-dismiss:hover:not(:disabled) {
-      background: #fffdf8;
-      filter: none;
-    }
-    .note-card .note-dict {
-      margin: 0.2rem 0 0.35rem;
-      font-size: 0.78rem;
-      color: rgba(243, 239, 230, 0.72);
-      line-height: 1.35;
-      cursor: pointer;
-    }
-
-    .turn-meta {
-      display: flex;
-      gap: 0.75rem;
-      align-items: baseline;
-      margin-bottom: 0.35rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-    .speaker-label { font-weight: 600; color: var(--ink); }
-    .turn.speaker-1 .speaker-label { color: var(--speaker-1); }
-    .turn.speaker-2 .speaker-label { color: var(--speaker-2); }
-
-    .en { line-height: 1.7; font-size: 1.02rem; }
-    .word {
-      border-radius: 4px;
-      padding: 0.02rem 0.04rem;
-      transition: background 70ms linear, box-shadow 70ms linear;
-      scroll-margin-top: 5.5rem;
-      scroll-margin-bottom: 4.5rem;
-    }
-    .word.active {
-      background: rgba(196, 163, 90, 0.55);
-      box-shadow: 0 0 0 1px rgba(196, 163, 90, 0.4);
-    }
-    .word.spoken { background: rgba(196, 163, 90, 0.16); }
-    .zh {
-      margin: 0.55rem 0 0.1rem;
-      padding: 0.15rem 0.2rem;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-    .turn.active .zh { color: #3d4a43; }
-
-    .status {
-      padding: 1rem 1.5rem;
-      color: rgba(243, 239, 230, 0.75);
-      flex: 1;
-      overflow: auto;
-    }
-    .error { color: #ffb4a8; }
-
-    .welcome-card {
-      max-width: 28rem;
-      margin: 2.5rem auto;
-      padding: 1.5rem 1.4rem 1.35rem;
-      border-radius: 18px;
-      border: 1px solid rgba(243, 239, 230, 0.14);
-      background: rgba(20, 28, 25, 0.72);
-      box-shadow: var(--shadow);
-      text-align: left;
-    }
-    .welcome-card[hidden] { display: none !important; }
-    .welcome-card h2 {
-      margin: 0 0 0.55rem;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.45rem;
-      color: var(--panel);
-    }
-    .welcome-card p {
-      margin: 0 0 1.1rem;
-      line-height: 1.55;
-      color: rgba(243, 239, 230, 0.78);
-      font-size: 0.95rem;
-    }
-    .welcome-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-    }
-    .welcome-actions button {
-      flex: 1 1 auto;
-    }
-
     .help-btn {
-      margin-left: 0.35rem;
       width: 1.85rem;
       height: 1.85rem;
       padding: 0;
@@ -1091,146 +193,793 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .import-menu {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      right: 0;
+      left: auto;
+      z-index: 30;
+      min-width: 11rem;
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      display: none;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .help-group .import-menu { min-width: 10.5rem; left: 0; right: auto; }
+    .import-menu.visible { display: flex; }
+    .import-menu button {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
     }
 
-    .onboarding-overlay {
+    .legacy-tools {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .home { padding: 48px 54px 72px; max-width: 1180px; margin: 0 auto; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.35;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+    .hero p { color: var(--muted); max-width: 390px; line-height: 1.8; }
+    .hero .primary { margin-top: 6px; }
+    .art {
+      background: #e8eee4;
+      border-radius: 26px;
+      height: 260px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .art svg { width: 85%; height: 85%; }
+    .art-caption {
+      position: absolute;
+      bottom: 18px;
+      left: 24px;
+      font-size: 12px;
+      color: #546b58;
+    }
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 40px;
+      margin-bottom: 14px;
+    }
+    .section-row h2 { margin: 0; font-size: 23px; }
+    .tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .tile {
+      text-align: left;
+      padding: 24px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      min-height: 155px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: inherit;
+      min-width: 0;
+    }
+    .tile h3 { margin: 8px 0 0; font-size: 18px; }
+    .tile p { font-size: 13px; margin: 0; color: var(--muted); line-height: 1.7; }
+    .tile:hover { border-color: var(--accent); filter: none; }
+    .tile-icon { color: var(--accent); font-size: 23px; align-self: flex-start; }
+    .tile .arrow { align-self: flex-end; color: var(--accent); font-size: 13px; font-weight: 650; }
+    .local {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 26px;
+    }
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .lesson-card {
+      text-align: left;
+      padding: 0;
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      color: inherit;
+      min-height: 0;
+    }
+    .lesson-card:hover { border-color: var(--accent); filter: none; }
+    .lesson-card .bookcover {
+      height: 96px;
+      background: #e8eee4;
+      padding: 22px 24px;
+      font-family: Georgia, "Songti TC", serif;
+      font-size: 22px;
+      color: #52623e;
+    }
+    .lesson-card .bookcover.demo { background: #e1e7d8; }
+    .lesson-card .bookcontent { padding: 18px 20px 20px; }
+    .lesson-card .bookcontent h3 { margin: 0 0 7px; font-size: 17px; }
+    .lesson-card .bookcontent p { font-size: 12px; margin: 0 0 8px; color: var(--muted); }
+
+    .learning { padding: 26px 36px 170px; }
+    .back {
+      color: var(--accent);
+      background: none;
+      border: 0;
+      padding: 0;
+      margin-bottom: 18px;
+      font-weight: 650;
+      min-height: 44px;
+    }
+    .lesson-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .lesson-head h2 { margin: 0 0 6px; font-size: 26px; }
+    .lesson-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .manage-btn {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 600;
+    }
+    .sheet {
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .sheet-head { display: none; }
+    .learning-fix-bar {
+      display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem;
+      margin: 12px 26px 0;
+      padding: 0.65rem 0.85rem;
+      border-radius: 12px;
+      border: 1px solid rgba(47, 111, 94, 0.28);
+      background: var(--soft);
+      font-size: 0.88rem;
+    }
+    body.mode-learning .learning-fix-bar.visible { display: none; }
+    .learning-fix-bar button {
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.42rem 0.85rem;
+      font-size: 0.84rem;
+    }
+    .learning-fix-bar button.learning-restore {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid rgba(139, 77, 59, 0.45);
+    }
+    .range-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem 0.55rem;
+      margin: 12px 26px 0;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+      font-size: 0.82rem;
+    }
+    .range-bar .range-label { font-weight: 700; margin-right: 0.15rem; }
+    .range-bar .range-value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.35rem 0.6rem;
+      min-width: 9.5rem;
+    }
+    .range-bar button {
+      font-size: 0.8rem;
+      padding: 0.42rem 0.78rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .range-bar button.range-mark {
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .range-bar button.range-run {
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+    }
+    .range-bar button.range-restore {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid rgba(139, 77, 59, 0.45);
+    }
+
+    .transcript { padding: 12px 32px 28px; }
+    .turn, .sentence {
+      padding: 21px 14px;
+      border-radius: 12px;
+      position: relative;
+    }
+    .turn + .turn { border-top: 1px solid var(--line); }
+    .turn:hover { background: rgba(40, 60, 49, 0.03); }
+    .turn.speaker-1 { border-left: 0; }
+    .turn.speaker-2 { border-left: 0; }
+    .turn.active, .turn.current, .turn.selected.active {
+      background: var(--soft);
+      margin: 8px -10px;
+      padding: 24px 24px;
+    }
+    .turn.selected { background: rgba(50, 108, 83, 0.08); }
+    .turn.in-range {
+      background: rgba(139, 77, 59, 0.08);
+      box-shadow: inset 3px 0 0 rgba(139, 77, 59, 0.45);
+    }
+    .turn-meta {
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .speaker-label { font-weight: 600; letter-spacing: 0.04em; }
+    .turn.speaker-1 .speaker-label { color: var(--speaker-1); }
+    .turn.speaker-2 .speaker-label { color: var(--speaker-2); }
+    .en {
+      font-family: Georgia, "Iowan Old Style", serif;
+      font-size: 23px;
+      line-height: 1.65;
+      margin: 0 0 8px;
+    }
+    .word {
+      border-radius: 3px;
+      padding: 0;
+      transition: background 70ms linear;
+      scroll-margin-top: 6rem;
+      scroll-margin-bottom: 8rem;
+    }
+    .word:hover { background: var(--soft); text-decoration: underline; }
+    .word.active {
+      background: var(--word-mark);
+      box-shadow: none;
+    }
+    .word.spoken { background: rgba(209, 224, 185, 0.45); }
+    .zh {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .sentence-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 12px;
+    }
+    .sentence-action {
+      background: none;
+      border: 0;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 650;
+      padding: 0 4px;
+      min-height: 36px;
+    }
+    .sentence-action.saved { color: var(--muted); }
+
+    .player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 34px;
+      background: var(--paper);
+      border-top: 1px solid var(--line);
+      display: none;
+      gap: 18px;
+      align-items: center;
+      z-index: 15;
+    }
+    body.page-learn.has-lesson .player { display: flex; }
+    .play {
+      background: var(--accent);
+      color: white;
+      border: 0;
+      border-radius: 50%;
+      height: 52px;
+      width: 52px;
+      flex-shrink: 0;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 0;
+    }
+    .skip {
+      background: none;
+      border: 0;
+      color: var(--ink);
+      font-size: 12px;
+      white-space: nowrap;
+      min-height: 44px;
+      padding: 0 6px;
+    }
+    .seekbox { flex: 1; min-width: 60px; }
+    .seekbox input { width: 100%; accent-color: var(--accent); }
+    .times, .time-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+    #speedSelect {
+      min-width: 5.5rem;
+      max-width: 6.5rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      color: var(--ink);
+    }
+    .looplabel {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 12px;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .looplabel input { accent-color: var(--accent); }
+
+    .note-page { max-width: 850px; margin: 0 auto; padding: 40px 36px 80px; }
+    .note-page h1 { font-size: 30px; margin-bottom: 8px; }
+    .notes-full, .notes-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 25px;
+      border-radius: 14px;
+    }
+    .notes-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 12px;
+    }
+    .notes-head h2, .notes-head h1 { margin: 0; }
+    .notes-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .notes-hint { margin: 0 0 14px; font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+    .notes-list { display: flex; flex-direction: column; gap: 0; }
+    .note-card {
+      border-top: 1px solid var(--line);
+      padding: 20px 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .note-card:first-child { border-top: 0; padding-top: 8px; }
+    .note-card .note-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .note-card .note-en {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      line-height: 1.45;
+      margin: 0 0 0.25rem;
+    }
+    .note-card .note-zh { font-size: 13px; color: var(--muted); line-height: 1.7; margin: 0; }
+    .note-card .note-edit, .note-card .note-del {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      font: 600 0.78rem/1 system-ui, sans-serif;
+      cursor: pointer;
+      padding: 0.1rem 0.2rem;
+      color: var(--accent);
+    }
+    .note-card .note-del { color: var(--danger); }
+    .note-lemmas { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.35rem; }
+    .note-lemma-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      background: var(--soft);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.12rem 0.28rem 0.12rem 0.55rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .note-lemma-chip .note-lemma-x {
+      appearance: none; border: 0; background: transparent; color: var(--muted);
+      font-weight: 700; padding: 0.05rem 0.35rem; cursor: pointer; border-radius: 999px;
+    }
+    .note-en-word { cursor: pointer; border-radius: 3px; }
+    .note-en-word:hover { background: var(--soft); }
+    .note-en-word.in-lemmas { text-decoration: underline; text-underline-offset: 2px; }
+    .notes-empty { color: var(--muted); font-size: 0.95rem; padding: 0.5rem 0.2rem; }
+    .notes-primary { margin-bottom: 8px; }
+    .save-sentence-btn { display: none; }
+    .notes-advanced {
+      border-top: 1px solid var(--line);
+      margin-top: 18px;
+      padding-top: 12px;
+    }
+    .notes-advanced summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+    .notes-form { display: grid; gap: 0.45rem; padding: 0.8rem 0 0; }
+    .notes-form label, .modal label { font-size: 13px; color: var(--muted); }
+    .notes-form textarea, .modal textarea, .modal input[type="text"], .modal input[type="url"], .form input, .form textarea, .form select {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      padding: 13px;
+      resize: vertical;
+    }
+    .notes-form .row-btns, .modal .row-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem; }
+    .note-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+    .import-page { padding: 38px; max-width: 680px; margin: 0 auto 90px; }
+    .import-page h1 { font-size: 30px; }
+    .source-tabs { display: flex; gap: 10px; margin: 24px 0; }
+    .source-tab {
+      flex: 1;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 13px;
+      background: var(--paper);
+      color: inherit;
+      font-weight: 600;
+    }
+    .source-tab.selected {
+      background: var(--soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .form {
+      background: var(--paper);
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+    .form label { display: block; font-size: 13px; margin: 0 0 8px; }
+    .form input:not([type=checkbox]), .form textarea, .form select { margin-bottom: 20px; }
+    .form details { font-size: 13px; margin-bottom: 24px; color: var(--muted); }
+    .form details label { margin-top: 14px; }
+    .form .primary, .form button[type="submit"], #youtubeModalOk, #importModalOk { width: 100%; }
+    .form p { font-size: 12px; color: var(--muted); }
+    .progress-list { display: flex; flex-direction: column; gap: 16px; margin: 25px 0; color: var(--muted); }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.65rem 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .log-panel {
+      margin: 12px 36px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--paper);
+      overflow: hidden;
+      display: none;
+    }
+    .log-panel.visible { display: block; }
+    .log-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.88rem;
+    }
+    .log-head .badge { color: var(--accent); font-weight: 600; }
+    .log-head .badge.error { color: var(--danger); }
+    .log-body {
+      margin: 0;
+      max-height: 180px;
+      overflow: auto;
+      padding: 0.75rem 0.9rem 1rem;
+      font: 400 0.78rem/1.45 ui-monospace, monospace;
+      white-space: pre-wrap;
+      color: var(--muted);
+    }
+    .status { padding: 0 36px; color: var(--muted); }
+    .status.error, .error { color: var(--danger); }
+    .welcome-card[hidden], .welcome-card { display: none !important; }
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .modal-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 80;
-      pointer-events: none;
+      background: #1f2a2866;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 1rem;
     }
+    .modal-backdrop.visible { display: flex; }
+    .modal-backdrop.confirm-backdrop { z-index: 55; }
+    .modal {
+      width: min(480px, 100%);
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: grid;
+      gap: 0.55rem;
+    }
+    .modal h3 { margin: 0; font-size: 1.2rem; }
+    .modal .time-hint, .modal .confirm-message {
+      margin: 0;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+    .modal .row-btns { justify-content: flex-end; }
+    .modal select {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      padding: 0.55rem 0.65rem;
+    }
+
+    .dict-popover {
+      position: fixed;
+      z-index: 40;
+      width: min(360px, calc(100vw - 1.5rem));
+      max-height: min(70vh, 420px);
+      display: flex;
+      flex-direction: column;
+      padding: 0.85rem 0.95rem 0.9rem;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+    .dict-popover[hidden] { display: none !important; }
+    .dict-popover .dict-head { display: flex; align-items: baseline; gap: 0.55rem; margin-bottom: 0.45rem; }
+    .dict-popover .dict-lemma { font-family: Georgia, serif; font-size: 30px; font-weight: 500; }
+    .dict-popover .dict-phonetic { font-size: 0.85rem; color: var(--muted); }
+    .dict-popover .dict-close-x {
+      margin-left: auto; appearance: none; border: 0; background: transparent;
+      color: var(--muted); font-size: 1.25rem; line-height: 1; padding: 0.1rem 0.35rem; cursor: pointer;
+    }
+    .dict-popover .dict-status { font-size: 0.88rem; color: var(--muted); margin: 0.25rem 0 0.5rem; }
+    .dict-popover .dict-status.error { color: var(--danger); }
+    .dict-popover .dict-senses { overflow: auto; flex: 1 1 auto; margin: 0.15rem 0 0.55rem; }
+    .dict-popover .dict-sense { margin: 0 0 0.55rem; padding-bottom: 0.45rem; border-bottom: 1px solid var(--line); font-size: 0.9rem; line-height: 1.45; }
+    .dict-popover .dict-pos {
+      display: inline-block; font-size: 0.72rem; font-weight: 600; color: var(--accent);
+      background: var(--soft); border-radius: 999px; padding: 0.12rem 0.45rem; margin-bottom: 0.25rem;
+    }
+    .dict-popover .dict-context {
+      font-size: 0.8rem; color: var(--muted); background: var(--soft); border-radius: 8px;
+      padding: 0.45rem 0.55rem; margin-bottom: 0.65rem; line-height: 1.4;
+    }
+    .dict-popover .dict-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .dict-popover button.dict-save { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 0.45rem 0.8rem; }
+    .dict-popover button.dict-dismiss {
+      background: var(--paper); color: var(--ink); border: 1px solid var(--line);
+      border-radius: 8px; padding: 0.45rem 0.8rem;
+    }
+
+    .notes-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 5.5rem;
+      transform: translateX(-50%) translateY(120%);
+      background: #243b32;
+      color: white;
+      border-radius: 9px;
+      padding: 12px 24px;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 220ms ease, opacity 220ms ease;
+      z-index: 40;
+      max-width: 90%;
+      text-align: center;
+    }
+    .notes-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .onboarding-overlay { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
     .onboarding-overlay.visible { pointer-events: auto; }
     .onboarding-overlay[hidden] { display: none !important; }
     .onboarding-hole {
-      position: absolute;
-      border-radius: 14px;
-      box-shadow: 0 0 0 9999px rgba(8, 12, 11, 0.62);
-      outline: 2px solid rgba(196, 163, 90, 0.9);
-      outline-offset: 2px;
-      transition: top 180ms ease, left 180ms ease, width 180ms ease, height 180ms ease;
-      pointer-events: none;
-      background: transparent;
+      position: absolute; border-radius: 14px;
+      box-shadow: 0 0 0 9999px rgba(31, 42, 40, 0.55);
+      outline: 2px solid var(--accent); outline-offset: 2px;
+      pointer-events: none; background: transparent;
     }
     .onboarding-card {
-      position: absolute;
-      z-index: 2;
-      width: min(22rem, calc(100vw - 1.5rem));
-      padding: 1rem 1.05rem 0.95rem;
-      border-radius: 16px;
-      background: #f3efe6;
-      color: #1c241f;
-      box-shadow: var(--shadow);
-      pointer-events: auto;
+      position: absolute; z-index: 2; width: min(22rem, calc(100vw - 1.5rem));
+      padding: 1rem 1.05rem 0.95rem; border-radius: 16px;
+      background: var(--paper); color: var(--ink); box-shadow: var(--shadow); pointer-events: auto;
     }
-    .onboarding-card .ob-step {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #5e6b64;
-      margin-bottom: 0.35rem;
+    .onboarding-card .ob-step { font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 0.35rem; }
+    .onboarding-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
+    .onboarding-card p { margin: 0 0 0.95rem; font-size: 0.92rem; line-height: 1.5; color: #3d4a43; }
+    .onboarding-card .ob-actions { display: flex; justify-content: flex-end; gap: 0.45rem; flex-wrap: wrap; }
+    .summary-box {
+      background: var(--soft);
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 14px;
+      line-height: 1.8;
     }
-    .onboarding-card h3 {
-      margin: 0 0 0.4rem;
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.2rem;
-    }
-    .onboarding-card p {
-      margin: 0 0 0.95rem;
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: #3d4a43;
-    }
-    .onboarding-card .ob-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.45rem;
-      flex-wrap: wrap;
-    }
-    .onboarding-card .ob-actions button {
-      border-radius: 999px;
-      padding: 0.55rem 0.95rem;
-    }
-    .onboarding-card .ob-actions .secondary {
-      background: transparent;
-      color: #1c241f;
-      border: 1px solid rgba(28, 36, 31, 0.24);
-    }
-
     audio { display: none; }
+    .split-btn { display: inline-flex; }
+    .sheet-help-btn {
+      background: none; border: 0; color: var(--accent); padding: 8px 2px; font-weight: 650;
+    }
+    .legend, .sheet-tip { display: none; }
 
-    @media (max-width: 720px) {
-      .topbar { padding-left: 1rem; padding-right: 1rem; }
-      .brand-block, .file-actions, .controls { flex: 1 1 100%; }
-      .controls { justify-content: stretch; }
-      .transport { width: 100%; }
-      select { width: 100%; max-width: none; flex: 1 1 140px; }
-      .stage { grid-template-columns: 1fr; }
-      .notes-panel {
-        border-left: 0;
-        border-top: 1px solid rgba(243, 239, 230, 0.1);
-        max-height: 42vh;
+    @media (max-width: 760px) {
+      .top { padding: 16px 18px; gap: 8px; flex-wrap: wrap; }
+      .top nav { order: 3; width: 100%; justify-content: flex-start; gap: 4px; }
+      .top .primary { padding: 10px 12px; font-size: 13px; }
+      .brand, .brand-btn { font-size: 20px; }
+      .home { padding: 30px 22px 48px; }
+      .hero { grid-template-columns: 1fr; gap: 24px; }
+      .hero h1 { font-size: 28px; }
+      .art { height: 160px; order: 2; }
+      .tiles { grid-template-columns: 1fr; gap: 12px; }
+      .tile { min-height: 112px; padding: 20px; }
+      .learning { padding: 22px 18px 190px; }
+      .lesson-head {
+        flex-direction: column;
+        align-items: stretch;
       }
+      .lesson-head h2 {
+        font-size: 22px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .hero h1 { overflow-wrap: anywhere; }
+      .transcript { padding: 10px 16px; }
+      .en { font-size: 22px; }
+      .player { padding: 14px 18px; gap: 10px; flex-wrap: wrap; }
+      .player .seekbox { flex: 1 1 100%; order: 5; }
+      .note-page { padding: 30px 20px; }
+      .note-page h1 { font-size: 26px; }
+      .import-page { padding: 26px 20px; }
+      .form { padding: 20px; }
+      .log-panel { margin: 12px 18px 0; }
     }
   </style>
 </head>
 <body class="mode-learning">
-  <header class="topbar">
-    <div class="topbar-main">
-    <div class="brand-block">
-      <h1 class="brand">英聽君</h1>
-      <label class="mode-toggle" title="開啟後顯示局部重辨、匯出 CSV、技術選項等">
+  <header class="top">
+    <button class="brand-btn" id="brandHomeBtn" type="button">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13V10a8 8 0 0 1 16 0v3M4 12h4v8H4zM16 12h4v8h-4z"/></svg>
+      </span>
+      英聽君
+    </button>
+    <nav>
+      <button class="nav-link selected" id="navHomeBtn" type="button">我的教材</button>
+      <button class="nav-link" id="navNotesBtn" type="button">學習筆記</button>
+    </nav>
+    <div class="top-actions">
+      <button class="primary" id="navImportBtn" type="button">＋ 新增教材</button>
+      <label class="mode-toggle" title="開啟後顯示局部重辨時間框選與技術選項">
         <input type="checkbox" id="advancedModeToggle" />
         進階
       </label>
-      <button class="secondary help-btn" id="helpBtn" type="button" title="新手導引" aria-label="新手導引">？</button>
-    </div>
-    <div class="file-actions" id="lessonActions">
-      <div class="import-group" id="importGroup">
-        <button class="secondary file-btn" id="importBtn" type="button" aria-haspopup="menu" aria-expanded="false">匯入 ▾</button>
-        <div class="import-menu" id="importMenu" role="menu">
-          <button class="secondary" type="button" id="importYoutubeBtn" role="menuitem">YouTube…</button>
-          <button class="secondary" type="button" id="importFileBtn" role="menuitem">本機錄音檔…</button>
-        </div>
-      </div>
-      <input id="importInput" type="file" accept="audio/*,.m4a,.wav,.mp3,.aac,.flac,.ogg,.caf,.aiff,.aif" />
-      <label for="audioSelect">教材</label>
-      <select id="audioSelect" aria-label="教材">
-        <option value="">（載入教材中…）</option>
-      </select>
-      <div class="import-group" id="loadGroup">
-        <div class="split-btn" id="openLessonBtn">
-          <button class="secondary" id="loadBtn" type="button" disabled>打開</button>
-          <button class="secondary split-caret advanced-only" id="loadMenuBtn" type="button" disabled aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">▾</button>
-        </div>
-        <div class="import-menu" id="loadMenu" role="menu">
-          <button class="secondary" type="button" id="renameBtn" role="menuitem" disabled>重新命名</button>
-          <button class="secondary" type="button" id="exportBtn" role="menuitem" disabled>匯出</button>
-          <button class="danger" type="button" id="deleteBtn" role="menuitem" disabled>刪除</button>
+      <div class="help-group" id="helpGroup">
+        <button class="secondary help-btn" id="helpBtn" type="button" title="使用說明" aria-label="使用說明" aria-haspopup="menu" aria-expanded="false">？</button>
+        <div class="import-menu" id="helpMenu" role="menu">
+          <button class="secondary" type="button" id="helpAppTourBtn" role="menuitem">整體使用說明</button>
+          <button class="secondary" type="button" id="helpLessonTourBtn" role="menuitem">文稿說明</button>
         </div>
       </div>
     </div>
-    <div class="controls" id="playbackControls">
-      <button id="playBtn" type="button">播放</button>
-      <button class="secondary" id="backBtn" type="button">-5s</button>
-      <button class="secondary" id="fwdBtn" type="button">+5s</button>
-      <select id="speedSelect" title="播放速度" aria-label="播放速度">
-        <option value="0.5">0.5×</option>
-        <option value="0.75">0.75×</option>
-        <option value="1" selected>1.0×</option>
-        <option value="1.25">1.25×</option>
-        <option value="1.5">1.5×</option>
-        <option value="2">2.0×</option>
-      </select>
-      <div class="transport">
-        <input id="seek" type="range" min="0" max="0" step="0.01" value="0" />
-        <div class="time-row">
-          <span id="curTime">00:00</span>
-          <span id="durTime">00:00</span>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="meta" id="meta">載入中…</div>
   </header>
+
+  <div class="legacy-tools" id="lessonActions">
+    <div class="import-group" id="importGroup">
+      <button class="secondary file-btn" id="importBtn" type="button" aria-haspopup="menu" aria-expanded="false">匯入 ▾</button>
+      <div class="import-menu" id="importMenu" role="menu">
+        <button class="secondary" type="button" id="importYoutubeBtn" role="menuitem">YouTube…</button>
+        <button class="secondary" type="button" id="importFileBtn" role="menuitem">本機錄音檔…</button>
+      </div>
+    </div>
+    <input id="importInput" type="file" accept="audio/*,.m4a,.wav,.mp3,.aac,.flac,.ogg,.caf,.aiff,.aif" />
+    <label for="audioSelect">教材</label>
+    <select id="audioSelect" aria-label="教材">
+      <option value="">（載入教材中…）</option>
+    </select>
+    <div class="import-group" id="loadGroup">
+      <div class="split-btn" id="openLessonBtn">
+        <button class="secondary" id="loadBtn" type="button" disabled>打開</button>
+        <button class="secondary split-caret" id="loadMenuBtn" type="button" disabled aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">▾</button>
+      </div>
+    </div>
+  </div>
 
   <div class="log-panel" id="logPanel">
     <div class="log-head">
@@ -1240,12 +989,68 @@
     <pre class="log-body" id="logBody"></pre>
   </div>
 
-  <main class="stage">
-    <div class="stage-main">
+  <section class="page active" id="pageHome">
+    <div class="home">
+      <div class="hero" id="homeHero"></div>
+      <div class="section-row">
+        <h2>用自己的內容練習</h2>
+        <span class="muted" style="font-size:12px">只要選擇來源，剩下交給英聽君</span>
+      </div>
+      <div class="tiles">
+        <button class="tile" id="homeFileTile" type="button">
+          <span class="tile-icon">↥</span>
+          <h3>匯入生活錄音</h3>
+          <p>會議、電話、日常對話<br>選擇電腦裡的音檔即可。</p>
+          <span class="arrow">開始匯入 →</span>
+        </button>
+        <button class="tile" id="homeYoutubeTile" type="button">
+          <span class="tile-icon">▷</span>
+          <h3>貼上 YouTube 連結</h3>
+          <p>用你喜歡的影片練英文<br>自動整理成雙語文稿。</p>
+          <span class="arrow">貼上連結 →</span>
+        </button>
+        <button class="tile" id="homeLibraryTile" type="button">
+          <span class="tile-icon">≋</span>
+          <h3>打開我的教材</h3>
+          <p id="homeLibraryTileCopy">已整理好的錄音與影片<br>點卡片就能開始跟讀。</p>
+          <span class="arrow">查看教材 →</span>
+        </button>
+      </div>
+      <div class="section-row" id="homeLibraryHead">
+        <h2>我的教材</h2>
+        <span class="muted" id="homeLibraryCount" style="font-size:12px"></span>
+      </div>
+      <div class="library-grid" id="homeLibrary"></div>
+      <div class="local">⌂ 本機教材與筆記保存在你的電腦。</div>
+    </div>
+  </section>
+
+  <section class="page" id="pageLearn">
+    <div class="learning">
+      <button class="back" id="backHomeBtn" type="button">← 回到我的教材</button>
+      <div class="lesson-head">
+        <div>
+          <h2 id="title">文稿</h2>
+          <p class="meta" id="meta">載入中…</p>
+        </div>
+        <div class="manage-group" id="manageGroup">
+          <button class="manage-btn" id="manageLessonBtn" type="button" aria-haspopup="menu" aria-expanded="false">教材選單 ⋯</button>
+          <div class="import-menu" id="loadMenu" role="menu">
+            <button class="secondary" type="button" id="renameBtn" role="menuitem" disabled>重新命名</button>
+            <button class="secondary" type="button" id="exportBtn" role="menuitem" disabled>匯出</button>
+            <button class="danger" type="button" id="deleteBtn" role="menuitem" disabled>刪除</button>
+          </div>
+          <button class="sheet-help-btn" id="sheetHelpBtn" type="button" title="文稿使用說明">文稿說明</button>
+        </div>
+      </div>
+      <div class="lesson-tools">
+        <button class="textbtn" id="toggleZhBtn" type="button">隱藏中文</button>
+        <button class="textbtn" id="openNotesFromLearnBtn" type="button">我的筆記</button>
+      </div>
       <div class="status" id="status">
         <div class="welcome-card" id="welcomeCard" hidden>
           <h2>開始第一本教材</h2>
-          <p>把真實生活裡沒聽懂的英文變成可跟讀的雙語教材。可先打開內建試用教材（Aesop 公版寓言），或匯入 YouTube／本機錄音。</p>
+          <p>把真實生活裡沒聽懂的英文變成可跟讀的雙語教材。</p>
           <div class="welcome-actions">
             <button type="button" id="welcomeDemoBtn">打開試用教材</button>
             <button class="secondary" type="button" id="welcomeYoutubeBtn">從 YouTube 開始</button>
@@ -1253,22 +1058,14 @@
             <button class="secondary" type="button" id="welcomeTourBtn">看使用說明</button>
           </div>
         </div>
-        <div id="statusMessage">正在載入錄音與文稿…</div>
+        <div id="statusMessage"></div>
       </div>
       <section class="sheet" id="sheet" hidden>
         <div class="sheet-head">
           <div class="sheet-head-row">
-            <h2 id="title">文稿</h2>
-            <button class="sheet-help-btn" id="sheetHelpBtn" type="button" title="文稿使用說明">文稿說明</button>
+            <h2>文稿</h2>
           </div>
-          <div class="legend">
-            <span><i class="dot s1"></i>說話人 A</span>
-            <span><i class="dot s2"></i>說話人 B</span>
-            <span class="legend-howto advanced-only">點詞查字典 · 點段落選中 · 選字松手存筆記 · 側欄「收藏這句」</span>
-          </div>
-          <p class="sheet-tip learning-only" id="sheetTip">
-            <strong>怎麼用這頁：</strong>點英文詞可查字典 · 點整句可跟讀 · 右側可「收藏這句」
-          </p>
+          <div class="legend"></div>
         </div>
         <div class="learning-fix-bar" id="learningFixBar" aria-live="polite">
           <span>覺得這段聽錯了？</span>
@@ -1287,43 +1084,123 @@
         <div class="transcript" id="transcript"></div>
       </section>
     </div>
+  </section>
 
-    <aside class="notes-panel" id="notesPanel">
-      <div class="notes-head">
-        <h2>學習筆記</h2>
-        <div class="notes-actions">
-          <label class="loop-toggle" title="點筆記時重複播放該句">
-            <input type="checkbox" id="loopNoteToggle" />
-            單句循環
-          </label>
-          <button class="secondary advanced-only" id="exportNotesBtn" type="button">匯出 CSV</button>
-        </div>
-      </div>
-      <div class="notes-primary">
-        <div id="notesPrimaryActions">
-          <button id="saveSentenceBtn" class="save-sentence-btn" type="button">收藏這句</button>
-          <p class="notes-hint learning-only">點英文詞可查字典；按「收藏這句」或拖選英文即可記下。點筆記可跳播。</p>
-          <p class="notes-hint advanced-only">文稿或筆記裡點單一英文詞可查詞典。同一則可寫入多個生字；chip 上 × 可移除該詞。點卡片空白處跳播。</p>
-        </div>
-      </div>
-      <div class="notes-list" id="notesList">
-        <div class="notes-empty">打開教材後即可收藏句子</div>
-      </div>
-      <details class="notes-advanced">
-        <summary>進階：手動新增</summary>
-        <form class="notes-form" id="manualNoteForm">
-          <label for="manualEn">英文句</label>
-          <textarea id="manualEn" placeholder="輸入英文例句…" required></textarea>
-          <label for="manualZh">中譯</label>
-          <textarea id="manualZh" placeholder="輸入中文翻譯…"></textarea>
-          <div class="row-btns">
-            <button type="submit">新增筆記</button>
-            <button class="secondary" type="button" id="manualUseTimeBtn">帶入目前時間</button>
+  <section class="page" id="pageNotes">
+    <div class="note-page">
+      <button class="back" id="backFromNotesBtn" type="button">← 回到正在聽的教材</button>
+      <div class="eyebrow" id="notesEyebrow">學習筆記</div>
+      <h1>把想記住的英文留下來。</h1>
+      <aside class="notes-panel" id="notesPanel">
+        <div class="notes-head">
+          <h2>這一本的筆記</h2>
+          <div class="notes-actions">
+            <button class="secondary" id="exportNotesBtn" type="button">匯出筆記 CSV</button>
           </div>
-        </form>
-      </details>
-    </aside>
-  </main>
+        </div>
+        <p class="notes-hint" id="notesHint">筆記屬於這一本教材。點「回到這段」就能再次聽。</p>
+        <div class="notes-primary">
+          <div id="notesPrimaryActions">
+            <button id="saveSentenceBtn" class="save-sentence-btn" type="button">收藏這句</button>
+          </div>
+        </div>
+        <div class="notes-list" id="notesList">
+          <div class="notes-empty">打開教材後即可收藏句子</div>
+        </div>
+        <div class="note-tools">
+          <details class="notes-advanced">
+            <summary>自己寫一則筆記</summary>
+            <form class="notes-form" id="manualNoteForm">
+              <label for="manualEn">英文句</label>
+              <textarea id="manualEn" placeholder="輸入英文例句…" required></textarea>
+              <label for="manualZh">中文或自己的心得</label>
+              <textarea id="manualZh" placeholder="輸入中文翻譯…"></textarea>
+              <div class="row-btns">
+                <button class="primary" type="submit">新增筆記</button>
+                <button class="secondary" type="button" id="manualUseTimeBtn">帶入目前時間</button>
+              </div>
+            </form>
+          </details>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="page" id="pageImport">
+    <div class="import-page">
+      <button class="back" id="importBackBtn" type="button">← 回到我的教材</button>
+      <div class="eyebrow">把熟悉的內容，變成你的教材</div>
+      <h1 id="importPageTitle">新增一本教材</h1>
+      <p class="muted" id="importPageLead">選擇錄音或貼上連結，就能開始。<br>英聽君會幫你整理英文與中文。</p>
+      <div id="importFormWrap">
+        <div class="source-tabs">
+          <button class="source-tab selected" id="importTabYoutube" type="button">YouTube 影片</button>
+          <button class="source-tab" id="importTabFile" type="button">電腦裡的錄音</button>
+        </div>
+        <div class="form" id="importYoutubeForm">
+          <label for="youtubeUrl">貼上影片連結</label>
+          <input id="youtubeUrl" type="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=..." />
+          <p class="time-hint" id="youtubeProbeHint">貼上連結後可預覽影片資訊</p>
+          <label for="youtubeStem">教材名稱（可以之後再改）</label>
+          <input id="youtubeStem" type="text" autocomplete="off" placeholder="例如：今天的工作會議" />
+          <details class="youtube-advanced" id="youtubeAdvanced">
+            <summary>更多處理選項（通常不需要更改）</summary>
+            <label for="youtubeMode">文稿來源</label>
+            <select id="youtubeMode">
+              <option value="auto" selected>自動選擇（建議）</option>
+              <option value="caption">只用影片字幕</option>
+              <option value="whisper">重新從語音辨識</option>
+            </select>
+            <label class="check-row">
+              <input id="youtubeSkipTranslate" type="checkbox" />
+              略過中文翻譯（較快）
+            </label>
+            <label class="check-row">
+              <input id="youtubeAlignTimings" type="checkbox" checked />
+              對齊跟讀時間（保留字幕文字；較慢但較準）
+            </label>
+          </details>
+          <button class="primary" type="button" id="youtubeModalOk">幫我做成教材 →</button>
+          <p style="margin:14px 0 0">本機處理需要一些時間，完成後會直接帶你開始聽。</p>
+        </div>
+        <div class="form" id="importFileForm" hidden>
+          <p class="time-hint" id="importModalFile">尚未選擇檔案</p>
+          <button class="secondary" type="button" id="importPickFileBtn">選擇音檔</button>
+          <label for="importStem">教材名稱（可以之後再改）</label>
+          <input id="importStem" type="text" autocomplete="off" placeholder="例如：今天的工作會議" />
+          <p class="time-hint">用於檔案與文稿名稱；可含中文。留空則使用原檔名。</p>
+          <button class="primary" type="button" id="importModalOk">幫我做成教材 →</button>
+        </div>
+      </div>
+      <button class="secondary" type="button" id="youtubeModalCancel" hidden>取消</button>
+      <button class="secondary" type="button" id="importModalCancel" hidden>取消</button>
+    </div>
+  </section>
+
+  <div class="player" id="playbackControls">
+    <button class="skip" id="backBtn" type="button">−5 秒</button>
+    <button class="play" id="playBtn" type="button" aria-label="播放">播放</button>
+    <button class="skip" id="fwdBtn" type="button">+5 秒</button>
+    <div class="seekbox transport">
+      <input id="seek" type="range" min="0" max="0" step="0.01" value="0" aria-label="播放進度" />
+      <div class="time-row times">
+        <span id="curTime">00:00</span>
+        <span id="durTime">00:00</span>
+      </div>
+    </div>
+    <select id="speedSelect" title="播放速度" aria-label="播放速度">
+      <option value="0.5">0.5×</option>
+      <option value="0.75">0.75×</option>
+      <option value="1" selected>1.0×</option>
+      <option value="1.25">1.25×</option>
+      <option value="1.5">1.5×</option>
+      <option value="2">2.0×</option>
+    </select>
+    <label class="looplabel">
+      <input type="checkbox" id="loopNoteToggle" />
+      重複這段
+    </label>
+  </div>
 
   <div class="notes-toast" id="notesToast" role="status" aria-live="polite"></div>
 
@@ -1333,7 +1210,7 @@
       <p class="confirm-message" id="confirmMessage"></p>
       <div class="row-btns">
         <button class="secondary" type="button" id="confirmCancel">取消</button>
-        <button type="button" id="confirmOk">確定</button>
+        <button class="primary" type="button" id="confirmOk">確定</button>
       </div>
     </div>
   </div>
@@ -1352,74 +1229,44 @@
         <button class="secondary" type="button" id="noteModalDict">查詞典</button>
         <button class="secondary advanced-only" type="button" id="noteModalRetranslate">重新翻譯</button>
         <button class="secondary" type="button" id="noteModalCancel">取消</button>
-        <button type="button" id="noteModalSave">儲存</button>
+        <button class="primary" type="button" id="noteModalSave">儲存</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="importModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-labelledby="importModalTitle">
-      <h3 id="importModalTitle">匯入音檔</h3>
-      <p class="time-hint" id="importModalFile"></p>
-      <label for="importStem">教材名稱</label>
-      <input id="importStem" type="text" autocomplete="off" />
-      <p class="time-hint">用於檔案與文稿名稱；可含中文。留空則使用原檔名。</p>
-      <div class="row-btns">
-        <button class="secondary" type="button" id="importModalCancel">取消</button>
-        <button type="button" id="importModalOk">開始轉寫</button>
-      </div>
-    </div>
-  </div>
+  <div class="modal-backdrop" id="importModal" aria-hidden="true"></div>
+  <div class="modal-backdrop" id="youtubeModal" aria-hidden="true"></div>
 
-  <div class="modal-backdrop" id="youtubeModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-labelledby="youtubeModalTitle">
-      <h3 id="youtubeModalTitle">從 YouTube 匯入</h3>
-      <label for="youtubeUrl">YouTube URL</label>
-      <input id="youtubeUrl" type="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=..." />
-      <p class="time-hint" id="youtubeProbeHint">貼上連結後可預覽影片資訊</p>
-      <label for="youtubeStem">教材名稱</label>
-      <input id="youtubeStem" type="text" autocomplete="off" />
-      <details class="youtube-advanced" id="youtubeAdvanced">
-        <summary>進階選項</summary>
-        <label for="youtubeMode">模式</label>
-        <select id="youtubeMode">
-          <option value="auto" selected>自動（有字幕先用字幕）</option>
-          <option value="caption">只用字幕</option>
-          <option value="whisper">強制語音辨識</option>
-        </select>
-        <label class="check-row">
-          <input id="youtubeSkipTranslate" type="checkbox" />
-          略過中文翻譯（較快）
-        </label>
-        <label class="check-row">
-          <input id="youtubeAlignTimings" type="checkbox" checked />
-          對齊跟讀光棒（保留字幕文字；較慢但較準）
-        </label>
-      </details>
+  <div class="modal-backdrop" id="fixModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="fixModalTitle">
+      <h3 id="fixModalTitle">覺得這段文字不對？</h3>
+      <p>重新辨識這一段，不必重做整份教材。你也能還原這次修正。</p>
+      <div class="summary-box" id="fixModalSummary"></div>
+      <p class="time-hint advanced-only">進階模式下，也可在文稿上方的「局部重辨」自己框選時間。</p>
       <div class="row-btns">
-        <button class="secondary" type="button" id="youtubeModalCancel">取消</button>
-        <button type="button" id="youtubeModalOk">開始</button>
+        <button class="secondary" type="button" id="fixModalRestore">還原上次修正</button>
+        <button class="primary" type="button" id="fixModalRun">重新辨識這一段</button>
       </div>
     </div>
   </div>
 
   <div class="modal-backdrop" id="renameModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-labelledby="renameModalTitle">
-      <h3 id="renameModalTitle">重新命名</h3>
+      <h3 id="renameModalTitle">重新命名教材</h3>
       <p class="time-hint" id="renameModalFile"></p>
-      <label for="renameStem">新名稱</label>
+      <label for="renameStem">教材名稱</label>
       <input id="renameStem" type="text" autocomplete="off" />
       <p class="time-hint">將一併更新音檔、文稿、筆記等相關檔案名稱。</p>
       <div class="row-btns">
         <button class="secondary" type="button" id="renameModalCancel">取消</button>
-        <button type="button" id="renameModalOk">確定</button>
+        <button class="primary" type="button" id="renameModalOk">儲存名稱</button>
       </div>
     </div>
   </div>
 
   <div class="modal-backdrop" id="exportModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-labelledby="exportModalTitle">
-      <h3 id="exportModalTitle">匯出文稿</h3>
+      <h3 id="exportModalTitle">下載雙語文稿</h3>
       <p class="time-hint">匯出目前載入的英文轉寫與中文翻譯（由瀏覽器下載；多格式會打成 zip）。</p>
       <label for="exportFilename">檔名</label>
       <input id="exportFilename" type="text" autocomplete="off" placeholder="教材名稱" />
@@ -1437,7 +1284,7 @@
       </label>
       <div class="row-btns">
         <button class="secondary" type="button" id="exportModalCancel">取消</button>
-        <button type="button" id="exportModalOk">匯出</button>
+        <button class="primary" type="button" id="exportModalOk">下載</button>
       </div>
     </div>
   </div>
@@ -1452,7 +1299,7 @@
     <div class="dict-senses" id="dictSenses"></div>
     <div class="dict-context" id="dictContext" hidden></div>
     <div class="dict-actions">
-      <button class="dict-save" type="button" id="dictSaveBtn">存到筆記</button>
+      <button class="dict-save" type="button" id="dictSaveBtn">存到這本的筆記</button>
       <button class="dict-dismiss" type="button" id="dictDismissBtn">關閉</button>
     </div>
   </div>
@@ -1461,11 +1308,11 @@
     <div class="onboarding-hole" id="onboardingHole"></div>
     <div class="onboarding-card" id="onboardingCard" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" aria-describedby="onboardingBody">
       <div class="ob-step" id="onboardingStepLabel">1 / 4</div>
-      <h3 id="onboardingTitle">新手導引</h3>
+      <h3 id="onboardingTitle">使用說明</h3>
       <p id="onboardingBody"></p>
       <div class="ob-actions">
         <button class="secondary" type="button" id="onboardingSkip">跳過</button>
-        <button type="button" id="onboardingNext">下一步</button>
+        <button class="primary" type="button" id="onboardingNext">下一步</button>
       </div>
     </div>
   </div>
@@ -1488,6 +1335,10 @@
     const welcomeFileBtn = document.getElementById("welcomeFileBtn");
     const welcomeTourBtn = document.getElementById("welcomeTourBtn");
     const helpBtn = document.getElementById("helpBtn");
+    const helpGroup = document.getElementById("helpGroup");
+    const helpMenu = document.getElementById("helpMenu");
+    const helpAppTourBtn = document.getElementById("helpAppTourBtn");
+    const helpLessonTourBtn = document.getElementById("helpLessonTourBtn");
     const onboardingOverlay = document.getElementById("onboardingOverlay");
     const onboardingHole = document.getElementById("onboardingHole");
     const onboardingCard = document.getElementById("onboardingCard");
@@ -1589,6 +1440,46 @@
     const rangeRunBtn = document.getElementById("rangeRunBtn");
     const rangeRestoreBtn = document.getElementById("rangeRestoreBtn");
 
+    const pageHome = document.getElementById("pageHome");
+    const pageLearn = document.getElementById("pageLearn");
+    const pageNotes = document.getElementById("pageNotes");
+    const pageImport = document.getElementById("pageImport");
+    const homeHero = document.getElementById("homeHero");
+    const homeLibrary = document.getElementById("homeLibrary");
+    const homeLibraryCount = document.getElementById("homeLibraryCount");
+    const homeLibraryTileCopy = document.getElementById("homeLibraryTileCopy");
+    const navHomeBtn = document.getElementById("navHomeBtn");
+    const navNotesBtn = document.getElementById("navNotesBtn");
+    const navImportBtn = document.getElementById("navImportBtn");
+    const brandHomeBtn = document.getElementById("brandHomeBtn");
+    const manageLessonBtn = document.getElementById("manageLessonBtn");
+    const manageGroup = document.getElementById("manageGroup");
+    const toggleZhBtn = document.getElementById("toggleZhBtn");
+    const openNotesFromLearnBtn = document.getElementById("openNotesFromLearnBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const backFromNotesBtn = document.getElementById("backFromNotesBtn");
+    const importBackBtn = document.getElementById("importBackBtn");
+    const importTabYoutube = document.getElementById("importTabYoutube");
+    const importTabFile = document.getElementById("importTabFile");
+    const importYoutubeForm = document.getElementById("importYoutubeForm");
+    const importFileForm = document.getElementById("importFileForm");
+    const importPickFileBtn = document.getElementById("importPickFileBtn");
+    const importPageTitle = document.getElementById("importPageTitle");
+    const importFormWrap = document.getElementById("importFormWrap");
+    const importPageLead = document.getElementById("importPageLead");
+    const notesEyebrow = document.getElementById("notesEyebrow");
+    const fixModal = document.getElementById("fixModal");
+    const fixModalSummary = document.getElementById("fixModalSummary");
+    const fixModalRun = document.getElementById("fixModalRun");
+    const fixModalRestore = document.getElementById("fixModalRestore");
+    const LAST_LESSON_KEY = "ytj_last_audio";
+    const HOME_ART = `<svg viewBox="0 0 340 220" fill="none" aria-hidden="true"><rect x="74" y="25" width="160" height="180" rx="12" fill="#fdfcf4" transform="rotate(-9 74 25)"/><rect x="106" y="22" width="156" height="181" rx="12" fill="#fdfcf4" stroke="#a8bfa5"/><path d="M132 66h103M132 82h85M132 136h103M132 152h72" stroke="#b1bdae" stroke-width="5" stroke-linecap="round"/><rect x="122" y="97" width="130" height="24" rx="7" fill="#dce8bd"/><path d="M144 109h10m9 0h20m9 0h8m9 0h24" stroke="#698463" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="135" r="46" fill="#326c53"/><path d="M79 142v-17a19 19 0 0 1 38 0v17m-38-8h9v18h-9zm29 0h9v18h-9z" stroke="#fbfaf6" stroke-width="4"/><circle cx="277" cy="58" r="20" fill="#c4d6b9"/><path d="m269 58 6 6 10-13" stroke="#426747" stroke-width="3"/></svg>`;
+    let currentPage = "home";
+    let libraryFiles = [];
+    let importSource = "youtube";
+    let hideZh = false;
+    let pendingLearnAfterLoad = false;
+
     let tokens = [];
     let turnsView = [];
     let activeToken = -1;
@@ -1664,41 +1555,63 @@
 
     const ONBOARDING_STEPS = [
       {
-        title: "先加入教材",
-        body: "用「匯入」從 YouTube 貼連結，或選本機錄音。整理成雙語文稿後，就能反覆跟讀。",
-        getTarget: () => document.getElementById("importGroup") || importBtn,
+        title: "從這裡開始",
+        body: "還沒有錄音也沒關係。按「試聽一段故事」，或用上方「新增教材」匯入生活錄音、YouTube。",
+        getTarget: () => homeHero || navImportBtn,
       },
       {
-        title: "打開要練習的教材",
-        body: "在「教材」清單選一本，再按「打開」。有教材時，選了通常也會自動打開。",
-        getTarget: () => document.getElementById("lessonActions"),
+        title: "教材用卡片打開",
+        body: "你的錄音會出現在「我的教材」。點卡片就能開始聽，不必再選清單再按打開。",
+        getTarget: () => homeLibrary || navHomeBtn,
       },
       {
         title: "跟著播放聽",
-        body: "按播放後，正在讀的詞會亮起來。可用 −5 秒／+5 秒微調，或改慢速跟讀。",
+        body: "學習頁底部可以播放、倒退 5 秒、加速或放慢。正在讀的詞會亮起來。",
         getTarget: () => document.getElementById("playbackControls"),
       },
       {
         title: "查詞與收藏",
-        body: "點文稿裡的英文詞可查字典；按右側「收藏這句」把好句子放進筆記，之後複習更方便。",
-        getTarget: () => {
-          if (!sheetEl.hidden) {
-            return document.getElementById("notesPrimaryActions") || saveSentenceBtn;
-          }
-          return document.getElementById("notesPanel") || saveSentenceBtn;
-        },
+        body: "點文稿裡的英文詞可查字典；每段旁邊可「收藏這句」，之後到「學習筆記」複習。",
+        getTarget: () => transcriptEl.querySelector(".sentence-actions") || document.getElementById("navNotesBtn"),
       },
     ];
+
+    function isVisibleTarget(el) {
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width >= 2 && rect.height >= 2;
+    }
+
+    function getRetranscribeTourStep() {
+      const advanced = isAdvancedMode();
+      return {
+        title: "聽錯了可以局部重辨",
+        body: advanced
+          ? "先點一段再按「用選中段」，或自己「設起點／終點」框範圍，然後按「重辨這段」。只會重跑這一小段，不滿意可按「還原」。"
+          : "每段旁有「文字有誤？」。點它可重新辨識這一段。若要自己框選時間，請打開右上「進階」。",
+        getTarget: () => {
+          if (advanced) {
+            const bar = document.getElementById("rangeBar");
+            if (isVisibleTarget(bar)) return bar;
+          }
+          const fixBtn = transcriptEl.querySelector("[data-action='fix']");
+          if (isVisibleTarget(fixBtn)) return fixBtn;
+          const fix = document.getElementById("learningFixBar");
+          if (fix && fix.classList.contains("visible") && isVisibleTarget(fix)) return fix;
+          return document.querySelector(".mode-toggle") || document.getElementById("advancedModeToggle");
+        },
+      };
+    }
 
     const LESSON_TOUR_STEPS = [
       {
         title: "這是雙語文稿",
-        body: "每一段是一句對話：上面英文、下面中文。左側顏色代表不同說話人（說話人 A／B）。",
+        body: "每一段上面是英文、下面是中文。說話人 A／B 會標在段落上方。",
         getTarget: () => transcriptEl.querySelector(".turn") || transcriptEl,
       },
       {
         title: "點英文詞查字典",
-        body: "點句子裡的「單一英文詞」，會跳出解釋。查完可存進右側筆記。",
+        body: "點句子裡的「單一英文詞」，會跳出解釋。查完可存進這本教材的筆記。",
         getTarget: () =>
           transcriptEl.querySelector(".word") ||
           transcriptEl.querySelector(".en") ||
@@ -1706,9 +1619,9 @@
           transcriptEl,
       },
       {
-        title: "跟讀與收藏",
-        body: "點整句可選取並跟著播放；右側按「收藏這句」，之後就能在筆記裡複習。",
-        getTarget: () => document.getElementById("notesPrimaryActions") || saveSentenceBtn,
+        title: "重聽、收藏與修正",
+        body: "每段旁邊可重聽、收藏，或標「文字有誤？」。筆記在上方「學習筆記」，不會一直佔著畫面。",
+        getTarget: () => transcriptEl.querySelector(".sentence-actions") || saveSentenceBtn,
       },
     ];
 
@@ -1755,7 +1668,7 @@
       const target = step.getTarget && step.getTarget();
       onboardingStepLabel.textContent = `${onboardingStep + 1} / ${activeTourSteps.length}`;
       onboardingTitle.textContent = step.title;
-      onboardingBody.textContent = step.body;
+      onboardingBody.textContent = typeof step.body === "function" ? step.body() : step.body;
       onboardingNext.textContent =
         onboardingStep === activeTourSteps.length - 1 ? activeTourFinishLabel : "下一步";
 
@@ -1767,13 +1680,19 @@
         return;
       }
       onboardingCard.style.transform = "";
-      // Ensure highlighted turn is in view for lesson tour.
-      if (target.scrollIntoView && transcriptEl.contains(target)) {
+      if (target.scrollIntoView) {
         try {
           target.scrollIntoView({ block: "nearest", inline: "nearest" });
         } catch (_) { /* ignore */ }
       }
       const rect = target.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) {
+        onboardingHole.style.display = "none";
+        onboardingCard.style.left = "50%";
+        onboardingCard.style.top = "30%";
+        onboardingCard.style.transform = "translate(-50%, 0)";
+        return;
+      }
       const margin = 8;
       onboardingHole.style.display = "block";
       onboardingHole.style.top = `${Math.max(0, rect.top - margin)}px`;
@@ -1811,6 +1730,7 @@
       ) {
         return;
       }
+      closeHelpMenu();
       activeTourSteps = steps;
       activeTourDoneKey = doneKey;
       activeTourFinishLabel = finishLabel;
@@ -1826,7 +1746,9 @@
     }
 
     function openOnboarding({ force = false } = {}) {
-      openTour(ONBOARDING_STEPS, {
+      const steps = [...ONBOARDING_STEPS];
+      if (!sheetEl.hidden && turnsView.length) steps.push(getRetranscribeTourStep());
+      openTour(steps, {
         force,
         doneKey: ONBOARDING_DONE_KEY,
         finishLabel: "開始練習",
@@ -1835,7 +1757,7 @@
 
     function openLessonTour({ force = false } = {}) {
       if (sheetEl.hidden && !force) return;
-      openTour(LESSON_TOUR_STEPS, {
+      openTour([...LESSON_TOUR_STEPS, getRetranscribeTourStep()], {
         force,
         doneKey: LESSON_TOUR_DONE_KEY,
         finishLabel: "開始跟讀",
@@ -1846,11 +1768,12 @@
       if (onboardingForced) return;
       if (onboardingStep >= 0) return;
       if (busy) return;
-      // Prefer lesson tips once a transcript is open.
       if (!sheetEl.hidden && turnsView.length && !isTourDone(LESSON_TOUR_DONE_KEY)) {
         openLessonTour({ force: false });
         return;
       }
+      // Plan A homepage already explains the first step; keep tours on demand.
+      if (currentPage === "home") return;
       if (isOnboardingDone()) return;
       openOnboarding({ force: false });
     }
@@ -1859,7 +1782,7 @@
       if (onboardingForced) return;
       if (onboardingStep >= 0) return;
       if (busy) return;
-      if (sheetEl.hidden || !turnsView.length) return;
+      if (currentPage !== "learn" || sheetEl.hidden || !turnsView.length) return;
       if (isTourDone(LESSON_TOUR_DONE_KEY)) return;
       // If the app tour is still pending, finish app tour first on empty boot;
       // once sheet is open, lesson tour is more relevant.
@@ -1912,6 +1835,245 @@
       }
     }
 
+
+    function isDemoFile(f) {
+      const s = `${(f && f.stem) || ""} ${(f && f.name) || ""}`;
+      return /aesop|charcoal|demo-aesop/i.test(s);
+    }
+
+    function friendlyTitle(f) {
+      if (!f) return "";
+      if (isDemoFile(f)) return "燒炭工與漂洗工";
+      return displayAudioName(f.stem || f.name || "");
+    }
+
+    function rememberLastLesson(name) {
+      if (!name) return;
+      try { localStorage.setItem(LAST_LESSON_KEY, name); } catch (_) { /* ignore */ }
+    }
+
+    function lastLessonName() {
+      try { return localStorage.getItem(LAST_LESSON_KEY) || ""; } catch (_) { return ""; }
+    }
+
+    function setPlayButton(playing) {
+      playBtn.textContent = playing ? "Ⅱ" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    }
+
+    function showPage(name) {
+      currentPage = name;
+      [pageHome, pageLearn, pageNotes, pageImport].forEach((el) => {
+        if (el) el.classList.toggle("active", el.id === "page" + name.charAt(0).toUpperCase() + name.slice(1));
+      });
+      document.body.classList.toggle("page-learn", name === "learn");
+      document.body.classList.toggle("has-lesson", name === "learn" && !sheetEl.hidden && turnsView.length > 0);
+      if (navHomeBtn) navHomeBtn.classList.toggle("selected", name === "home");
+      if (navNotesBtn) navNotesBtn.classList.toggle("selected", name === "notes");
+      if (name === "notes") {
+        renderNotesList();
+        if (notesEyebrow) {
+          notesEyebrow.textContent = currentStem
+            ? `${friendlyTitle({ stem: currentStem, name: loadedAudioName })} / 學習筆記`
+            : "學習筆記";
+        }
+      }
+      if (name === "home") renderHome();
+    }
+
+    function setImportSource(source) {
+      importSource = source === "file" ? "file" : "youtube";
+      if (importTabYoutube) importTabYoutube.classList.toggle("selected", importSource === "youtube");
+      if (importTabFile) importTabFile.classList.toggle("selected", importSource === "file");
+      if (importYoutubeForm) importYoutubeForm.hidden = importSource !== "youtube";
+      if (importFileForm) importFileForm.hidden = importSource !== "file";
+    }
+
+    function openImportPage(source) {
+      setImportSource(source || "youtube");
+      if (importPageTitle) importPageTitle.textContent = busy ? "正在準備你的教材" : "新增一本教材";
+      if (importPageLead) importPageLead.hidden = Boolean(busy);
+      if (importFormWrap) importFormWrap.hidden = Boolean(busy);
+      showPage("import");
+      if (!busy && importSource === "youtube" && youtubeUrl) {
+        setTimeout(() => youtubeUrl.focus(), 50);
+      }
+    }
+
+    function renderHomeHero(files) {
+      if (!homeHero) return;
+      const lastName = lastLessonName();
+      const last = files.find((f) => f.name === lastName) || files.find((f) => f.selected) || files.find((f) => f.has_transcript);
+      const demo = files.find(isDemoFile);
+      if (last && last.has_transcript) {
+        homeHero.innerHTML = `
+          <div>
+            <div class="eyebrow">繼續上次的教材</div>
+            <h1>${escapeHtml(friendlyTitle(last))}</h1>
+            <p>把錄音變成可以查詞、重聽的雙語教材。從上次停下的地方接著聽。</p>
+            <button class="primary" type="button" data-open-lesson="${escapeHtml(last.name)}">▶ 繼續聽</button>
+          </div>
+          <div class="art">${HOME_ART}<span class="art-caption">聽一句 · 查一詞 · 留下自己的筆記</span></div>`;
+      } else {
+        homeHero.innerHTML = `
+          <div>
+            <div class="eyebrow">你的生活，就是最好的英文教材</div>
+            <h1>聽不懂的英文，<br>一起慢慢聽懂。</h1>
+            <p>把錄音變成可以查詞、重聽的雙語教材。<br>還沒準備好錄音？先從一小段故事開始。</p>
+            <button class="primary" type="button" id="heroDemoBtn">▶ 試聽一段故事</button>
+            <p style="font-size:12px;margin:12px 0 0">內建伊索寓言 · 約 1 分鐘 · 不需自己匯入</p>
+          </div>
+          <div class="art">${HOME_ART}<span class="art-caption">聽一句 · 查一詞 · 留下自己的筆記</span></div>`;
+      }
+      const demoBtn = homeHero.querySelector("#heroDemoBtn");
+      if (demoBtn) demoBtn.addEventListener("click", () => openDemoLesson());
+      homeHero.querySelectorAll("[data-open-lesson]").forEach((btn) => {
+        btn.addEventListener("click", () => openLessonByName(btn.getAttribute("data-open-lesson")));
+      });
+      if (homeLibraryTileCopy) {
+        if (demo) homeLibraryTileCopy.innerHTML = "燒炭工與漂洗工<br>內建試用教材 · 伊索寓言";
+        else if (files.length) homeLibraryTileCopy.innerHTML = `已有 ${files.length} 本教材<br>點卡片就能開始跟讀。`;
+        else homeLibraryTileCopy.innerHTML = "還沒有教材<br>可先試聽內建故事。";
+      }
+    }
+
+    function renderHomeLibrary(files) {
+      if (!homeLibrary) return;
+      const seen = new Set();
+      const unique = [];
+      files.forEach((f) => {
+        const key = f.stem || displayAudioName(f.name);
+        if (seen.has(key)) return;
+        seen.add(key);
+        unique.push(f);
+      });
+      homeLibrary.innerHTML = "";
+      if (homeLibraryCount) homeLibraryCount.textContent = unique.length ? `${unique.length} 本` : "";
+      if (!unique.length) {
+        homeLibrary.innerHTML = `<p class="muted">還沒有教材。可以先試聽故事，或匯入自己的錄音。</p>`;
+        return;
+      }
+      unique.forEach((f) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "lesson-card";
+        const demo = isDemoFile(f);
+        btn.innerHTML = `
+          <div class="bookcover${demo ? " demo" : ""}">${demo ? "The Aesop stories." : "Everyday English."}</div>
+          <div class="bookcontent">
+            <h3>${escapeHtml(friendlyTitle(f))}</h3>
+            <p>${demo ? "內建故事" : "本機教材"}${f.has_transcript ? "" : " · 尚未完成文稿"}</p>
+            <span class="textbtn">${f.has_transcript ? "打開練習 →" : "打開並整理 →"}</span>
+          </div>`;
+        btn.addEventListener("click", () => openLessonByName(f.name));
+        homeLibrary.appendChild(btn);
+      });
+    }
+
+    function renderHome() {
+      renderHomeHero(libraryFiles);
+      renderHomeLibrary(libraryFiles);
+    }
+
+    async function openLessonByName(name) {
+      if (!name) return;
+      if (busy) return showToastBusy();
+      if (audioSelect.value !== name) {
+        audioSelect.value = name;
+        updateFileActionButtons();
+      }
+      pendingLearnAfterLoad = true;
+      await loadSelectedAudio();
+    }
+
+    async function openDemoLesson() {
+      if (busy) return showToastBusy();
+      pendingLearnAfterLoad = true;
+      try {
+        const res = await fetch("/api/demo/open", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "無法打開試用教材");
+          pendingLearnAfterLoad = false;
+          return;
+        }
+        if (data.started_job) {
+          updateLogUI(data.job || { status: "running", logs: [], message: data.message });
+          openImportPage("youtube");
+          startJobPolling();
+          return;
+        }
+        await loadCurrentSession();
+        showPage("learn");
+        setTimeout(() => maybeStartLessonTour(), 400);
+      } catch (err) {
+        pendingLearnAfterLoad = false;
+        alert("無法打開試用教材：" + (err.message || err));
+      }
+    }
+
+    function openFixModal(turnIdx) {
+      if (turnIdx == null || turnIdx < 0) return;
+      selectTurn(turnIdx, { armSeek: false });
+      const turn = turnsView.find((t) => t.turnIdx === turnIdx);
+      if (fixModalSummary) {
+        fixModalSummary.innerHTML = `${escapeHtml((turn && turn.textEn) || "")}<br>${turn ? fmt(turn.start) : ""} 起`;
+      }
+      if (fixModalRestore) fixModalRestore.disabled = !hasRangeBackup;
+      if (fixModal) {
+        fixModal.classList.add("visible");
+        fixModal.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function closeFixModal() {
+      if (!fixModal) return;
+      fixModal.classList.remove("visible");
+      fixModal.setAttribute("aria-hidden", "true");
+    }
+
+    async function replayTurn(turnIdx) {
+      const turn = turnsView.find((t) => t.turnIdx === turnIdx);
+      if (!turn) return;
+      selectTurn(turnIdx, { armSeek: false });
+      if (loopNoteToggle && loopNoteToggle.checked) {
+        loopRange = { start: Number(turn.start) || 0, end: Math.max(Number(turn.end) || 0, (Number(turn.start) || 0) + 0.25) };
+      } else {
+        loopRange = null;
+      }
+      seekOnNextPlay = false;
+      showPage("learn");
+      seekTo(Number(turn.start) || 0, { autoPlay: true });
+    }
+
+    async function saveTurnSentence(turnIdx) {
+      selectTurn(turnIdx, { armSeek: false });
+      const turn = turnsView.find((t) => t.turnIdx === turnIdx);
+      if (!turn) return;
+      const payload = {
+        stem: currentStem,
+        word: "",
+        text_en: turn.textEn || "",
+        text_zh: turn.textZh || "",
+        start: turn.start,
+        end: turn.end,
+        source: "current-sentence",
+      };
+      if (!payload.text_en) {
+        alert("這一段沒有英文文稿。");
+        return;
+      }
+      await persistNote(payload);
+      render(turnsView);
+      if (selectedTurnIdx >= 0) selectTurn(selectedTurnIdx, { armSeek: false });
+    }
+
+    function noteSavedForTurn(turn) {
+      if (!turn || !notes.length) return false;
+      const en = (turn.textEn || "").trim();
+      return notes.some((n) => (n.text_en || "").trim() === en);
+    }
+
     function displayAudioName(name) {
       if (!name) return "";
       if (name.endsWith(".work.wav")) return name.slice(0, -".work.wav".length);
@@ -1946,15 +2108,24 @@
     function setBusy(on, reason) {
       busy = on;
       importBtn.textContent = on ? "處理中…" : "匯入 ▾";
+      if (navImportBtn) navImportBtn.textContent = on ? "處理中…" : "＋ 新增教材";
       if (!on) closeImportMenu();
       if (on && typeof closeLoadMenu === "function") closeLoadMenu();
+      if (typeof closeHelpMenu === "function") closeHelpMenu();
       updateFileActionButtons();
       if (on && reason) metaEl.textContent = reason;
       if (on) {
         if (welcomeCard) welcomeCard.hidden = true;
         if (onboardingStep >= 0) closeOnboarding(false);
+        if (importPageTitle) importPageTitle.textContent = "正在準備你的教材";
+        if (importPageLead) importPageLead.hidden = true;
+        if (importFormWrap) importFormWrap.hidden = true;
+        if (currentPage !== "learn") showPage("import");
       } else if (sheetEl.hidden && !statusEl.classList.contains("error")) {
         updateWelcomeCard(true);
+        if (importPageTitle) importPageTitle.textContent = "新增一本教材";
+        if (importPageLead) importPageLead.hidden = false;
+        if (importFormWrap) importFormWrap.hidden = false;
       }
     }
 
@@ -1964,9 +2135,30 @@
       importBtn.setAttribute("aria-expanded", "false");
     }
 
+    function closeHelpMenu() {
+      if (!helpMenu) return;
+      helpMenu.classList.remove("visible");
+      if (helpBtn) helpBtn.setAttribute("aria-expanded", "false");
+    }
+
+    function hasOpenTranscript() {
+      return currentPage === "learn" && !sheetEl.hidden && turnsView.length > 0;
+    }
+
+    function toggleHelpMenu() {
+      if (!helpMenu) return;
+      closeImportMenu();
+      closeLoadMenu();
+      const open = !helpMenu.classList.contains("visible");
+      helpMenu.classList.toggle("visible", open);
+      helpBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (helpLessonTourBtn) helpLessonTourBtn.disabled = !hasOpenTranscript();
+    }
+
     function toggleImportMenu() {
       if (!importMenu || busy) return;
       closeLoadMenu();
+      closeHelpMenu();
       const open = !importMenu.classList.contains("visible");
       importMenu.classList.toggle("visible", open);
       importBtn.setAttribute("aria-expanded", open ? "true" : "false");
@@ -1976,14 +2168,17 @@
       if (!loadMenu) return;
       loadMenu.classList.remove("visible");
       if (loadMenuBtn) loadMenuBtn.setAttribute("aria-expanded", "false");
+      if (manageLessonBtn) manageLessonBtn.setAttribute("aria-expanded", "false");
     }
 
     function toggleLoadMenu() {
-      if (!loadMenu || busy || loadMenuBtn.disabled) return;
+      if (!loadMenu || busy) return;
       closeImportMenu();
+      closeHelpMenu();
       const open = !loadMenu.classList.contains("visible");
       loadMenu.classList.toggle("visible", open);
-      loadMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (loadMenuBtn) loadMenuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (manageLessonBtn) manageLessonBtn.setAttribute("aria-expanded", open ? "true" : "false");
     }
 
     function formatDuration(sec) {
@@ -2027,21 +2222,20 @@
 
     function openYoutubeModal() {
       closeImportMenu();
-      youtubeUrl.value = "";
-      youtubeStem.value = "";
+      if (!youtubeUrl.value) youtubeUrl.value = "";
+      if (!youtubeStem.value) youtubeStem.value = "";
       youtubeMode.value = "auto";
       youtubeSkipTranslate.checked = false;
       youtubeAlignTimings.checked = true;
-      youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
+      if (youtubeProbeHint && !youtubeUrl.value.trim()) youtubeProbeHint.textContent = "貼上連結後可預覽影片資訊";
       if (youtubeAdvanced) youtubeAdvanced.open = isAdvancedMode();
-      youtubeModal.classList.add("visible");
-      youtubeModal.setAttribute("aria-hidden", "false");
-      youtubeUrl.focus();
+      openImportPage("youtube");
     }
 
     function closeYoutubeModal() {
       youtubeModal.classList.remove("visible");
       youtubeModal.setAttribute("aria-hidden", "true");
+      if (currentPage === "import" && !busy) showPage("home");
     }
 
     async function submitYoutubeImport() {
@@ -2056,7 +2250,7 @@
       const mode = youtubeMode.value;
       const skipTranslate = youtubeSkipTranslate.checked;
       const alignTimings = youtubeAlignTimings.checked;
-      closeYoutubeModal();
+      youtubeModal.classList.remove("visible");
 
       const label = stem || url;
       setBusy(true, `匯入 YouTube：${label}`);
@@ -2256,18 +2450,19 @@
       audio.pause();
       audio.removeAttribute("src");
       audio.load();
-      playBtn.textContent = "播放";
+      setPlayButton(false);
       tokens = [];
       turnsView = [];
       transcriptEl.innerHTML = "";
       sheetEl.hidden = true;
       statusEl.hidden = false;
       statusEl.classList.remove("error");
-      const msg = message || "尚未打開教材。請用「匯入」新增，或從上方選一本教材後按「打開」。";
+      const msg = message || "尚未打開教材。請回首頁選一本，或新增教材。";
       if (statusMessage) statusMessage.textContent = msg;
       else statusEl.textContent = msg;
       updateWelcomeCard(true);
       metaEl.textContent = "還沒有打開的教材";
+      document.body.classList.remove("has-lesson");
       titleEl.textContent = "文稿";
       seek.value = "0";
       seek.max = "0";
@@ -2521,6 +2716,30 @@
           zhEl.textContent = turn.textZh;
           turnEl.appendChild(zhEl);
         }
+        const actions = document.createElement("div");
+        actions.className = "sentence-actions";
+        const saved = noteSavedForTurn(turn);
+        actions.innerHTML = `
+          <button class="sentence-action" type="button" data-action="listen">↻ 重聽這段</button>
+          <button class="sentence-action${saved ? " saved" : ""}" type="button" data-action="save">${saved ? "✓ 已收藏" : "＋ 收藏這句"}</button>
+          <button class="sentence-action" type="button" data-action="fix">文字有誤？</button>
+        `;
+        actions.querySelector('[data-action="listen"]').addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          replayTurn(turn.turnIdx);
+        });
+        actions.querySelector('[data-action="save"]').addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          saveTurnSentence(turn.turnIdx);
+        });
+        actions.querySelector('[data-action="fix"]').addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openFixModal(turn.turnIdx);
+        });
+        turnEl.appendChild(actions);
         turnEl.addEventListener("click", (e) => {
           // Don't steal a drag-selection inside the transcript.
           const sel = window.getSelection();
@@ -2557,11 +2776,13 @@
       const now = performance.now();
       if (now < scrollLockUntil) return;
 
-      const topbar = document.querySelector(".topbar");
+      const topbar = document.querySelector(".top");
+      const playerEl = document.getElementById("playbackControls");
       const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
+      const playerH = playerEl && getComputedStyle(playerEl).display !== "none" ? playerEl.getBoundingClientRect().height : 0;
       const margin = 56;
       const safeTop = Math.max(topbarBottom, 0) + margin;
-      const safeBottom = window.innerHeight - margin;
+      const safeBottom = window.innerHeight - playerH - 16;
       const rect = el.getBoundingClientRect();
 
       // Still comfortably inside the browser reading area — no scroll.
@@ -2629,7 +2850,7 @@
       if (autoPlay) {
         if (audio.paused) {
           audio.play().then(startClock).catch(() => {});
-          playBtn.textContent = "暫停";
+          setPlayButton(true);
         } else {
           startClock();
         }
@@ -2653,11 +2874,11 @@
           seekOnNextPlay = false;
         }
         await audio.play();
-        playBtn.textContent = "暫停";
+        setPlayButton(true);
         startClock();
       } else {
         audio.pause();
-        playBtn.textContent = "播放";
+        setPlayButton(false);
         stopClock();
       }
     });
@@ -2694,13 +2915,13 @@
       durTime.textContent = fmt(audio.duration || 0);
       applyPlaybackSpeed();
     });
-    audio.addEventListener("play", () => { playBtn.textContent = "暫停"; startClock(); });
+    audio.addEventListener("play", () => { setPlayButton(true); startClock(); });
     audio.addEventListener("pause", () => {
-      playBtn.textContent = "播放";
+      setPlayButton(false);
       stopClock();
       updateHighlight(audio.currentTime);
     });
-    audio.addEventListener("ended", () => { playBtn.textContent = "播放"; stopClock(); });
+    audio.addEventListener("ended", () => { setPlayButton(false); stopClock(); });
     audio.addEventListener("timeupdate", () => {
       if (!seeking && audio.paused) {
         seek.value = String(audio.currentTime);
@@ -2715,10 +2936,11 @@
       if (e.target.matches("input, textarea, select")) return;
       if (confirmModal.classList.contains("visible") || noteModal.classList.contains("visible")) return;
       if (e.code === "Space") {
+        if (currentPage !== "learn") return;
         e.preventDefault();
         playBtn.click();
-      } else if (e.code === "ArrowLeft") seekTo(audio.currentTime - 5, { autoPlay: false });
-      else if (e.code === "ArrowRight") seekTo(audio.currentTime + 5, { autoPlay: false });
+      } else if (currentPage === "learn" && e.code === "ArrowLeft") seekTo(audio.currentTime - 5, { autoPlay: false });
+      else if (currentPage === "learn" && e.code === "ArrowRight") seekTo(audio.currentTime + 5, { autoPlay: false });
     });
 
     function hideLogPanel() {
@@ -2765,7 +2987,9 @@
         });
       }
       suppressSelectChange = false;
+      libraryFiles = files.slice();
       updateFileActionButtons();
+      if (currentPage === "home") renderHome();
     }
 
     function showNotesToast(message) {
@@ -2782,7 +3006,7 @@
         return;
       }
       if (!notes.length) {
-        notesList.innerHTML = `<div class="notes-empty">尚無筆記。按「收藏這句」，或拖選英文松手即可。</div>`;
+        notesList.innerHTML = `<div class="notes-empty">尚無筆記。在文稿段落旁按「收藏這句」，或拖選英文松手即可。</div>`;
         return;
       }
       notes.forEach((n) => {
@@ -2847,6 +3071,18 @@
           zhEl.className = "note-zh";
           zhEl.textContent = n.text_zh;
           card.appendChild(zhEl);
+        }
+        if (n.start != null) {
+          const replay = document.createElement("button");
+          replay.type = "button";
+          replay.className = "textbtn";
+          replay.textContent = "▶ 回到這段";
+          replay.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            playNote(n);
+          });
+          card.appendChild(replay);
         }
 
         card.addEventListener("click", (e) => {
@@ -3399,6 +3635,7 @@
         loopRange = null;
       }
       seekOnNextPlay = false;
+      showPage("learn");
       seekTo(start, { autoPlay: true });
     }
 
@@ -3546,7 +3783,7 @@
       loopRange = null;
       stopClock();
       audio.pause();
-      playBtn.textContent = "播放";
+      setPlayButton(false);
 
       const meta = await fetch("/api/meta?t=" + Date.now()).then((r) => r.json());
       if (!meta.has_transcript || !meta.has_audio) {
@@ -3565,7 +3802,7 @@
       tokens = built.flat;
       render(turnsView);
       audio.src = meta.audio_url + "?t=" + Date.now();
-      titleEl.textContent = meta.title;
+      titleEl.textContent = friendlyTitle({ stem: meta.stem, name: meta.audio_name || meta.title }) || meta.title;
       if (isAdvancedMode()) {
         metaEl.textContent = `${meta.transcript_name}  ·  ${meta.audio_name}  ·  ${tokens.length} 詞同步`;
       } else {
@@ -3585,8 +3822,14 @@
       updateLearningFixBar();
       await refreshLibrary(meta.audio_name);
       loadedAudioName = meta.audio_name || "";
+      rememberLastLesson(loadedAudioName);
       await loadNotes(meta.stem || displayAudioName(meta.audio_name) || meta.title);
       updateFileActionButtons();
+      document.body.classList.toggle("has-lesson", currentPage === "learn");
+      if (pendingLearnAfterLoad || currentPage === "learn") {
+        pendingLearnAfterLoad = false;
+        showPage("learn");
+      }
       if (!isAdvancedMode() && (!audio.duration || !isFinite(audio.duration))) {
         audio.addEventListener(
           "loadedmetadata",
@@ -3623,9 +3866,11 @@
           setBusy(false);
           if (job.status === "done") {
             hideLogPanel();
+            pendingLearnAfterLoad = true;
             await loadCurrentSession();
             metaEl.textContent = (metaEl.textContent || "") + "（已自動載入）";
-            setTimeout(() => maybeStartOnboarding(), 500);
+            showPage("learn");
+            setTimeout(() => maybeStartLessonTour(), 500);
           } else if (job.status === "error") {
             setStatusError(job.message || "處理失敗");
             await refreshLibrary();
@@ -3663,16 +3908,19 @@
         if (group && !group.contains(e.target)) closeImportMenu();
       }
       if (loadMenu && loadMenu.classList.contains("visible")) {
-        if (loadGroup && !loadGroup.contains(e.target)) closeLoadMenu();
+        const host = manageGroup || loadGroup;
+        if (host && !host.contains(e.target)) closeLoadMenu();
+      }
+      if (helpMenu && helpMenu.classList.contains("visible")) {
+        if (helpGroup && !helpGroup.contains(e.target)) closeHelpMenu();
       }
     });
 
     function openImportModal(file) {
       pendingImportFile = file;
-      importModalFile.textContent = `檔案：${file.name}`;
+      if (importModalFile) importModalFile.textContent = `檔案：${file.name}`;
       importStem.value = displayAudioName(file.name);
-      importModal.classList.add("visible");
-      importModal.setAttribute("aria-hidden", "false");
+      openImportPage("file");
       importStem.focus();
       importStem.select();
     }
@@ -3681,6 +3929,7 @@
       importModal.classList.remove("visible");
       importModal.setAttribute("aria-hidden", "true");
       pendingImportFile = null;
+      if (currentPage === "import" && !busy) showPage("home");
     }
 
     async function uploadPendingImport() {
@@ -3689,7 +3938,7 @@
       if (busy) return showToastBusy();
 
       const stem = importStem.value.trim();
-      closeImportModal();
+      importModal.classList.remove("visible");
 
       const fd = new FormData();
       fd.append("file", file, file.name);
@@ -4023,6 +4272,16 @@
         closeOnboarding(true);
         return;
       }
+      if (helpMenu && helpMenu.classList.contains("visible")) {
+        e.preventDefault();
+        closeHelpMenu();
+        return;
+      }
+      if (fixModal && fixModal.classList.contains("visible")) {
+        e.preventDefault();
+        closeFixModal();
+        return;
+      }
       if (confirmModal.classList.contains("visible")) {
         e.preventDefault();
         closeConfirmModal(false);
@@ -4041,16 +4300,32 @@
       }
     });
 
-    helpBtn.addEventListener("click", () => {
-      // 已打開文稿時，？優先重播「文稿說明」；否則播整體新手導引。
-      if (!sheetEl.hidden && turnsView.length) {
-        openLessonTour({ force: true });
-      } else {
+    helpBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // 無教材時直接播整體導引；已開教材時改為選單，避免只能看到文稿說明。
+      if (!hasOpenTranscript()) {
+        closeHelpMenu();
         openOnboarding({ force: true });
+        return;
       }
+      toggleHelpMenu();
     });
+    if (helpAppTourBtn) {
+      helpAppTourBtn.addEventListener("click", () => {
+        closeHelpMenu();
+        openOnboarding({ force: true });
+      });
+    }
+    if (helpLessonTourBtn) {
+      helpLessonTourBtn.addEventListener("click", () => {
+        if (!hasOpenTranscript()) return;
+        closeHelpMenu();
+        openLessonTour({ force: true });
+      });
+    }
     if (sheetHelpBtn) {
       sheetHelpBtn.addEventListener("click", () => {
+        closeHelpMenu();
         openLessonTour({ force: true });
       });
     }
@@ -4207,15 +4482,76 @@
           startJobPolling();
         }
         await loadCurrentSession();
-        if (!busy && job.status !== "running") {
-          setTimeout(() => maybeStartOnboarding(), 450);
+        if (job.status === "running" || busy) {
+          showPage("import");
+        } else {
+          showPage("home");
         }
       } catch (err) {
         setStatusError(`載入失敗：${err.message || err}`);
+        showPage("home");
       }
     }
 
+
+    if (brandHomeBtn) brandHomeBtn.addEventListener("click", () => showPage("home"));
+    if (navHomeBtn) navHomeBtn.addEventListener("click", () => showPage("home"));
+    if (navNotesBtn) navNotesBtn.addEventListener("click", () => showPage("notes"));
+    if (navImportBtn) navImportBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      openImportPage("youtube");
+    });
+    if (backHomeBtn) backHomeBtn.addEventListener("click", () => showPage("home"));
+    if (backFromNotesBtn) backFromNotesBtn.addEventListener("click", () => {
+      showPage(turnsView.length ? "learn" : "home");
+    });
+    if (importBackBtn) importBackBtn.addEventListener("click", () => {
+      if (busy) return showToastBusy();
+      showPage("home");
+    });
+    if (openNotesFromLearnBtn) openNotesFromLearnBtn.addEventListener("click", () => showPage("notes"));
+    if (toggleZhBtn) toggleZhBtn.addEventListener("click", () => {
+      hideZh = !hideZh;
+      document.body.classList.toggle("hide-zh", hideZh);
+      toggleZhBtn.textContent = hideZh ? "顯示中文" : "隱藏中文";
+    });
+    if (manageLessonBtn) manageLessonBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (busy) return showToastBusy();
+      if (!audioSelect.value) {
+        alert("請先打開一本教材。");
+        return;
+      }
+      toggleLoadMenu();
+    });
+    const homeFileTile = document.getElementById("homeFileTile");
+    const homeYoutubeTile = document.getElementById("homeYoutubeTile");
+    const homeLibraryTile = document.getElementById("homeLibraryTile");
+    if (homeFileTile) homeFileTile.addEventListener("click", () => openImportPage("file"));
+    if (homeYoutubeTile) homeYoutubeTile.addEventListener("click", () => openYoutubeModal());
+    if (homeLibraryTile) homeLibraryTile.addEventListener("click", () => {
+      const el = document.getElementById("homeLibraryHead");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    if (importTabYoutube) importTabYoutube.addEventListener("click", () => setImportSource("youtube"));
+    if (importTabFile) importTabFile.addEventListener("click", () => setImportSource("file"));
+    if (importPickFileBtn) importPickFileBtn.addEventListener("click", () => importInput.click());
+    if (fixModalRun) fixModalRun.addEventListener("click", async () => {
+      closeFixModal();
+      if (selectedTurnIdx < 0) return;
+      markRangeFromSelectedTurn();
+      await runRetranscribeRange();
+    });
+    if (fixModalRestore) fixModalRestore.addEventListener("click", () => {
+      closeFixModal();
+      restoreRetranscribeRange();
+    });
+    if (fixModal) fixModal.addEventListener("click", (e) => {
+      if (e.target === fixModal) closeFixModal();
+    });
+
     initUiMode();
+    setPlayButton(false);
     boot();
   </script>
 </body>
