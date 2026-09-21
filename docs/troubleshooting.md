@@ -84,6 +84,18 @@ Hard-refresh the browser after changing code or transcript files.
 
 The app is expected to reopen the existing page instead of starting a second server.
 
+### Cannot find export, rename, or partial re-transcription
+
+Those controls are hidden in **learning mode**. Turn on **Advanced** next to the title.
+
+### Onboarding does not appear / want to see it again
+
+Click **?** in the top right. With a transcript open it shows the lesson tour; otherwise it shows the app tour. **文稿說明** on the sheet does the same for the lesson.
+
+### Demo lesson is missing
+
+The Aesop demo is copied into Documents study data once. Opening it from the welcome card can restore it if you deleted the files. Source checkouts need the `demo/` folder next to `serve_player.py`.
+
 ## YouTube import
 
 ### yt-dlp not found

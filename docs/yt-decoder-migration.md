@@ -1,7 +1,7 @@
 # yt-decoder 遷移說明
 
 > **已完成（2026-09）**：YouTube 匯入已內建於英聽君；[caculus/yt-decoder](https://github.com/caculus/yt-decoder) **已 Archive**。  
-> 請安裝 [最新版英聽君](https://github.com/caculus/yingtingjun/releases/latest)，在播放器使用 **匯入 ▾ → YouTube…**。  
+> 請安裝 [最新版英聽君](https://github.com/caculus/yingtingjun/releases/latest)，在播放器使用 **匯入 ▾ → YouTube…**（有中文字幕時優先採用）。  
 > 維護入口：`yingtingjun/yt_decoder/`（單一 repo）。
 
 ## 完成紀錄

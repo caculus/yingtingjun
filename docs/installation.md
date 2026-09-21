@@ -47,6 +47,14 @@ xattr -cr /Applications/Yingtingjun.app
 - First launch downloads standalone Python, ffmpeg when needed, packages, ECDICT, and ECAPA
 - The browser then opens `http://127.0.0.1:8765/`
 
+## First launch in the player
+
+The welcome card can open the bundled **demo lesson** (Aesop public-domain fable), start from YouTube, import a local recording, or play the onboarding tour. Click **?** in the top right to replay the tour later.
+
+The player defaults to **learning mode** (engineering controls hidden). Turn on **Advanced** next to the title for partial re-transcription, rename, export, and CSV notes export.
+
+The demo is copied into Documents study data once. If you delete it, the app will not recreate it unless you ask again from the welcome card (force open).
+
 ## Data location and uninstall
 
 All three slim installers keep **study files** in Documents and **runtime files** (Python, models, ffmpeg) elsewhere.

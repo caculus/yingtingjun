@@ -7,7 +7,10 @@
 - `transcribe.py`：主要轉寫流程
 - `serve_player.py`：本機網頁播放器伺服器
 - `yt_decoder/`：YouTube 匯入（probe、字幕快徑、中文字幕、Whisper 時間對齊）
-- `player/index.html`：瀏覽器 UI
+- `export_transcript.py`：雙語文稿匯出（txt／md／html）
+- `demo_seed.py`：把內建 Aesop 試用教材複製到學習目錄（只做一次）
+- `demo/`：公版試用音檔、文稿與 `NOTICE.txt`
+- `player/index.html`：瀏覽器 UI（學習模式、新手導引、播放器）
 - `platform_runtime.py`：跨平台執行階段契約
 - `asr_backend.py`：MLX / faster-whisper 選擇
 - `audio_convert.py`：音訊轉檔流程
@@ -90,7 +93,10 @@ Windows 請沿用現有 venv 流程，並維持 `requirements-windows.txt` 的�
 - YouTube 匯入與本機錄音匯入共用同一個 job 鎖；API 為 `/api/youtube/probe` 與 `/api/youtube/import`
 - YouTube 匯入在覆蓋率足夠時優先用中文字幕，否則才走本機 NLLB
 - 字幕匯入預設會做 Whisper 光棒時間對齊（`align_timings`）
-- 文稿匯出為 `GET /api/export`（txt／md／html；多格式 zip）
+- 文稿匯出為 `GET /api/export`（txt／md／html；多格式 zip）。介面上在 **進階** → **打開 ▾ → 匯出**
+- 播放器預設學習模式（`localStorage` 鍵 `ytj_ui_mode`）；**進階** 才顯示局部重辨、重新命名、匯出與 CSV
+- 第一次啟動會跑新手導引；**？** 可重播整體導引，已打開文稿時改播文稿說明
+- 內建試用教材由 `demo_seed.py`／`POST /api/demo/open` 種一次。使用者刪掉後不會自動再種，除非 `force`
 - 播放速度可選 0.5×、0.75×、1.0×（預設）、1.25×、1.5× 或 2.0×；同一工作階段內切換錄音時會維持目前速度
 
 ## 發佈前優先事項

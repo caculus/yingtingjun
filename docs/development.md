@@ -7,7 +7,10 @@
 - `transcribe.py`: main transcription pipeline
 - `serve_player.py`: local web app server
 - `yt_decoder/`: YouTube import (probe, caption fast path, Chinese captions, Whisper timing alignment)
-- `player/index.html`: browser UI
+- `export_transcript.py`: bilingual transcript export (txt / md / html)
+- `demo_seed.py`: copy the bundled Aesop demo into study folders once
+- `demo/`: public-domain demo audio, transcript, and `NOTICE.txt`
+- `player/index.html`: browser UI (learning mode, onboarding, player)
 - `platform_runtime.py`: cross-platform runtime contract
 - `asr_backend.py`: MLX / faster-whisper selection
 - `audio_convert.py`: audio conversion pipeline
@@ -90,7 +93,10 @@ Launchers honor `YTJ_DATA` and `YTJ_DOCUMENTS`. Uninstall deletes runtime only. 
 - YouTube and local imports share one job lock; APIs are `/api/youtube/probe` and `/api/youtube/import`
 - YouTube import prefers Chinese captions when coverage is high enough, otherwise falls back to local NLLB
 - Caption import aligns highlight timings with Whisper by default (`align_timings`)
-- Transcript export is `GET /api/export` (txt / md / html; multi-format zip)
+- Transcript export is `GET /api/export` (txt / md / html; multi-format zip). In the UI this lives under **Advanced** → **Open ▾ → Export**
+- The player defaults to learning mode (`localStorage` key `ytj_ui_mode`); **Advanced** reveals partial re-transcription, rename, export, and CSV
+- Onboarding tours run on first launch; **?** replays the app tour or the lesson tour when a transcript is open
+- The bundled demo is seeded once via `demo_seed.py` / `POST /api/demo/open`. After the user deletes it, it is not recreated unless `force` is set
 - Playback speed can be set to 0.5×, 0.75×, 1.0× (default), 1.25×, 1.5×, or 2.0×; the choice persists while switching recordings in the same session
 
 ## Release-Facing Priorities

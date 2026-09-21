@@ -8,9 +8,10 @@ Yingtingjun is a local-first listening tool for macOS, Windows, and Linux. Bring
 
 ## How It Works
 
-1. Import any real English conversation recording, or paste a YouTube URL via **Import → YouTube** in the player.
-2. Detect English, transcribe, and translate locally (YouTube videos prefer Chinese captions when available; English captions can use a faster caption path).
-3. Review in the browser player while replaying, shadowing, taking notes, and fixing bad segments.
+1. On first launch, a welcome card lets you open the bundled demo lesson, start from YouTube, or import a local recording.
+2. Import any real English conversation recording, or paste a YouTube URL via **Import → YouTube** in the player.
+3. Detect English, transcribe, and translate locally (YouTube videos prefer Chinese captions when available; English captions can use a faster caption path).
+4. Review in **learning mode** while replaying, shadowing, taking notes, and looking up words. Turn on **Advanced** for partial re-transcription or export.
 
 ## Why It Feels Different
 
@@ -18,13 +19,13 @@ Most listening tools are built around generic content. Yingtingjun is for the En
 
 - Your files stay on your computer. Packaged installs keep transcripts and notes in `Documents/Yingtingjun/data/`.
 - The output is designed for repeated listening, not just transcription.
-- The browser player supports notes, dictionary lookup, and partial re-transcription.
+- The player defaults to learning mode, with an onboarding tour and a public-domain demo lesson.
 
 ## Product View
 
 ![Yingtingjun browser player screenshot](docs/assets/player-screenshot.png)
 
-Browser player with bilingual transcript, speaker turns, notes, and click-to-lookup dictionary.
+Browser player with bilingual transcript, speaker turns, notes, and click-to-lookup dictionary. Learning mode is the default.
 
 ## Platforms
 
@@ -46,7 +47,7 @@ Slim installers are available for all three platforms from the [latest GitHub Re
 - Bundled public-domain **demo lesson** (Aesop) that opens on first launch
 - Click-to-lookup dictionary with local ECDICT first
 - Per-recording notes with CSV export
-- **Export bilingual transcript** as `.txt` / `.md` / `.html` from the player (**Load ▾ → Export**; optional speakers / timestamps)
+- **Export bilingual transcript** as `.txt` / `.md` / `.html` (turn on **Advanced**, then **Open ▾ → Export**; optional speakers / timestamps)
 - Partial re-transcription for only the problematic range
 
 ## Quick Start
@@ -57,6 +58,16 @@ Use the installer that matches your platform if you are a normal user. If you ar
 - [Development](docs/development.md) / [開發說明](docs/development.zh-TW.md)
 - [Troubleshooting](docs/troubleshooting.md) / [疑難排解](docs/troubleshooting.zh-TW.md)
 - [Contributing](CONTRIBUTING.md) / [如何參與](CONTRIBUTING.zh-TW.md)
+
+### First launch
+
+After install, the browser opens `http://127.0.0.1:8765/`. The welcome card can:
+
+- **Open the demo lesson** (Aesop public-domain fable; no transcription needed)
+- **Start from YouTube** or **import a recording**
+- **Show the tour** (later, click **?** in the top right to replay; with a transcript open it shows the lesson tour)
+
+Learning mode is the default (partial re-transcription, CSV export, and similar controls stay hidden). Turn on **Advanced** next to the title when you need them.
 
 ### YouTube import (optional)
 

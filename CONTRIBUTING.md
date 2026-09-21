@@ -13,7 +13,7 @@ You do not need to be a programmer to contribute. Bug reports, installer feedbac
 - Translate or polish player UI copy
 - Make the install flow clearer or more reliable
 - Add tests that do not require real ASR or translation models
-- Improve learning features such as notes, dictionary lookup, and partial re-transcription
+- Improve learning features such as notes, dictionary lookup, partial re-transcription, learning mode, and the onboarding tour
 
 Please do **not** commit personal recordings, transcripts, notes, or `HANDOFF.md`. Those stay local.
 
