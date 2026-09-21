@@ -1,5 +1,5 @@
 #define MyAppName "英聽君"
-#define MyAppVersion "1.2.2"
+#define MyAppVersion "1.2.3"
 #define MyAppPublisher "yingtingjun"
 #define DistDir "..\..\dist\Yingtingjun"
 
