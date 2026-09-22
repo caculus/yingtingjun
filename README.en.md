@@ -23,9 +23,13 @@ Most listening tools are built around generic content. Yingtingjun is for the En
 
 ## Product View
 
-![Yingtingjun browser player screenshot](docs/assets/player-screenshot.png)
+![Yingtingjun home](docs/assets/player-screenshot.png)
 
-Browser player with bilingual transcript, speaker turns, notes, and click-to-lookup dictionary. Learning mode is the default.
+The home screen lets you resume the last lesson, or start from a local recording or YouTube.
+
+![Yingtingjun learning page](docs/assets/player-learn.png)
+
+The learning page shows a bilingual transcript, speaker turns, and a shadowing player. Learning mode is the default; click a word for the dictionary. Notes live on their own page.
 
 ## Platforms
 

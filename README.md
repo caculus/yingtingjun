@@ -23,9 +23,13 @@
 
 ## 產品畫面
 
-![英聽君瀏覽器播放器截圖](docs/assets/player-screenshot.png)
+![英聽君首頁](docs/assets/player-screenshot.png)
 
-瀏覽器播放器可同步顯示雙語文稿、話者分段、學習筆記與點詞查詢。預設為學習模式。
+首頁可以繼續上次的教材，或從本機錄音、YouTube 開始。
+
+![英聽君學習頁](docs/assets/player-learn.png)
+
+學習頁同步顯示雙語文稿、話者分段與跟讀播放器。預設為學習模式；點詞可查詞典，筆記在獨立頁。
 
 ## 支援平台
 
