@@ -23,7 +23,7 @@ Most listening tools are built around generic content. Yingtingjun is for the En
 
 ## Product View
 
-![Yingtingjun home](docs/assets/player-screenshot.png)
+![Yingtingjun home](docs/assets/A-home.png)
 
 The home screen lets you resume the last lesson, or start from a local recording or YouTube.
 

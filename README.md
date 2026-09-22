@@ -23,7 +23,7 @@
 
 ## 產品畫面
 
-![英聽君首頁](docs/assets/player-screenshot.png)
+![英聽君首頁](docs/assets/A-home.png)
 
 首頁可以繼續上次的教材，或從本機錄音、YouTube 開始。
 
